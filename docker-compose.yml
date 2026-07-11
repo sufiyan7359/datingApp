@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: datingapp
+      POSTGRES_PASSWORD: datingapp
+      POSTGRES_DB: datingapp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  api:
+    build:
+      context: ./datingAppBackEnd
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      DATABASE_URL: postgresql://datingapp:datingapp@postgres:5432/datingapp?schema=public
+      REDIS_URL: redis://redis:6379
+      PORT: 8000
+      NODE_ENV: production
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:
+  redis_data:
