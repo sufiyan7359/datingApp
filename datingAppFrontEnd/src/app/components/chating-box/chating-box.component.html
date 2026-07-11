@@ -17,13 +17,13 @@
 <div class="row d-flex mt-4">
 
     
-    <div class="col-10">
+    <div class="col-9 col-md-10">
         <input class=" form-control" [(ngModel)]="value" (keyup.enter)="sendMessage()" type="text">
     </div>
-    
-    
-    <div class="col-2">
-        <button class="btn btn-danger" (click)="sendMessage()">Send</button>
+
+
+    <div class="col-3 col-md-2">
+        <button class="btn btn-danger w-100" (click)="sendMessage()">Send</button>
     </div>
     
 </div>

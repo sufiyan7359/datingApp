@@ -43,6 +43,14 @@ hr{
 .imgContent img{
     height: 160px !important;
     width: 320px !important;
+    max-width: 100%;
+}
+
+@media (max-width: 575px) {
+    .imgContent img {
+        width: 100% !important;
+        height: auto !important;
+    }
 }
 
 .imageSection img{

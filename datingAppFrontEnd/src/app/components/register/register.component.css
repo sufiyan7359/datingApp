@@ -74,5 +74,24 @@ background-position: center;
   transition: all 0.3s ease;
 }
 
+.paragraph {
+  max-width: 460px;
+  margin: 0 auto;
+}
 
+@media (max-width: 767px) {
+  .slide {
+    height: auto;
+    min-height: 350px;
+    background-position: center;
+  }
+
+  .form {
+    width: 100% !important;
+  }
+
+  .paragraph {
+    float: none !important;
+  }
+}
 

@@ -96,3 +96,32 @@ margin-top: 1.5% !important;
   .photoBox{
       height: 250px;
   }
+
+  @media (max-width: 767px) {
+    .profilFrame {
+      margin-top: -50px !important;
+      height: auto !important;
+      width: 95%;
+    }
+
+    .profilePictureIcon {
+      margin-left: 60%;
+      margin-top: 60%;
+    }
+
+    .coverPhoto {
+      height: 25vh;
+    }
+
+    .AboutSection p {
+      margin-top: 0;
+    }
+  }
+
+  @media (max-width: 575px) {
+    .photoBox {
+      height: 160px;
+      width: 45% !important;
+      flex: 0 0 45%;
+    }
+  }

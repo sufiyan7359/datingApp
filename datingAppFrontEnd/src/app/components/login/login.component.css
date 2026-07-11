@@ -95,6 +95,25 @@ background-position: center;
 }
 
 
-  .formDivhight{position: relative;
-    left: 175px;
-    top: 100px;}
+  .formDivhight{
+    position: relative;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 767px) {
+    .slide {
+      height: auto;
+      min-height: 350px;
+      background-position: center;
+    }
+
+    .form,
+    .divaa {
+      width: 100% !important;
+    }
+
+    .formDivhight {
+      top: 0;
+    }
+  }

@@ -10,10 +10,19 @@
 .footer ul {
     list-style: none;
     padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 .footer li {
-    display: inline;
-    margin: 0 15px;
+    margin: 4px 15px;
     padding: auto;
     cursor: pointer;
+}
+
+@media (max-width: 575px) {
+    .footer li {
+        margin: 4px 10px;
+        font-size: 0.9rem;
+    }
 }
