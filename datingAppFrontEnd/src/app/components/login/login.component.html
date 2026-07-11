@@ -1,0 +1,54 @@
+<div class="container slide">
+
+    <div class="row d-flex justify-content-center">
+
+
+        <div class="col-4 bg-warning imgBack" style="z-index: -999 !important;">
+        </div>
+
+
+
+        <div class="col-7 mt-5 p-5">
+            <div class="formDivhight">
+                <h3 class="textdanger">
+                    <b><u>Login</u></b>
+                </h3>
+                <form [formGroup]="loginForm">
+
+                    <div class="form mt-4 mb-3">
+                        <input type="email" formControlName="loginEmail" />
+                        <label class="label-name"> E-mail </label>
+                    </div>
+                    <span
+                        *ngIf="loginForm.get('loginEmail').getError('required')!=null && loginForm.get('loginEmail').touched "
+                        class="textdanger ">Email is required</span>
+                    <span
+                        *ngIf="loginForm.get('loginEmail').getError('email')!=null && loginForm.get('loginEmail').touched "
+                        class="textdanger ">Invalid Email formet</span>
+
+                    <div class="form mt-4 mb-3">
+                        <input type="{{ showPassword ? 'text' : 'password' }}" formControlName="loginPassword" />
+                        <label class="label-name">Password</label>
+                        <span class="content-name mb-2" (click)="togglePasswordVisibility()">{{ showPassword ? 'Hide
+                            Password' : 'Show Password' }} </span>
+
+                    </div>
+                    <span
+                        *ngIf="loginForm.get('loginPassword').getError('required')!=null && loginForm.get('loginPassword').touched "
+                        class="textdanger">Password is required </span>
+                    <span class="textdanger"
+                        *ngIf="loginForm.get('loginPassword').getError('invalidPassword') && loginForm.get('loginPassword').touched">Password
+                        is Invalid</span>
+                    <div class="form-group divaa mt-4 align-items-center">
+
+                        <button type="submit" (click)="loginData()" class="btn btn-danger">Login</button>
+
+                        <a class="newUser" routerLink="/register">Create your Dating account </a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>

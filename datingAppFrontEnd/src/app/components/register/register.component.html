@@ -1,0 +1,93 @@
+<div class="container slide">
+  <div class="row d-flex justify-content-center">
+    <div class="col-7 mt-5 p-5 paragraph">
+      <h3 class="textdanger">
+        <b><u> Sign-Up</u></b>
+      </h3>
+      <form [formGroup]="SignupForm">
+        <div class="form ">
+          <input type="name" formControlName="firstName" />
+          <label class="label-name">First Name </label>
+        </div>
+        <span class="textdanger" *ngIf="SignupForm.get('firstName').hasError('required') && SignupForm.get('firstName').touched"> Name is
+          required</span>
+        <span class="textdanger"
+          *ngIf="SignupForm.get('firstName').getError('invalidName') && SignupForm.get('firstName').touched"> First Name
+          is Invalid</span>
+        <div class="form ">
+          <input type="name" class="form" formControlName="lastName" />
+          <label class="label-name"> Last Name </label>
+        </div>
+        <span *ngIf="
+        SignupForm.get('lastName').getError('required') != null && SignupForm.get('lastName').touched
+          " class="textdanger"> Last Name is required</span>
+        <span class="textdanger"
+          *ngIf="SignupForm.get('lastName').getError('invalidlastName') && SignupForm.get('lastName').touched"> Last
+          Name is Invalid</span>
+        <div class="form">
+          <input type="email" class="form" formControlName="email" aria-describedby="emailHelp" />
+          <label class="label-name">E-mail</label>
+        </div>
+        <span *ngIf="SignupForm.get('email').getError('required') != null && SignupForm.get('email').touched" class="textdanger">Email is
+          required</span>
+        <span *ngIf="SignupForm.get('email').getError('email') != null && SignupForm.get('email').touched" class="textdanger">Invalid Email
+          formet</span>
+
+        <div class="form">
+          <input type="text" class="form" formControlName="number" />
+          <label class="label-name">Number</label>
+        </div>
+        <span class="textdanger"
+          *ngIf="SignupForm.get('number').getError('invalidNumber') && SignupForm.get('number').touched"> Password is
+          Invalid</span>
+
+        <div class="form ">
+          <input type="{{ showPassword ? 'text' : 'password' }}" class="form-control" formControlName="password" />
+          <label class="label-name">Password</label>
+          <span class="content-name mb-2" (click)="togglePasswordVisibility('Password')">{{
+            showPassword
+            ? "Hide
+            Password"
+            : "Show Password"
+            }}
+          </span>
+
+        </div>
+        <span *ngIf="
+        SignupForm.get('password').getError('required') != null && SignupForm.get('password').touched
+          " class="textdanger">Password is required
+        </span>
+        <span class="textdanger"
+          *ngIf="SignupForm.get('password').getError('invalidPassword') && SignupForm.get('password').touched"> Password
+          is Invalid</span>
+
+        <div class="form ">
+          <input type="{{ showconPassword ? 'text' : 'password' }}" class="form-control"
+            formControlName="confirmPassword" placeholder="" />
+          <label class="label-name"> Confirm Password </label>
+          <span class="content-name mb-2" (click)="togglePasswordVisibility('confirmPassword')">{{ showconPassword ?
+            "Hide Password" : "Show Password" }}
+          </span>
+
+        </div>
+        <span *ngIf="
+        SignupForm.get('confirmPassword').getError('required') != null &&
+        SignupForm.get('confirmPassword').touched
+          " class="textdanger">Password is required</span>
+        <span *ngIf="
+        SignupForm.get('confirmPassword').getError('mustMatch') != null &&
+        SignupForm.get('confirmPassword').touched
+          " class="textdanger">Password is mismatch</span>
+        <span class="textdanger"
+          *ngIf="SignupForm.get('confirmPassword').getError('invalidConPassword') && SignupForm.get('confirmPassword').touched">Password
+          is Invalid</span>
+        <div class="form m-2 ">
+          <button type="submit" (click)="signupData()" class="btn btn-danger">
+            Sign Up
+          </button>
+        </div>
+      </form>
+    </div>
+    <div class="col-4 bg-warning imgBack" style="z-index: -999 !important"></div>
+  </div>
+</div>

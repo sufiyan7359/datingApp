@@ -1,0 +1,263 @@
+<div class="container-fluid mt-3" >
+
+<div class="container">
+    <div class="row d-flex justify-content-center">
+        <div class="col-12">
+            <div class="coverPhoto rounded-4" >
+                <div class="coverPictureIcon text-center">
+                    <i class="bi bi-pencil-square mt-5 p-2" ></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end profilFrame d-flex  bg-light rounded-pill shadow">
+            <div class="col-2 profilePicture mt-2 mb-2 m-1 rounded-circle img-fluid">
+                
+                <div class="profilePictureIcon text-center ">
+                    <i class="bi bi-pencil-square mt-2" ></i>
+                </div>
+            </div>
+
+
+            <div class="col-9 mt-2 mb-2 m-1 ">
+
+
+<div class="col-12 profileName text-start mx-5 mt-2 mb-2">
+    <h2><b>Jannie Born</b></h2>
+    <p class="textdanger">Software Engineer</p>
+</div>
+
+
+
+                <div class="col-10 d-flex justify-content-evenly btnHover mt-5 mb-3 text-start mx-2">
+                <div class="  col-2 ">
+                    <a class="btn btn-outline-danger btn-sm" (click)="About()" [ngClass]="about ? 'active' : 'inactive'">About</a>
+                </div>
+    
+                
+                <div class=" col-2">
+                <a class="btn btn-outline-danger btn-sm" (click)="Photos()" [ngClass]="photos ? 'active' : 'inactive'">Photos</a>
+                </div>
+    
+                
+                <div class=" col-2">
+                    <a class="btn btn-outline-danger btn-sm" (click)="Profile()" [ngClass]="profile ? 'active' : 'inactive'">Edit Profile</a>
+                </div>
+    
+                
+                <div class=" col-2">
+                    <a class="btn btn-outline-danger btn-sm" (click)="Setting()" [ngClass]="setting ? 'active' : 'inactive'">Setting</a>
+                </div>
+
+            </div>
+            </div>
+          
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-3 mb-4">
+    <div class="row">
+        <!-- <div class="col-6  d-flex justify-content-evenly btnHover ">
+            
+            <div class="  col-2 ">
+                <a class="btn" (click)="About()" [ngClass]="about ? 'active' : 'inactive'">About</a>
+            </div>
+
+            
+            <div class=" col-2">
+            <a class="btn " (click)="Photos()" [ngClass]="photos ? 'active' : 'inactive'">Photos</a>
+            </div>
+
+            
+            <div class=" col-2">
+                <a class="btn" (click)="Profile()" [ngClass]="profile ? 'active' : 'inactive'">Edit Profile</a>
+            </div>
+
+            
+            <div class=" col-2">
+                <a class="btn" (click)="Setting()" [ngClass]="setting ? 'active' : 'inactive'">Setting</a>
+            </div>
+        </div> -->
+
+
+
+        <div class="row d-flex  mx-5 justify-content-center  mt-3 " *ngIf="photos">
+            <div class=" col-12">
+                <h4>Photos</h4></div>
+            <hr>
+
+            
+                
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <img class="img-fluid" src="../../../assets/images/heartbeat.png"  />
+                </div>
+                <div class="col-2 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+
+                   
+                <div class="col-2 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <img class="img-fluid" src="../../../assets/images/heartbeat.png"  />
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+
+
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <img class="img-fluid" src="../../../assets/images/heartbeat.png"  />
+                </div>
+                <div class="col-2 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+
+                   
+                <div class="col-2 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <img class="img-fluid" src="../../../assets/images/heartbeat.png"  />
+                </div>
+                <div class="col-3 photoBox  shadow m-1 mt-3 mb-3 rounded-4">
+                    <!-- <img class="img-fluid" src="../../../assets/images/heartbeat.png" style="height: 100px !important; width: 100px !important; " /> -->
+                </div>
+            
+         
+        </div>
+
+        <div class="row d-flex  mx-5 justify-content-center d-flex mt-3"  *ngIf="about">
+            <h4>About Profile</h4>
+            <hr>
+       
+            <div class="col-6 AboutSection">
+                <h6><b>About</b><div class="box"></div></h6>
+                <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Iure voluptates accusantium eveniet?</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Date of birth</b><div class="box"></div></h6>
+                <p class="text-muted">January 10 2000</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Gender</b><div class="box"></div></h6>
+                <p class="text-muted">Female</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Hobby</b><div class="box"></div></h6>
+                <p class="text-muted">Lorem ipsum dolor sit amet.</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Contacts</b><div class="box"></div></h6>
+                <p class="text-muted">+919993717359 <br>
+                     +919993717359</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Occupation</b><div class="box"></div></h6>
+                <p class="text-muted">Software Engineer</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Education</b><div class="box"></div></h6>
+                <p class="text-muted">B.tech/BE</p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Relationship Prefrences</b><div class="box"></div></h6>
+                <p class="text-muted">Long term </p>
+            </div>
+
+            <div class="col-6 AboutSection">
+                <h6><b>Intrests</b><div class="box"></div></h6>
+                <p class="text-muted">Sports</p>
+            </div>
+
+            
+            <div class="col-6 AboutSection ">
+                <h6 class=""><b>Social media links</b><div class="box"></div></h6>
+                <p class="text-muted">www.facebook.com/jannie_born <br>
+                    www.instagram.com/jannie_born</p> 
+            </div>
+        </div>
+
+        <div class="col-12"  *ngIf="profile">
+            <h4>Edit Profile</h4>
+            <hr>
+
+<div class="form-group mb-2 mt-2">
+    <input type="text" class="form-control" name="" id="" >
+</div>
+
+<div class="form-group mb-2 mt-2">
+    <input type="text" class="form-control" name="" id="" >
+</div>
+
+
+
+<div class="form-group mb-2 mt-2">
+    <input type="text" class="form-control" name="" id="" >
+</div>
+
+
+<div class="form-group mb-2 mt-2">
+    <input type="text" class="form-control" name="" id="" >
+</div>
+
+<div class="form-group mb-2 mt-2">
+    <input type="text" class="form-control" name="" id="" >
+</div>
+
+<div class="form-group mb-2 mt-4 text-end">
+   <button class="btn btn-danger">Update Profile</button>
+</div>
+
+</div>
+
+        <div class="col-12 "  *ngIf="setting">
+            <h4>Setting</h4>
+            <hr>
+<div class="d-flex ">
+            <div class="settingGroup m-2">
+                <button class="btn btn-outline-danger">Dark Theme</button>
+            </div>
+
+            
+            <div class="settingGroup m-2">
+                <button class="btn btn-outline-danger">Change Cover Photo</button>
+            </div>
+            
+            <div class="settingGroup m-2">
+                <button class="btn btn-outline-danger">Log out</button>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+</div>

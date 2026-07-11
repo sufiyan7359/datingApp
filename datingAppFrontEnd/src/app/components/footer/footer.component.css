@@ -1,0 +1,19 @@
+.footer {
+    background-color: black;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    /* position: fixed; */
+    /* bottom: 0; */
+    width: 100%;
+}
+.footer ul {
+    list-style: none;
+    padding: 0;
+}
+.footer li {
+    display: inline;
+    margin: 0 15px;
+    padding: auto;
+    cursor: pointer;
+}

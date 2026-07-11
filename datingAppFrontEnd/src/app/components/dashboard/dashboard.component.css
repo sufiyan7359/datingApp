@@ -1,0 +1,107 @@
+.shadow{
+    box-shadow: 5px 2px 10px #aaa6a6 !important;
+
+}
+
+.btnwarning{
+    background-color: yellow;
+    box-shadow: 5px 2px 10px rgb(170, 170, 161) !important;
+
+}
+
+.imgSection img{
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+    background-color: pink;
+}
+
+hr{
+    width: 85% !important;
+    margin-left: 20px;
+}
+.CARD{
+    height: 50% !important;
+   
+}
+
+
+.buttonSection i {
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+.buttonSection i:hover {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: #ff0000;
+    transition:  0.3s ease !important;
+
+}
+
+
+.imgContent img{
+    height: 160px !important;
+    width: 320px !important;
+}
+
+.imageSection img{
+    height: 100px;
+    width: 100px;
+    background-color: aqua;
+    border-radius: 20%;
+    margin-top: 10%;
+    /* margin-left: 30%; */
+}
+
+.card{
+    height: 100%;
+    
+}
+
+.buttonSections i {
+    cursor: pointer;
+    font-size: 1.5rem;
+}
+
+
+.buttonSections i:hover {
+    cursor: pointer;
+   color: black;
+}
+
+
+.bgFlower{
+    background-image: url(../../../assets/images/flower.png);
+    background-repeat:no-repeat;
+    background-position:left;
+    background-size: contain;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.bgflowertop{
+    margin-top:-110px !important;
+}
+
+
+/* Webkit Scrollbar */
+::-webkit-scrollbar {
+    width: 3px; /* Scrollbar width */
+  }
+  
+  /* Webkit Scrollbar Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Scrollbar track color */
+  }
+  
+  /* Webkit Scrollbar Handle */
+  ::-webkit-scrollbar-thumb {
+    background: black /* Scrollbar handle color */
+  }
+  
+  /* Webkit Scrollbar Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background:#ff0000; /* Scrollbar handle color on hover */
+  }
+  

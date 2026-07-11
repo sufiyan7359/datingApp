@@ -1,0 +1,95 @@
+h1 {
+  font-size: 3.5rem;
+}
+
+h1 span .text-danger {
+  color: #ff0000 !important;
+}
+
+.paragraph .text-danger {
+  color: #ff0000 !important;
+}
+
+.slide {
+  background-image: url(../../../assets/images/landingBanner.png);
+  background-size: contain;
+  height: 650px;
+  background-repeat: no-repeat;
+  background-position: right;
+}
+
+.imgBack {
+  height: 750px !important;
+  margin-top: -100px !important;
+}
+
+.loveCircle {
+  background-image: url(../../../assets/images/circle.png);
+  background-size: cover;
+  height: 1000px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.instant {
+  text-shadow: 2px 9px 20px #ff0000;
+}
+
+#lineCurve {
+  text-decoration: wavy underline #ff0000;
+  /* Curved lines ke liye text-decoration property ka istemal kiya gaya hai */
+  text-underline-position: under;
+  /* Underline ko word ke nichle position par laane ke liye text-underline-position property ka istemal kiya gaya hai */
+}
+
+.imgHeartBeat {
+  width: 150px;
+}
+
+#percent {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.thirdSectionImage {
+  background-image: url(../../../assets/images/thirdSection.png);
+  background-size: contain;
+  height: 400px;
+  background-repeat: no-repeat;
+  background-position: left;
+
+}
+
+.cardCarousel {
+  height: auto;
+  width: 400px;
+  border-radius: 10px;
+  padding: auto;
+  margin: 35px;
+  box-shadow: 16px 15px 55px #ff000052 !important;
+
+}
+
+.cardCarousel .cardContent {
+  padding: 5px;
+}
+
+.map {
+  background-image: url(../../../assets/images/map.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  width: auto;
+  height: 600px;
+  background-size: contain;
+  margin-top: -250px;
+
+}
+
+
+.heart {
+  position: relative;
+  background-image: url("../../../assets/images/heart.png");
+  background-size:contain;
+  background-repeat: no-repeat;
+font-weight: bolder;
+}

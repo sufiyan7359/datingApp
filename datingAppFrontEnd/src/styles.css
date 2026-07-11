@@ -1,0 +1,27 @@
+/* You can add global styles to this file, and also import other style files */
+.btn-danger{
+    background-color:#ff0000 !important;
+    color : white;
+}
+
+.navbar .text-danger{
+    color: #ff0000 !important;
+}
+
+button {
+    box-shadow: 10px 10px 15px #ff00006c;
+  }
+
+  .bgdanger{
+    background-color:#ff0000 !important;
+    color : white;
+  }
+
+  .textdanger{
+    color: #ff0000 !important;
+
+  }
+
+  .textsuccess{
+    color:green;
+  }
