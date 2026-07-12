@@ -23,8 +23,80 @@ model User {
   updatedAt     DateTime @updatedAt
 
   refreshTokens RefreshToken[]
+  profile       Profile?
 
   @@map("users")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  OTHER
+}
+
+enum RelationshipGoal {
+  LONG_TERM
+  SHORT_TERM
+  CASUAL
+  FRIENDSHIP
+  NOT_SURE
+}
+
+enum LifestyleChoice {
+  NEVER
+  SOMETIMES
+  REGULARLY
+}
+
+model Profile {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  gender        Gender?
+  interestedIn  Gender[]
+  dateOfBirth   DateTime?
+  heightCm      Int?
+  religion      String?
+  languages     String[]
+  profession    String?
+  education     String?
+  bio           String?
+  city          String?
+  country       String?
+
+  smoking          LifestyleChoice?
+  drinking         LifestyleChoice?
+  workout          LifestyleChoice?
+  relationshipGoal RelationshipGoal?
+  hasKids          Boolean?
+  wantsKids        Boolean?
+  hasPets          Boolean?
+  interests        String[]
+
+  onboardingCompleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  photos Photo[]
+
+  @@map("profiles")
+}
+
+model Photo {
+  id        String  @id @default(uuid())
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url       String
+  order     Int     @default(0)
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([profileId])
+  @@map("photos")
 }
 
 model RefreshToken {

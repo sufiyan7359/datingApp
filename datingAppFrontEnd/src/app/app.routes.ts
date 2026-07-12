@@ -11,6 +11,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { RegisterComponent } from './components/register/register.component';
 import { ServiceComponent } from './components/service/service.component';
 import { ChatingBoxComponent } from './components/chating-box/chating-box.component';
+import { OnboardingComponent } from './components/onboarding/onboarding.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: 'privacy', component: PrivacyComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'about', component: AboutComponent },
+  { path: 'onboarding', component: OnboardingComponent, canActivate: [authGuard] },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'chating/:id', component: ChatingBoxComponent, canActivate: [authGuard] },

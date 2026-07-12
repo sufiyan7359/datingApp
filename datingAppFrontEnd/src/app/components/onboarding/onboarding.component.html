@@ -1,0 +1,214 @@
+<div class="container mt-4 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow border-0 rounded-4 p-3 p-md-5">
+        <h3 class="textdanger mb-1"><b>Complete your profile</b></h3>
+        <p class="text-muted">Step {{ step() }} of {{ totalSteps }}</p>
+
+        <div class="progress mb-4" style="height: 6px;">
+          <div class="progress-bar bg-danger" [style.width.%]="(step() / totalSteps) * 100"></div>
+        </div>
+
+        <form [formGroup]="form">
+          <!-- Step 1: Basics -->
+          <div *ngIf="step() === 1">
+            <h5>The basics</h5>
+
+            <div class="mb-3">
+              <label class="form-label">I am</label>
+              <select class="form-select" formControlName="gender">
+                <option value="" disabled>Select gender</option>
+                <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+              </select>
+              <span class="textdanger" *ngIf="form.get('gender')?.invalid && form.get('gender')?.touched">
+                Please select a gender
+              </span>
+            </div>
+
+            <div class="mb-3" formGroupName="interestedIn">
+              <label class="form-label d-block">Interested in</label>
+              <div class="form-check form-check-inline" *ngFor="let g of genders">
+                <input class="form-check-input" type="checkbox" [formControlName]="g" [id]="'interested-' + g" />
+                <label class="form-check-label" [for]="'interested-' + g">{{ g }}</label>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Date of birth</label>
+              <input type="date" class="form-control" formControlName="dateOfBirth" />
+              <span class="textdanger" *ngIf="form.get('dateOfBirth')?.hasError('required') && form.get('dateOfBirth')?.touched">
+                Date of birth is required
+              </span>
+              <span class="textdanger" *ngIf="form.get('dateOfBirth')?.hasError('tooYoung') && form.get('dateOfBirth')?.touched">
+                You must be at least 18 years old
+              </span>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" class="form-control" formControlName="heightCm" placeholder="e.g. 170" />
+            </div>
+          </div>
+
+          <!-- Step 2: Background -->
+          <div *ngIf="step() === 2">
+            <h5>Your background</h5>
+
+            <div class="mb-3">
+              <label class="form-label">Religion</label>
+              <input type="text" class="form-control" formControlName="religion" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Languages (comma separated)</label>
+              <input type="text" class="form-control" formControlName="languages" placeholder="English, Hindi" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Profession</label>
+              <input type="text" class="form-control" formControlName="profession" />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Education</label>
+              <input type="text" class="form-control" formControlName="education" />
+            </div>
+
+            <div class="row">
+              <div class="col-6 mb-3">
+                <label class="form-label">City</label>
+                <input type="text" class="form-control" formControlName="city" />
+              </div>
+              <div class="col-6 mb-3">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-control" formControlName="country" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: About you -->
+          <div *ngIf="step() === 3">
+            <h5>About you</h5>
+
+            <div class="mb-3">
+              <label class="form-label">Bio</label>
+              <textarea class="form-control" rows="4" formControlName="bio" maxlength="500"></textarea>
+              <span class="textdanger" *ngIf="form.get('bio')?.invalid && form.get('bio')?.touched">
+                Bio must be 500 characters or fewer
+              </span>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Interests (comma separated)</label>
+              <input type="text" class="form-control" formControlName="interests" placeholder="Hiking, Coffee, Travel" />
+            </div>
+          </div>
+
+          <!-- Step 4: Lifestyle -->
+          <div *ngIf="step() === 4">
+            <h5>Lifestyle</h5>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Smoking</label>
+                <select class="form-select" formControlName="smoking">
+                  <option value="">Prefer not to say</option>
+                  <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Drinking</label>
+                <select class="form-select" formControlName="drinking">
+                  <option value="">Prefer not to say</option>
+                  <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Workout</label>
+                <select class="form-select" formControlName="workout">
+                  <option value="">Prefer not to say</option>
+                  <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Relationship goal</label>
+              <select class="form-select" formControlName="relationshipGoal">
+                <option value="">Prefer not to say</option>
+                <option *ngFor="let g of relationshipGoals" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Have kids</label>
+                <select class="form-select" formControlName="hasKids">
+                  <option value="">Prefer not to say</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Want kids</label>
+                <select class="form-select" formControlName="wantsKids">
+                  <option value="">Prefer not to say</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Have pets</label>
+                <select class="form-select" formControlName="hasPets">
+                  <option value="">Prefer not to say</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Photos -->
+          <div *ngIf="step() === 5">
+            <h5>Add your photos</h5>
+            <p class="text-muted">Up to 6 photos. JPEG, PNG, or WebP, max 5MB each.</p>
+
+            <div class="row mb-3">
+              <div class="col-4 col-md-3 mb-3" *ngFor="let photo of profile()?.photos">
+                <div class="position-relative">
+                  <img [src]="apiUrl + photo.url" class="img-fluid rounded-3 shadow-sm" style="aspect-ratio: 1; object-fit: cover; width: 100%;" />
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle"
+                    (click)="removePhoto(photo.id)"
+                  >
+                    &times;
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <input type="file" class="form-control" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
+            <div *ngIf="uploadError()" class="textdanger mt-2">{{ uploadError() }}</div>
+          </div>
+
+          <div *ngIf="errorMessage()" class="textdanger mt-3">{{ errorMessage() }}</div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button type="button" class="btn btn-outline-danger" (click)="goBack()" [disabled]="step() === 1">
+              Back
+            </button>
+
+            <button type="button" class="btn btn-danger" (click)="goNext()" *ngIf="step() < totalSteps">
+              Next
+            </button>
+
+            <button type="button" class="btn btn-danger" (click)="finish()" [disabled]="isSubmitting()" *ngIf="step() === totalSteps">
+              {{ isSubmitting() ? 'Saving…' : 'Finish' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

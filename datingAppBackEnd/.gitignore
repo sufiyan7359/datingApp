@@ -15,6 +15,9 @@ yarn-error.log
 .env
 .env.local
 
+# User-uploaded content
+/uploads
+
 # IDEs and editors
 .idea/
 .project

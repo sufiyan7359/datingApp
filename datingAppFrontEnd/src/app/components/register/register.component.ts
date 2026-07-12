@@ -101,7 +101,7 @@ export class RegisterComponent implements OnInit {
     this.authService.register({ email, password, firstName, lastName }).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        void this.router.navigateByUrl('/dashboard');
+        void this.router.navigateByUrl('/onboarding');
       },
       error: (err) => {
         this.isSubmitting.set(false);
