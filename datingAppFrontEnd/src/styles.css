@@ -1,4 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Tailwind: theme tokens + utility classes only. Preflight (Tailwind's base
+   reset) is intentionally NOT imported here — it conflicts with Bootstrap's
+   own reset, which every existing page still depends on. New UI work can use
+   Tailwind utility classes; Bootstrap stays the base/reset layer until
+   components are migrated off it. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
 html, body {
   overflow-x: hidden;
   max-width: 100%;
