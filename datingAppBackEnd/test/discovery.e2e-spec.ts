@@ -18,6 +18,7 @@ describe('Discovery (e2e)', () => {
     charlie: `charlie-${suffix}@example.com`,
   };
   const tokens: Record<string, string> = {};
+  const ids: Record<string, string> = {};
   const password = 'Str0ngPass123';
 
   beforeAll(async () => {
@@ -56,8 +57,9 @@ describe('Discovery (e2e)', () => {
           firstName: key,
           lastName: 'E2E',
         });
-      const { accessToken } = registerRes.body as AuthResponseDto;
+      const { accessToken, user } = registerRes.body as AuthResponseDto;
       tokens[key] = accessToken;
+      ids[key] = user.id;
 
       await request(app.getHttpServer())
         .patch('/profiles/me')
@@ -92,11 +94,14 @@ describe('Discovery (e2e)', () => {
       .expect(200);
 
     const body = res.body as DiscoveryFeedDto;
-    const names = body.results.map((r) => r.firstName);
-    expect(names).toEqual(['bob', 'charlie']);
-    expect(body.results[0].distanceKm).toBeLessThan(
-      body.results[1].distanceKm!,
+    // Filter to this spec's own fixtures: e2e specs share one dev database and run
+    // concurrently, so other spec files' users (e.g. a reciprocal-gender fixture from
+    // matching.e2e-spec.ts) can legitimately also appear in a real, unscoped feed query.
+    const ownResults = body.results.filter(
+      (r) => r.userId === ids.bob || r.userId === ids.charlie,
     );
+    expect(ownResults.map((r) => r.firstName)).toEqual(['bob', 'charlie']);
+    expect(ownResults[0].distanceKm).toBeLessThan(ownResults[1].distanceKm!);
   });
 
   it('filters by maxDistanceKm', async () => {
@@ -106,7 +111,10 @@ describe('Discovery (e2e)', () => {
       .expect(200);
 
     const body = res.body as DiscoveryFeedDto;
-    expect(body.results.map((r) => r.firstName)).toEqual(['bob']);
+    const ownResults = body.results.filter(
+      (r) => r.userId === ids.bob || r.userId === ids.charlie,
+    );
+    expect(ownResults.map((r) => r.firstName)).toEqual(['bob']);
   });
 
   it('rejects an out-of-range age filter', async () => {

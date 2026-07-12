@@ -82,4 +82,14 @@ export class ProfilesController {
   ): Promise<void> {
     await this.profilesService.removePhoto(user.userId, photoId);
   }
+
+  @Post('me/boost')
+  @ApiOperation({
+    summary: 'Temporarily boost your profile to the top of discovery feeds',
+  })
+  activateBoost(
+    @CurrentUser() user: RequestUser,
+  ): Promise<{ boostedUntil: Date }> {
+    return this.profilesService.activateBoost(user.userId);
+  }
 }

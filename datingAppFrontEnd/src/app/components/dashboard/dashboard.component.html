@@ -3,13 +3,22 @@
   <div class="row d-flex justify-content-between align-items-center mb-3">
     <div class="col-auto">
       <h4 class="mb-0"><b>Discover</b></h4>
+      <p class="text-muted mb-0" style="font-size: 0.8rem;" *ngIf="limits() as l">
+        {{ l.likesRemaining }} likes &middot; {{ l.superLikesRemaining }} super likes &middot;
+        {{ l.undosRemaining }} undos left today
+      </p>
     </div>
-    <div class="col-auto">
+    <div class="col-auto d-flex gap-2">
+      <button class="btn btn-outline-danger btn-sm" (click)="activateBoost()" [disabled]="limits() && limits()!.boostsRemaining <= 0">
+        <i class="bi bi-rocket-takeoff"></i> Boost{{ limits() ? ' (' + limits()!.boostsRemaining + ')' : '' }}
+      </button>
       <button class="btn btn-outline-danger btn-sm" (click)="toggleFilters()">
         {{ filtersOpen() ? 'Hide filters' : 'Filters' }}
       </button>
     </div>
   </div>
+
+  <div *ngIf="swipeError()" class="textdanger mb-3">{{ swipeError() }}</div>
 
   <div class="card shadow border-0 rounded-4 p-3 mb-4" *ngIf="filtersOpen()">
     <form [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
@@ -110,6 +119,21 @@
             {{ p.city }}<span *ngIf="p.distanceKm !== null"> &middot; {{ p.distanceKm }} km away</span>
           </p>
           <p class="mb-0" style="font-size: 0.85rem;" *ngIf="p.bio">{{ p.bio }}</p>
+
+          <div class="d-flex justify-content-around mt-3">
+            <button class="btn btn-outline-secondary btn-sm rounded-circle" title="Pass"
+              [disabled]="swipingUserId() === p.userId" (click)="swipe(p.userId, 'PASS')">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <button class="btn btn-outline-primary btn-sm rounded-circle" title="Super Like"
+              [disabled]="swipingUserId() === p.userId" (click)="swipe(p.userId, 'SUPER_LIKE')">
+              <i class="bi bi-star-fill"></i>
+            </button>
+            <button class="btn btn-danger btn-sm rounded-circle" title="Like"
+              [disabled]="swipingUserId() === p.userId" (click)="swipe(p.userId, 'LIKE')">
+              <i class="bi bi-heart-fill"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -135,7 +159,7 @@
           </div>
           <div class="">
             <ul class=" CARD list-group list-group-flush ">
-              <li class="list-group-item d-flex justify-content-between " *ngFor="let p of discoveryResults().slice(0, 5); let i = index;">
+              <li class="list-group-item d-flex justify-content-between " *ngFor="let p of discoveryResults().slice(0, 5);">
                 <div class="imgSection m-1">
                   <img class="img-fluid " [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'" />
                 </div>
@@ -147,8 +171,8 @@
                 </div>
 
                 <div class="buttonSection m-1 mt-3">
-                  <i class="{{ addRequest[i] ? 'bi bi-patch-plus-fill' : 'bi bi-patch-minus-fill' }}"
-                    [ngStyle]="{ 'color': addRequest[i] ? '#ff0000' : 'black' }" (click)="addReq(i)"></i>
+                  <i class="bi bi-patch-plus-fill" style="color: #ff0000; cursor: pointer;" title="Like"
+                    [style.opacity]="swipingUserId() === p.userId ? 0.5 : 1" (click)="swipe(p.userId, 'LIKE')"></i>
                 </div>
               </li>
               <li class="list-group-item text-muted" *ngIf="discoveryResults().length === 0">
@@ -170,31 +194,30 @@
 
         <div class="card shadow border-0" style="overflow: auto !important; max-height: 80%;">
           <div class="card-header sticky-top  bg-warning">
-            <h6>Chat Request</h6>
+            <h6>Your Matches</h6>
           </div>
           <div class="">
             <ul class=" CARD list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between " *ngFor="let like of [1,1,1,1,]; let idx = index;">
+              <li class="list-group-item d-flex justify-content-between " *ngFor="let m of matches()">
                 <div class="imgSection m-1 ">
-                  <img class="img-fluid bg-info" src="../../../assets/images/FiveSection.png" />
+                  <img class="img-fluid bg-info" [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'" />
                 </div>
 
                 <div class="DetailSection m-1 ">
-                  <h5>Jannei <br>
+                  <h5>{{ m.firstName }} <br>
                   </h5>
-                  <span class="text-muted ">Manager, 25</span>
+                  <span class="text-muted ">It's a match!</span>
                 </div>
 
                 <div class="buttonSection m-1 mt-3">
-                  <!-- <p (click)="addReq(i)">{{ addRequest[i] ? 'bi bi-patch-plus-fill' : 'bi bi-patch-minus-fill' }}</p> -->
-                  <i class="bi bi-chat-heart-fill" (click)="sendMessage(idx)"></i>
+                  <i class="bi bi-chat-heart-fill" style="cursor: pointer;" title="Message" (click)="goToChat(m.userId)"></i>
                 </div>
               </li>
-              <!-- <i class="bi bi-patch-plus-fill"></i> : <i class="bi bi-patch-minus-fill"></i> 
-            <i class="bi bi-chat-heart-fill"></i>
-            -->
+              <li class="list-group-item text-muted" *ngIf="matches().length === 0">
+                No matches yet - keep swiping!
+              </li>
             </ul>
-            
+
           </div>
           <!-- <button class="btn btnwarning btn-sm" (click)="sendMessage(23)">Send Message</button> -->
 
@@ -253,4 +276,18 @@
     </div>
 
 
+  </div>
+
+  <div *ngIf="newMatch() as m" class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+    style="background: rgba(0,0,0,0.6); z-index: 1050;">
+    <div class="card shadow border-0 rounded-4 p-4 text-center" style="max-width: 360px;">
+      <img [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'"
+        class="rounded-circle mx-auto mb-3" style="width: 120px; height: 120px; object-fit: cover;" />
+      <h3 class="textdanger"><b>It's a Match!</b></h3>
+      <p>You and {{ m.firstName }} liked each other.</p>
+      <div class="d-flex justify-content-center gap-2 mt-2">
+        <button class="btn btn-outline-secondary" (click)="dismissMatch()">Keep Swiping</button>
+        <button class="btn btn-danger" (click)="goToChat(m.userId)">Send a Message</button>
+      </div>
+    </div>
   </div>

@@ -18,8 +18,15 @@ export class DiscoveryService {
       where: { userId: currentUserId },
     });
 
+    const swipedTargetIds = (
+      await this.prisma.swipe.findMany({
+        where: { swiperId: currentUserId, undoneAt: null },
+        select: { targetId: true },
+      })
+    ).map((s) => s.targetId);
+
     const where: Prisma.ProfileWhereInput = {
-      userId: { not: currentUserId },
+      userId: { not: currentUserId, notIn: swipedTargetIds },
       onboardingCompleted: true,
       user: { isActive: true },
     };
@@ -119,7 +126,16 @@ export class DiscoveryService {
       );
     }
 
+    const now = Date.now();
+    const isBoosted = (boostedUntil: Date | null) =>
+      !!boostedUntil && boostedUntil.getTime() > now;
+
     withDistance.sort((a, b) => {
+      const boostDiff =
+        Number(isBoosted(b.candidate.boostedUntil)) -
+        Number(isBoosted(a.candidate.boostedUntil));
+      if (boostDiff !== 0) return boostDiff;
+
       if (a.distanceKm !== null && b.distanceKm !== null) {
         return a.distanceKm - b.distanceKm;
       }

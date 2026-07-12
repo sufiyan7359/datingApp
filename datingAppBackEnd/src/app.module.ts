@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { DiscoveryModule } from './discovery/discovery.module';
+import { MatchingModule } from './matching/matching.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DiscoveryModule } from './discovery/discovery.module';
     AuthModule,
     ProfilesModule,
     DiscoveryModule,
+    MatchingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

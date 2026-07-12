@@ -22,8 +22,12 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  refreshTokens RefreshToken[]
-  profile       Profile?
+  refreshTokens  RefreshToken[]
+  profile        Profile?
+  swipesGiven    Swipe[]        @relation("SwipesGiven")
+  swipesReceived Swipe[]        @relation("SwipesReceived")
+  matchesAsA     Match[]        @relation("MatchesAsA")
+  matchesAsB     Match[]        @relation("MatchesAsB")
 
   @@map("users")
 }
@@ -77,14 +81,26 @@ model Profile {
   hasPets          Boolean?
   interests        String[]
 
-  onboardingCompleted Boolean @default(false)
+  onboardingCompleted Boolean   @default(false)
+  boostedUntil        DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  photos Photo[]
+  photos          Photo[]
+  boostActivations BoostActivation[]
 
   @@map("profiles")
+}
+
+model BoostActivation {
+  id         String   @id @default(uuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  activatedAt DateTime @default(now())
+
+  @@index([profileId, activatedAt])
+  @@map("boost_activations")
 }
 
 model Photo {
@@ -112,4 +128,41 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+enum SwipeAction {
+  LIKE
+  PASS
+  SUPER_LIKE
+}
+
+model Swipe {
+  id       String      @id @default(uuid())
+  swiperId String
+  swiper   User        @relation("SwipesGiven", fields: [swiperId], references: [id], onDelete: Cascade)
+  targetId String
+  target   User        @relation("SwipesReceived", fields: [targetId], references: [id], onDelete: Cascade)
+  action   SwipeAction
+
+  createdAt DateTime  @default(now())
+  undoneAt  DateTime?
+
+  @@unique([swiperId, targetId])
+  @@index([targetId])
+  @@index([swiperId, createdAt])
+  @@map("swipes")
+}
+
+model Match {
+  id      String @id @default(uuid())
+  userAId String
+  userA   User   @relation("MatchesAsA", fields: [userAId], references: [id], onDelete: Cascade)
+  userBId String
+  userB   User   @relation("MatchesAsB", fields: [userBId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userBId])
+  @@map("matches")
 }

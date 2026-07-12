@@ -1,24 +1,24 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DashboardHeaderComponent } from '../dashboard-header/dashboard-header.component';
-import { NgFor, NgIf, NgStyle } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DiscoveryService } from '../../core/discovery/discovery.service';
 import { DiscoveryProfile } from '../../core/discovery/discovery.models';
+import { MatchingService } from '../../core/matching/matching.service';
+import { MatchInfo, SwipeAction } from '../../core/matching/matching.models';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  imports: [DashboardHeaderComponent, NgFor, NgIf, NgStyle, ReactiveFormsModule],
+  imports: [DashboardHeaderComponent, NgFor, NgIf, ReactiveFormsModule],
 })
 export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly discoveryService = inject(DiscoveryService);
-
-  addRequest: boolean[] = [];
-  MessageSend: boolean[] = [];
+  private readonly matchingService = inject(MatchingService);
 
   readonly apiUrl = environment.apiUrl;
   readonly discoveryResults = signal<DiscoveryProfile[]>([]);
@@ -26,6 +26,11 @@ export class DashboardComponent implements OnInit {
   readonly isLoading = signal(false);
   readonly loadError = signal<string | null>(null);
   readonly filtersOpen = signal(false);
+  readonly swipingUserId = signal<string | null>(null);
+  readonly swipeError = signal<string | null>(null);
+  readonly newMatch = signal<MatchInfo | null>(null);
+  readonly limits = this.matchingService.limits;
+  readonly matches = this.matchingService.matches;
 
   filtersForm = new FormGroup({
     minAge: new FormControl<number | null>(null),
@@ -43,6 +48,8 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFeed();
+    this.matchingService.loadLimits().subscribe();
+    this.matchingService.loadMatches().subscribe();
   }
 
   loadFeed(): void {
@@ -91,12 +98,44 @@ export class DashboardComponent implements OnInit {
     this.filtersOpen.set(!this.filtersOpen());
   }
 
-  sendMessage(index: number) {
-    this.router.navigate(['/chating', index]);
-    this.MessageSend[index] = !this.MessageSend[index];
+  swipe(targetUserId: string, action: SwipeAction): void {
+    this.swipeError.set(null);
+    this.swipingUserId.set(targetUserId);
+
+    this.matchingService.swipe(targetUserId, action).subscribe({
+      next: (result) => {
+        this.discoveryResults.set(this.discoveryResults().filter((p) => p.userId !== targetUserId));
+        this.swipingUserId.set(null);
+        this.matchingService.loadLimits().subscribe();
+
+        if (result.isMatch && result.match) {
+          this.newMatch.set(result.match);
+          this.matchingService.loadMatches().subscribe();
+        }
+      },
+      error: (err) => {
+        this.swipingUserId.set(null);
+        this.swipeError.set(err?.error?.message ?? 'Could not record that swipe.');
+      },
+    });
   }
 
-  addReq(index: number) {
-    this.addRequest[index] = !this.addRequest[index];
+  dismissMatch(): void {
+    this.newMatch.set(null);
+  }
+
+  goToChat(userId: string): void {
+    this.newMatch.set(null);
+    void this.router.navigate(['/chating', userId]);
+  }
+
+  activateBoost(): void {
+    this.matchingService.activateBoost().subscribe({
+      next: () => {
+        this.matchingService.loadLimits().subscribe();
+        this.loadFeed();
+      },
+      error: (err) => this.swipeError.set(err?.error?.message ?? 'Could not activate boost.'),
+    });
   }
 }

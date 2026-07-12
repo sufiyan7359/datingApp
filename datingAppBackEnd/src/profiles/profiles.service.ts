@@ -1,10 +1,15 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import {
+  BOOST_DURATION_MINUTES,
+  FREE_DAILY_BOOSTS,
+} from '../matching/matching.constants';
 
 const MAX_PHOTOS_PER_PROFILE = 6;
 
@@ -80,4 +85,34 @@ export class ProfilesService {
       }
     }
   }
+
+  async activateBoost(userId: string) {
+    const profile = await this.getOrCreate(userId);
+    const since = startOfToday();
+
+    const boostsToday = await this.prisma.boostActivation.count({
+      where: { profileId: profile.id, activatedAt: { gte: since } },
+    });
+    if (boostsToday >= FREE_DAILY_BOOSTS) {
+      throw new ForbiddenException('You have reached your daily boost limit');
+    }
+
+    const boostedUntil = new Date(Date.now() + BOOST_DURATION_MINUTES * 60_000);
+
+    await this.prisma.$transaction([
+      this.prisma.boostActivation.create({ data: { profileId: profile.id } }),
+      this.prisma.profile.update({
+        where: { id: profile.id },
+        data: { boostedUntil },
+      }),
+    ]);
+
+    return { boostedUntil };
+  }
+}
+
+function startOfToday(): Date {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  return date;
 }
