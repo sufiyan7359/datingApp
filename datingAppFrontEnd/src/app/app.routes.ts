@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/auth/auth.guard';
 import { AboutComponent } from './components/about/about.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { ContactComponent } from './components/contact/contact.component';
@@ -20,8 +21,8 @@ export const routes: Routes = [
   { path: 'privacy', component: PrivacyComponent },
   { path: 'contact', component: ContactComponent },
   { path: 'about', component: AboutComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'chating/:id', component: ChatingBoxComponent },
-  { path: 'chating', component: ChatingBoxComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'chating/:id', component: ChatingBoxComponent, canActivate: [authGuard] },
+  { path: 'chating', component: ChatingBoxComponent, canActivate: [authGuard] },
 ];

@@ -78,12 +78,12 @@
         SignupForm.get('confirmPassword').getError('mustMatch') != null &&
         SignupForm.get('confirmPassword').touched
           " class="textdanger">Password is mismatch</span>
-        <span class="textdanger"
-          *ngIf="SignupForm.get('confirmPassword').getError('invalidConPassword') && SignupForm.get('confirmPassword').touched">Password
-          is Invalid</span>
+
+        <div *ngIf="errorMessage()" class="textdanger mt-2">{{ errorMessage() }}</div>
+
         <div class="form m-2 ">
-          <button type="submit" (click)="signupData()" class="btn btn-danger">
-            Sign Up
+          <button type="submit" (click)="signupData()" class="btn btn-danger" [disabled]="isSubmitting()">
+            {{ isSubmitting() ? 'Signing up…' : 'Sign Up' }}
           </button>
         </div>
       </form>
