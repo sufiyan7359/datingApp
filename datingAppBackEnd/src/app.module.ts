@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ProfilesModule } from './profiles/profiles.module';
 import { DiscoveryModule } from './discovery/discovery.module';
 import { MatchingModule } from './matching/matching.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { MatchingModule } from './matching/matching.module';
     ProfilesModule,
     DiscoveryModule,
     MatchingModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

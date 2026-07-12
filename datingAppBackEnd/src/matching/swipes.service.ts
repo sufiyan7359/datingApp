@@ -172,6 +172,12 @@ export class SwipesService {
       create: { userAId, userBId },
     });
 
+    await this.prisma.conversation.upsert({
+      where: { matchId: match.id },
+      update: {},
+      create: { matchId: match.id },
+    });
+
     const otherProfile = await this.prisma.profile.findUnique({
       where: { userId: targetId },
       include: { photos: true, user: { select: { firstName: true } } },

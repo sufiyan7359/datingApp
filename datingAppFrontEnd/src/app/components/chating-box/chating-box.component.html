@@ -1,36 +1,109 @@
 <div class="container mt-3 mb-5">
-    <div class="row d-flex justify-content-center">
-        <div class="col-12">
-            <div class="userName">
-                <h3><b>Jannie</b> </h3>
-               <span class="textsuccess">online</span> 
-               <hr class="textdanger">
+  <div class="row d-flex justify-content-center">
+    <div class="col-12 col-lg-8">
 
+      <div *ngIf="errorMessage()" class="textdanger mb-3">{{ errorMessage() }}</div>
 
-                <ng-container *ngFor="let message of messages">
-                    <div class="message" [ngClass]="{ 'from': message.author === 'bot',
-                'to': message.author === 'user' }">
-                        {{ message.content }}
-                    </div>
-                </ng-container>
-
-<div class="row d-flex mt-4">
-
-    
-    <div class="col-9 col-md-10">
-        <input class=" form-control" [(ngModel)]="value" (keyup.enter)="sendMessage()" type="text">
-    </div>
-
-
-    <div class="col-3 col-md-2">
-        <button class="btn btn-danger w-100" (click)="sendMessage()">Send</button>
-    </div>
-    
-</div>
-
-              
-
-            </div>
+      <div class="userName" *ngIf="!errorMessage()">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h3 class="mb-0"><b>{{ otherFirstName() }}</b></h3>
+            <span class="textsuccess" *ngIf="isOtherOnline()">online</span>
+            <span class="text-muted" *ngIf="!isOtherOnline()">offline</span>
+            <span class="text-muted ms-2" *ngIf="isOtherTyping()"><i>typing…</i></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <input type="text" class="form-control form-control-sm" style="width: 160px;" placeholder="Search messages"
+              [(ngModel)]="searchQuery" (ngModelChange)="runSearch()" />
+            <button class="btn btn-sm btn-outline-secondary" *ngIf="searchResults()" (click)="clearSearch()">&times;</button>
+          </div>
         </div>
+        <hr class="textdanger">
+
+        <!-- Search results -->
+        <div *ngIf="searchResults() as results">
+          <p class="text-muted">{{ results.length }} result(s)</p>
+          <div class="message from" *ngFor="let m of results">{{ m.content }}</div>
+          <hr>
+        </div>
+
+        <!-- Message list -->
+        <ng-container *ngIf="!searchResults()">
+          <ng-container *ngFor="let message of messages()">
+            <div class="message" [ngClass]="{ 'from': !isMine(message), 'to': isMine(message) }">
+              <div *ngIf="message.replyToId" class="reply-preview">
+                &#8617; {{ getReplySnippet(message.replyToId) }}
+              </div>
+
+              <ng-container *ngIf="!message.deletedAt; else deletedTpl">
+                <span *ngIf="message.type === 'TEXT'">{{ message.content }}</span>
+                <img *ngIf="message.type === 'IMAGE'" [src]="apiUrl + message.mediaUrl" class="img-fluid rounded" style="max-width: 220px;" />
+                <audio *ngIf="message.type === 'VOICE'" [src]="apiUrl + message.mediaUrl" controls style="max-width: 220px;"></audio>
+              </ng-container>
+              <ng-template #deletedTpl>
+                <i class="text-muted">Message deleted</i>
+              </ng-template>
+
+              <div class="reactions" *ngIf="message.reactions.length > 0">
+                <span class="reaction-chip" *ngFor="let r of message.reactions">{{ r.emoji }}</span>
+              </div>
+
+              <div class="message-meta">
+                <i class="bi bi-pin-angle-fill" *ngIf="message.isPinned" title="Pinned"></i>
+                <span *ngIf="isMine(message) && message.readAt">Read</span>
+                <span *ngIf="isMine(message) && !message.readAt && message.deliveredAt">Delivered</span>
+              </div>
+
+              <div class="message-actions" *ngIf="!message.deletedAt">
+                <i class="bi bi-emoji-smile" title="React" (click)="toggleReactionPicker(message.id)"></i>
+                <i class="bi bi-reply" title="Reply" (click)="startReply(message)"></i>
+                <i class="bi bi-pin-angle" title="Pin/Unpin" (click)="togglePin(message)"></i>
+                <i class="bi bi-trash" title="Delete" *ngIf="isMine(message)" (click)="deleteMessage(message)"></i>
+              </div>
+
+              <div class="reaction-picker" *ngIf="openReactionPickerFor() === message.id">
+                <span *ngFor="let emoji of quickReactions" (click)="react(message.id, emoji)"
+                  [class.selected]="hasMyReaction(message, emoji)">{{ emoji }}</span>
+              </div>
+            </div>
+          </ng-container>
+          <div #scrollAnchor></div>
+        </ng-container>
+
+        <!-- Reply preview -->
+        <div class="reply-bar" *ngIf="replyTo() as r">
+          Replying to: {{ r.content || '[attachment]' }}
+          <button class="btn btn-sm btn-outline-secondary ms-2" (click)="cancelReply()">Cancel</button>
+        </div>
+
+        <!-- Emoji palette -->
+        <div class="emoji-palette mt-2">
+          <span *ngFor="let emoji of quickReactions" (click)="insertEmoji(emoji)">{{ emoji }}</span>
+        </div>
+
+        <div class="row d-flex mt-2 align-items-center">
+          <div class="col-2 col-md-1 d-flex gap-2">
+            <label class="btn btn-outline-danger btn-sm mb-0" title="Send image">
+              <i class="bi bi-image"></i>
+              <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onFileSelected($event)" />
+            </label>
+            <label class="btn btn-outline-danger btn-sm mb-0" title="Send voice note">
+              <i class="bi bi-mic"></i>
+              <input type="file" accept="audio/*" hidden (change)="onFileSelected($event)" />
+            </label>
+          </div>
+
+          <div class="col-7 col-md-9">
+            <input #messageInput class="form-control" [(ngModel)]="value" (ngModelChange)="onInputChange()"
+              (keyup.enter)="sendMessage()" type="text" placeholder="Type a message…">
+          </div>
+
+          <div class="col-3 col-md-2">
+            <button class="btn btn-danger w-100" (click)="sendMessage()">Send</button>
+          </div>
+        </div>
+
+      </div>
     </div>
+  </div>
 </div>

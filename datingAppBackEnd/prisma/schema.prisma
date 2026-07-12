@@ -24,10 +24,12 @@ model User {
 
   refreshTokens  RefreshToken[]
   profile        Profile?
-  swipesGiven    Swipe[]        @relation("SwipesGiven")
-  swipesReceived Swipe[]        @relation("SwipesReceived")
-  matchesAsA     Match[]        @relation("MatchesAsA")
-  matchesAsB     Match[]        @relation("MatchesAsB")
+  swipesGiven    Swipe[]           @relation("SwipesGiven")
+  swipesReceived Swipe[]           @relation("SwipesReceived")
+  matchesAsA     Match[]           @relation("MatchesAsA")
+  matchesAsB     Match[]           @relation("MatchesAsB")
+  messages       Message[]
+  reactions      MessageReaction[]
 
   @@map("users")
 }
@@ -165,4 +167,66 @@ model Match {
   @@unique([userAId, userBId])
   @@index([userBId])
   @@map("matches")
+
+  conversation Conversation?
+}
+
+model Conversation {
+  id      String @id @default(uuid())
+  matchId String @unique
+  match   Match  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  messages Message[]
+
+  @@map("conversations")
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VOICE
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  type      MessageType @default(TEXT)
+  content   String?
+  mediaUrl  String?
+
+  replyToId String?
+  replyTo   Message?  @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replies   Message[] @relation("MessageReplies")
+
+  isPinned    Boolean   @default(false)
+  deliveredAt DateTime?
+  readAt      DateTime?
+  deletedAt   DateTime?
+
+  createdAt DateTime @default(now())
+
+  reactions MessageReaction[]
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model MessageReaction {
+  id        String @id @default(uuid())
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji     String
+
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId, emoji])
+  @@map("message_reactions")
 }
