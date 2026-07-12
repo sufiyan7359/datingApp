@@ -23,6 +23,8 @@ export interface Profile {
   bio: string | null;
   city: string | null;
   country: string | null;
+  latitude: number | null;
+  longitude: number | null;
   smoking: LifestyleChoice | null;
   drinking: LifestyleChoice | null;
   workout: LifestyleChoice | null;

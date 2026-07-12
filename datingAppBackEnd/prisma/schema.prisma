@@ -65,6 +65,8 @@ model Profile {
   bio           String?
   city          String?
   country       String?
+  latitude      Float?
+  longitude     Float?
 
   smoking          LifestyleChoice?
   drinking         LifestyleChoice?

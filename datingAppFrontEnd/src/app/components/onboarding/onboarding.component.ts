@@ -43,6 +43,7 @@ export class OnboardingComponent implements OnInit {
   readonly uploadError = signal<string | null>(null);
   readonly profile = this.profileService.profile;
   readonly apiUrl = environment.apiUrl;
+  readonly locationStatus = signal<'idle' | 'locating' | 'done' | 'error'>('idle');
 
   form: FormGroup;
 
@@ -64,6 +65,8 @@ export class OnboardingComponent implements OnInit {
       education: new FormControl(''),
       city: new FormControl(''),
       country: new FormControl(''),
+      latitude: new FormControl<number | null>(null),
+      longitude: new FormControl<number | null>(null),
 
       bio: new FormControl('', Validators.maxLength(500)),
       interests: new FormControl(''),
@@ -106,6 +109,25 @@ export class OnboardingComponent implements OnInit {
 
   goBack(): void {
     this.step.set(Math.max(this.step() - 1, 1));
+  }
+
+  useCurrentLocation(): void {
+    if (!navigator.geolocation) {
+      this.locationStatus.set('error');
+      return;
+    }
+    this.locationStatus.set('locating');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.form.patchValue({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        this.locationStatus.set('done');
+      },
+      () => this.locationStatus.set('error'),
+      { timeout: 10000 },
+    );
   }
 
   onPhotoSelected(event: Event): void {
@@ -165,6 +187,8 @@ export class OnboardingComponent implements OnInit {
         education: value.education || undefined,
         city: value.city || undefined,
         country: value.country || undefined,
+        latitude: value.latitude ?? undefined,
+        longitude: value.longitude ?? undefined,
         bio: value.bio || undefined,
         interests: toArray(value.interests),
         smoking: value.smoking || undefined,

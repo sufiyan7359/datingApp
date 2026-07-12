@@ -84,6 +84,19 @@
                 <input type="text" class="form-control" formControlName="country" />
               </div>
             </div>
+
+            <div class="mb-3">
+              <button type="button" class="btn btn-outline-danger btn-sm" (click)="useCurrentLocation()" [disabled]="locationStatus() === 'locating'">
+                {{ locationStatus() === 'locating' ? 'Locating…' : 'Use my current location' }}
+              </button>
+              <span class="text-success ms-2" *ngIf="locationStatus() === 'done'">Location saved &check;</span>
+              <span class="textdanger ms-2" *ngIf="locationStatus() === 'error'">
+                Couldn't get your location. You can still set your city/country manually.
+              </span>
+              <p class="text-muted mt-1 mb-0" style="font-size: 0.85rem;">
+                Used to show you nearby matches and sort your feed by distance. Optional.
+              </p>
+            </div>
           </div>
 
           <!-- Step 3: About you -->

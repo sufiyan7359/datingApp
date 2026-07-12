@@ -7,6 +7,8 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
+  IsLatitude,
+  IsLongitude,
   IsOptional,
   IsString,
   Max,
@@ -80,6 +82,20 @@ export class UpdateProfileDto {
   @IsString()
   @MaxLength(100)
   country?: string;
+
+  @ApiPropertyOptional({
+    description: 'Captured via the browser Geolocation API',
+  })
+  @IsOptional()
+  @IsLatitude()
+  latitude?: number;
+
+  @ApiPropertyOptional({
+    description: 'Captured via the browser Geolocation API',
+  })
+  @IsOptional()
+  @IsLongitude()
+  longitude?: number;
 
   @ApiPropertyOptional({ enum: LifestyleChoice })
   @IsOptional()

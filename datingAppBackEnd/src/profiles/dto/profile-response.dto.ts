@@ -42,6 +42,12 @@ export class ProfileResponseDto {
   @ApiProperty({ nullable: true })
   country: string | null;
 
+  @ApiProperty({ nullable: true })
+  latitude: number | null;
+
+  @ApiProperty({ nullable: true })
+  longitude: number | null;
+
   @ApiProperty({ nullable: true, enum: LifestyleChoice })
   smoking: LifestyleChoice | null;
 
@@ -87,6 +93,8 @@ export class ProfileResponseDto {
     dto.bio = profile.bio;
     dto.city = profile.city;
     dto.country = profile.country;
+    dto.latitude = profile.latitude;
+    dto.longitude = profile.longitude;
     dto.smoking = profile.smoking;
     dto.drinking = profile.drinking;
     dto.workout = profile.workout;
