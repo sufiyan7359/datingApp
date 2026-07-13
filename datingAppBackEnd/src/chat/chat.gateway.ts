@@ -24,6 +24,7 @@ import { ReactMessageDto } from './dto/react-message.dto';
 import { CallInviteDto } from './dto/call-invite.dto';
 import { CallIdDto } from './dto/call-id.dto';
 import { WebrtcIceCandidateDto, WebrtcSdpDto } from './dto/webrtc-signal.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 interface AuthedSocket extends Socket {
   data: { userId: string };
@@ -64,6 +65,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly presence: PresenceService,
     private readonly messagesService: MessagesService,
     private readonly callsService: CallsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async handleConnection(client: AuthedSocket): Promise<void> {
@@ -151,7 +153,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server
       .to(`conversation:${dto.conversationId}`)
       .emit('newMessage', message);
+    await this.notifyOtherParticipant(client.data.userId, message);
     return message;
+  }
+
+  /**
+   * Only pushes to the other side of the conversation, and only if they
+   * don't already have a live socket connected - they'll see it arrive over
+   * the socket instead (see 'newMessage' emit above).
+   */
+  private async notifyOtherParticipant(
+    senderId: string,
+    message: { conversationId: string; type: string; content: string | null },
+  ): Promise<void> {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id: message.conversationId },
+      include: { match: true },
+    });
+    if (!conversation) return;
+
+    const recipientId =
+      conversation.match.userAId === senderId
+        ? conversation.match.userBId
+        : conversation.match.userAId;
+    if (this.presence.isOnline(recipientId)) return;
+
+    const sender = await this.prisma.user.findUnique({
+      where: { id: senderId },
+      select: { firstName: true },
+    });
+    const preview =
+      message.type === 'IMAGE'
+        ? 'Sent a photo'
+        : message.type === 'VOICE'
+          ? 'Sent a voice message'
+          : (message.content ?? '');
+
+    await this.notifications.notify(recipientId, {
+      title: sender?.firstName ?? 'New message',
+      body: preview,
+      url: '/chating/' + senderId,
+    });
   }
 
   @SubscribeMessage('typing')

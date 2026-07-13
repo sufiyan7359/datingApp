@@ -11,7 +11,10 @@ export class VerificationService {
     return VerificationStatusDto.fromEntity(profile);
   }
 
-  async submit(userId: string, selfieUrl: string): Promise<VerificationStatusDto> {
+  async submit(
+    userId: string,
+    selfieUrl: string,
+  ): Promise<VerificationStatusDto> {
     const profile = await this.getOrCreate(userId);
 
     if (profile.verificationStatus === 'APPROVED') {

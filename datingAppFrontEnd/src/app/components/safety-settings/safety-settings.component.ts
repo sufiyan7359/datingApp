@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SafetyService } from '../../core/safety/safety.service';
 import { ProfileService } from '../../core/profile/profile.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { PushService } from '../../core/push/push.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -16,6 +17,7 @@ export class SafetySettingsComponent implements OnInit {
   private readonly safetyService = inject(SafetyService);
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
+  private readonly pushService = inject(PushService);
 
   readonly apiUrl = environment.apiUrl;
   readonly blockedUsers = this.safetyService.blockedUsers;
@@ -29,9 +31,24 @@ export class SafetySettingsComponent implements OnInit {
   disablePassword = '';
   readonly twoFactorBusy = signal(false);
 
+  readonly pushSupported = this.pushService.isSupported;
+  readonly pushStatus = this.pushService.status;
+  readonly pushBusy = signal(false);
+
   ngOnInit(): void {
     this.safetyService.loadBlocked().subscribe();
     this.profileService.loadProfile().subscribe();
+    this.pushService.refreshStatus();
+  }
+
+  togglePush(): void {
+    this.errorMessage.set(null);
+    this.pushBusy.set(true);
+    const action =
+      this.pushStatus() === 'subscribed' ? this.pushService.unsubscribe() : this.pushService.subscribe();
+    action
+      .catch((err) => this.errorMessage.set(err?.message ?? 'Could not update notification settings.'))
+      .finally(() => this.pushBusy.set(false));
   }
 
   unblock(userId: string): void {

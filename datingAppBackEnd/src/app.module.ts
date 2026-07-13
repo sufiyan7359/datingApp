@@ -14,6 +14,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SafetyModule } from './safety/safety.module';
 import { AdminModule } from './admin/admin.module';
 import { VerificationModule } from './verification/verification.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { VerificationModule } from './verification/verification.module';
     SafetyModule,
     AdminModule,
     VerificationModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
