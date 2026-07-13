@@ -10,13 +10,14 @@ import * as crypto from 'crypto';
 import { authenticator } from 'otplib';
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service';
-import { UsersService } from '../users/users.service';
+import { PASSWORD_SALT_ROUNDS, UsersService } from '../users/users.service';
 import { UserResponseDto } from '../users/user-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { TwoFactorChallengeDto } from './dto/two-factor-challenge.dto';
 import { TwoFactorSetupResponseDto } from './dto/two-factor-setup-response.dto';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { EmailService } from '../email/email.service';
 import type { User } from '@prisma/client';
 
 interface AccessTokenPayload {
@@ -40,11 +41,13 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly analytics: AnalyticsService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const user = await this.usersService.create(dto);
     await this.analytics.track(user.id, 'SIGNUP');
+    await this.emailService.sendWelcomeEmail(user.email, user.firstName);
     return this.issueTokens(user);
   }
 
@@ -204,6 +207,59 @@ export class AuthService {
       where: { tokenHash, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+  }
+
+  /**
+   * Always resolves the same way whether or not the email matches an
+   * account, so this endpoint can't be used to enumerate registered emails.
+   */
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      return;
+    }
+
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    await this.prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tokenHash: this.hashToken(rawToken),
+        expiresAt: new Date(Date.now() + this.parseDurationMs('1h')),
+      },
+    });
+
+    const resetUrl = `${this.configService.get<string>('FRONTEND_URL')}/reset-password?token=${rawToken}`;
+    await this.emailService.sendPasswordResetEmail(user.email, resetUrl);
+  }
+
+  /**
+   * Also revokes every active refresh token, so a stolen session can't
+   * survive a password reset the account owner triggered to recover from it.
+   */
+  async resetPassword(rawToken: string, newPassword: string): Promise<void> {
+    const tokenHash = this.hashToken(rawToken);
+    const stored = await this.prisma.passwordResetToken.findUnique({
+      where: { tokenHash },
+    });
+    if (!stored || stored.usedAt || stored.expiresAt < new Date()) {
+      throw new BadRequestException('Invalid or expired reset link');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, PASSWORD_SALT_ROUNDS);
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: stored.userId },
+        data: { passwordHash },
+      }),
+      this.prisma.passwordResetToken.update({
+        where: { id: stored.id },
+        data: { usedAt: new Date() },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId: stored.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
   }
 
   private async issueTokens(user: User): Promise<AuthResponseDto> {

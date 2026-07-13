@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto/register.dto';
 
-const PASSWORD_SALT_ROUNDS = 12;
+export const PASSWORD_SALT_ROUNDS = 12;
 
 @Injectable()
 export class UsersService {
