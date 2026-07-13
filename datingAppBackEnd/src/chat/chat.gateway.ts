@@ -105,7 +105,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
 
     const wasOffline = this.presence.addConnection(userId, client.id);
-    if (wasOffline) {
+    if (wasOffline && !(await this.hidesOnlineStatus(userId))) {
       for (const conversation of conversations) {
         this.server
           .to(`conversation:${conversation.id}`)
@@ -114,20 +114,29 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  handleDisconnect(client: AuthedSocket): void {
+  async handleDisconnect(client: AuthedSocket): Promise<void> {
     const userId = client.data?.userId;
     const conversationIds = this.conversationIdsBySocket.get(client.id) ?? [];
     this.conversationIdsBySocket.delete(client.id);
     if (!userId) return;
 
     const nowOffline = this.presence.removeConnection(userId, client.id);
-    if (nowOffline) {
+    if (nowOffline && !(await this.hidesOnlineStatus(userId))) {
       for (const conversationId of conversationIds) {
         this.server
           .to(`conversation:${conversationId}`)
           .emit('presence', { userId, online: false });
       }
     }
+  }
+
+  /** Profile.hideOnlineStatus opts a user out of the visible green-dot broadcast (presence is still tracked internally for delivery receipts). */
+  private async hidesOnlineStatus(userId: string): Promise<boolean> {
+    const profile = await this.prisma.profile.findUnique({
+      where: { userId },
+      select: { hideOnlineStatus: true },
+    });
+    return profile?.hideOnlineStatus ?? false;
   }
 
   @SubscribeMessage('sendMessage')

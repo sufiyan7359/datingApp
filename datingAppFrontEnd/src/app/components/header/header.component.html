@@ -42,6 +42,10 @@
           <a class="nav-link text-warning" routerLink="/premium"><b>Premium</b></a>
         </li>
 
+        <li class="nav-item" *ngIf="isAuthenticated()">
+          <a class="nav-link" routerLink="/safety">Safety</a>
+        </li>
+
         <!-- <li class="nav-item">
           <a class="nav-link text-warning" routerLink="/profile"><b>My Profile</b></a>
         </li> -->

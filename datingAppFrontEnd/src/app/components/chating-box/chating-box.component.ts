@@ -1,11 +1,13 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ChatService } from '../../core/chat/chat.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { CallService } from '../../core/calls/call.service';
+import { SafetyService } from '../../core/safety/safety.service';
 import { ChatMessage } from '../../core/chat/chat.models';
+import { ReportReason } from '../../core/safety/safety.models';
 import { environment } from '../../../environments/environment';
 
 const QUICK_REACTIONS = ['❤️', '😂', '😮', '😢', '👍'];
@@ -19,9 +21,11 @@ const TYPING_STOP_DELAY_MS = 2000;
 })
 export class ChatingBoxComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly chatService = inject(ChatService);
   private readonly authService = inject(AuthService);
   private readonly callService = inject(CallService);
+  private readonly safetyService = inject(SafetyService);
 
   @ViewChild('messageInput') messageInputRef: ElementRef<HTMLInputElement>;
   @ViewChild('scrollAnchor') scrollAnchorRef: ElementRef<HTMLDivElement>;
@@ -41,8 +45,13 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   readonly searchQuery = signal('');
   readonly searchResults = signal<ChatMessage[] | null>(null);
   readonly openReactionPickerFor = signal<string | null>(null);
+  readonly isMuted = signal(false);
+  readonly reportModalOpen = signal(false);
 
   value = '';
+  reportReason: ReportReason = 'HARASSMENT';
+  reportDescription = '';
+  reportAlsoBlock = false;
   private typingStopTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
@@ -62,6 +71,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
         this.otherFirstName.set(conversation.otherFirstName);
         this.otherUserId.set(conversation.otherUserId);
         this.conversationId.set(conversation.conversationId);
+        this.isMuted.set(conversation.isMuted);
         this.chatService.setActiveConversation(conversation.conversationId);
 
         this.chatService.loadMessages(conversation.conversationId).subscribe(() => {
@@ -210,6 +220,48 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   clearSearch(): void {
     this.searchQuery.set('');
     this.searchResults.set(null);
+  }
+
+  toggleMute(): void {
+    const conversationId = this.conversationId();
+    if (!conversationId) return;
+    const next = !this.isMuted();
+    this.chatService.setMuted(conversationId, next).subscribe({
+      next: () => this.isMuted.set(next),
+    });
+  }
+
+  openReportModal(): void {
+    this.reportReason = 'HARASSMENT';
+    this.reportDescription = '';
+    this.reportAlsoBlock = false;
+    this.reportModalOpen.set(true);
+  }
+
+  closeReportModal(): void {
+    this.reportModalOpen.set(false);
+  }
+
+  submitReport(): void {
+    this.safetyService.report(this.otherUserId(), this.reportReason, this.reportDescription, this.reportAlsoBlock).subscribe({
+      next: () => {
+        this.reportModalOpen.set(false);
+        if (this.reportAlsoBlock) {
+          void this.router.navigateByUrl('/dashboard');
+        }
+      },
+      error: (err) => this.errorMessage.set(err?.error?.message ?? 'Could not submit report.'),
+    });
+  }
+
+  blockUser(): void {
+    if (!confirm(`Block ${this.otherFirstName()}? You will no longer see each other or be able to message.`)) {
+      return;
+    }
+    this.safetyService.block(this.otherUserId()).subscribe({
+      next: () => void this.router.navigateByUrl('/dashboard'),
+      error: (err) => this.errorMessage.set(err?.error?.message ?? 'Could not block this user.'),
+    });
   }
 
   private markLatestRead(): void {

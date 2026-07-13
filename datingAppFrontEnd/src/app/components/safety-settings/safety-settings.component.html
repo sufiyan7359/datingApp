@@ -1,0 +1,86 @@
+<div class="container mt-4 mb-5">
+  <h3><b>Privacy &amp; Safety</b></h3>
+
+  <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+  <div *ngIf="successMessage()" class="alert alert-success py-2">{{ successMessage() }}</div>
+
+  <div class="card shadow border-0 rounded-4 p-3 mb-4">
+    <h5><b>Privacy</b></h5>
+    <div class="form-check form-switch mb-2" *ngIf="profile() as p">
+      <input class="form-check-input" type="checkbox" role="switch" id="hideAgeSwitch"
+        [checked]="p.hideAge" (change)="togglePrivacy('hideAge')" />
+      <label class="form-check-label" for="hideAgeSwitch">Hide my age</label>
+    </div>
+    <div class="form-check form-switch mb-2" *ngIf="profile() as p">
+      <input class="form-check-input" type="checkbox" role="switch" id="hideDistanceSwitch"
+        [checked]="p.hideDistance" (change)="togglePrivacy('hideDistance')" />
+      <label class="form-check-label" for="hideDistanceSwitch">Hide my distance</label>
+    </div>
+    <div class="form-check form-switch" *ngIf="profile() as p">
+      <input class="form-check-input" type="checkbox" role="switch" id="hideOnlineSwitch"
+        [checked]="p.hideOnlineStatus" (change)="togglePrivacy('hideOnlineStatus')" />
+      <label class="form-check-label" for="hideOnlineSwitch">Hide my online status</label>
+    </div>
+  </div>
+
+  <div class="card shadow border-0 rounded-4 p-3 mb-4" *ngIf="profile() as p">
+    <h5><b>Photo blur</b></h5>
+    <p class="text-muted" style="font-size: 0.85rem;">Blurred photos only show clearly to people you've matched with.</p>
+    <div class="row g-3">
+      <div class="col-6 col-md-3" *ngFor="let photo of p.photos">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+          <img [src]="apiUrl + photo.url" class="w-100" style="height: 140px; object-fit: cover;" />
+          <div class="p-2 d-flex justify-content-between align-items-center">
+            <span style="font-size: 0.8rem;">{{ photo.isBlurred ? 'Blurred' : 'Visible' }}</span>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" role="switch"
+                [checked]="photo.isBlurred" (change)="togglePhotoBlur(photo.id, photo.isBlurred)" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="text-muted" *ngIf="p.photos.length === 0">Upload photos during onboarding to manage blur here.</p>
+    </div>
+  </div>
+
+  <div class="card shadow border-0 rounded-4 p-3 mb-4">
+    <h5><b>Blocked users</b></h5>
+    <p class="text-muted" *ngIf="blockedUsers().length === 0">You haven't blocked anyone.</p>
+    <ul class="list-group list-group-flush" *ngIf="blockedUsers().length > 0">
+      <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let u of blockedUsers()">
+        {{ u.firstName }}
+        <button class="btn btn-sm btn-outline-secondary" (click)="unblock(u.userId)">Unblock</button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card shadow border-0 rounded-4 p-3">
+    <h5><b>Two-factor authentication</b></h5>
+
+    <div *ngIf="currentUser()?.twoFactorEnabled && !twoFactorSetup()">
+      <p class="text-success mb-3">2FA is enabled on your account.</p>
+      <label class="form-label">Enter your password to disable it</label>
+      <div class="d-flex gap-2" style="max-width: 400px;">
+        <input type="password" class="form-control form-control-sm" [(ngModel)]="disablePassword" />
+        <button class="btn btn-outline-danger btn-sm" [disabled]="twoFactorBusy()" (click)="disableTwoFactor()">Disable</button>
+      </div>
+    </div>
+
+    <div *ngIf="!currentUser()?.twoFactorEnabled && !twoFactorSetup()">
+      <p class="text-muted">Add an extra layer of security using an authenticator app (Google Authenticator, Authy, etc.).</p>
+      <button class="btn btn-danger btn-sm" (click)="startTwoFactorSetup()">Enable 2FA</button>
+    </div>
+
+    <div *ngIf="twoFactorSetup() as setup">
+      <p>Scan this QR code with your authenticator app, then enter the 6-digit code it shows.</p>
+      <img [src]="setup.qrCodeDataUrl" style="width: 180px; height: 180px;" />
+      <p class="text-muted" style="font-size: 0.8rem; word-break: break-all;">Or enter manually: {{ setup.otpauthUrl }}</p>
+      <div class="d-flex gap-2" style="max-width: 300px;">
+        <input type="text" inputmode="numeric" maxlength="6" class="form-control form-control-sm"
+          placeholder="123456" [(ngModel)]="twoFactorCode" />
+        <button class="btn btn-danger btn-sm" [disabled]="twoFactorBusy()" (click)="confirmTwoFactor()">Confirm</button>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm mt-2" (click)="cancelTwoFactorSetup()">Cancel</button>
+    </div>
+  </div>
+</div>

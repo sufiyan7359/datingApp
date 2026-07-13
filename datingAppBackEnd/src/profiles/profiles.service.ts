@@ -4,6 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { basename, join } from 'path';
+import sharp from 'sharp';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import {
@@ -11,8 +13,10 @@ import {
   TIER_LIMITS,
 } from '../matching/matching.constants';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { PHOTOS_ROOT } from './multer.config';
 
 const MAX_PHOTOS_PER_PROFILE = 6;
+const BLUR_SIGMA = 25;
 
 @Injectable()
 export class ProfilesService {
@@ -111,6 +115,41 @@ export class ProfilesService {
         });
       }
     }
+  }
+
+  /**
+   * Generates a real blurred image variant with sharp (not a CSS filter, so it
+   * can't be undone client-side) and serves it instead of the original to
+   * anyone who hasn't matched the owner yet - see photo-response.dto.ts.
+   */
+  async setPhotoBlur(userId: string, photoId: string, isBlurred: boolean) {
+    const profile = await this.getOrCreate(userId);
+    const photo = profile.photos.find((p) => p.id === photoId);
+    if (!photo) {
+      throw new NotFoundException('Photo not found');
+    }
+
+    if (!isBlurred) {
+      return this.prisma.photo.update({
+        where: { id: photoId },
+        data: { isBlurred: false, blurredUrl: null },
+      });
+    }
+
+    const filename = basename(photo.url);
+    const inputPath = join(PHOTOS_ROOT, userId, filename);
+    const blurredFilename = `blurred-${filename}`;
+    const outputPath = join(PHOTOS_ROOT, userId, blurredFilename);
+
+    await sharp(inputPath).blur(BLUR_SIGMA).toFile(outputPath);
+
+    return this.prisma.photo.update({
+      where: { id: photoId },
+      data: {
+        isBlurred: true,
+        blurredUrl: `/uploads/photos/${userId}/${blurredFilename}`,
+      },
+    });
   }
 
   async activateBoost(userId: string) {

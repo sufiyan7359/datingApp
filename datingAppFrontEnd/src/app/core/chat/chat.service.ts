@@ -232,4 +232,17 @@ export class ChatService {
       formData,
     );
   }
+
+  setMuted(conversationId: string, muted: boolean): Observable<void> {
+    const request$ = muted
+      ? this.http.post<void>(`${environment.apiUrl}/conversations/${conversationId}/mute`, {})
+      : this.http.delete<void>(`${environment.apiUrl}/conversations/${conversationId}/mute`);
+    return request$.pipe(
+      tap(() => {
+        this.conversations.update((current) =>
+          current.map((c) => (c.conversationId === conversationId ? { ...c, isMuted: muted } : c)),
+        );
+      }),
+    );
+  }
 }

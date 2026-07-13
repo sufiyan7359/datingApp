@@ -22,17 +22,28 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  refreshTokens  RefreshToken[]
-  profile        Profile?
-  swipesGiven    Swipe[]           @relation("SwipesGiven")
-  swipesReceived Swipe[]           @relation("SwipesReceived")
-  matchesAsA     Match[]           @relation("MatchesAsA")
-  matchesAsB     Match[]           @relation("MatchesAsB")
-  messages       Message[]
-  reactions      MessageReaction[]
-  callsMade      Call[]            @relation("CallsMade")
-  callsReceived  Call[]            @relation("CallsReceived")
-  subscriptions  Subscription[]
+  // TOTP (authenticator app) 2FA. Secret is only meaningful once enabled;
+  // while the user is mid-setup (scanned QR, not yet confirmed) it is held in
+  // a short-lived JWT instead - see auth.service.ts.
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean @default(false)
+
+  refreshTokens      RefreshToken[]
+  profile            Profile?
+  swipesGiven        Swipe[]              @relation("SwipesGiven")
+  swipesReceived     Swipe[]              @relation("SwipesReceived")
+  matchesAsA         Match[]              @relation("MatchesAsA")
+  matchesAsB         Match[]              @relation("MatchesAsB")
+  messages           Message[]
+  reactions          MessageReaction[]
+  callsMade          Call[]               @relation("CallsMade")
+  callsReceived      Call[]               @relation("CallsReceived")
+  subscriptions      Subscription[]
+  blocksMade         Block[]              @relation("BlocksMade")
+  blocksReceived     Block[]              @relation("BlocksReceived")
+  reportsMade        Report[]             @relation("ReportsMade")
+  reportsReceived    Report[]             @relation("ReportsReceived")
+  mutedConversations MutedConversation[]
 
   @@map("users")
 }
@@ -98,6 +109,11 @@ model Profile {
   passportCity      String?
   passportCountry   String?
 
+  // Privacy settings (free, unlike incognito/passport above).
+  hideAge          Boolean @default(false)
+  hideDistance     Boolean @default(false)
+  hideOnlineStatus Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -124,6 +140,12 @@ model Photo {
   url       String
   order     Int     @default(0)
   isPrimary Boolean @default(false)
+
+  // When true, `blurredUrl` (a server-generated blurred variant, not just a
+  // CSS filter) is served instead of `url` to anyone who hasn't matched the
+  // owner yet - see profiles.service.ts / photo-response.dto.ts.
+  isBlurred   Boolean @default(false)
+  blurredUrl  String?
 
   createdAt DateTime @default(now())
 
@@ -192,6 +214,7 @@ model Conversation {
 
   messages Message[]
   calls    Call[]
+  mutedBy  MutedConversation[]
 
   @@map("conversations")
 }
@@ -337,4 +360,64 @@ model MessageReaction {
 
   @@unique([messageId, userId, emoji])
   @@map("message_reactions")
+}
+
+model Block {
+  id        String   @id @default(uuid())
+  blockerId String
+  blocker   User     @relation("BlocksMade", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId String
+  blocked   User     @relation("BlocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("blocks")
+}
+
+enum ReportReason {
+  INAPPROPRIATE_PHOTOS
+  HARASSMENT
+  FAKE_PROFILE
+  SPAM
+  UNDERAGE
+  OFFLINE_BEHAVIOR
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  ACTION_TAKEN
+  DISMISSED
+}
+
+/// No moderation UI exists yet to review these (deferred to the admin panel
+/// phase) - this just records them for now.
+model Report {
+  id          String       @id @default(uuid())
+  reporterId  String
+  reporter    User         @relation("ReportsMade", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedId  String
+  reported    User         @relation("ReportsReceived", fields: [reportedId], references: [id], onDelete: Cascade)
+  reason      ReportReason
+  description String?
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  @@index([reportedId])
+  @@index([status])
+  @@map("reports")
+}
+
+model MutedConversation {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, conversationId])
+  @@map("muted_conversations")
 }

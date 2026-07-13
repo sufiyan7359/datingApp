@@ -2,13 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { haversineDistanceKm } from '../common/utils/geo';
+import { BlocksService } from '../safety/blocks.service';
 import { DiscoveryQueryDto } from './dto/discovery-query.dto';
 import { DiscoveryFeedDto } from './dto/discovery-feed.dto';
 import { DiscoveryProfileDto } from './dto/discovery-profile.dto';
 
 @Injectable()
 export class DiscoveryService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly blocks: BlocksService,
+  ) {}
 
   async getFeed(
     currentUserId: string,
@@ -25,8 +29,14 @@ export class DiscoveryService {
       })
     ).map((s) => s.targetId);
 
+    const blockedIds =
+      await this.blocks.blockedEitherDirectionIds(currentUserId);
+
     const where: Prisma.ProfileWhereInput = {
-      userId: { not: currentUserId, notIn: swipedTargetIds },
+      userId: {
+        not: currentUserId,
+        notIn: [...swipedTargetIds, ...blockedIds],
+      },
       onboardingCompleted: true,
       isIncognito: false,
       user: { isActive: true },
@@ -155,8 +165,10 @@ export class DiscoveryService {
     const pageItems = withDistance.slice((page - 1) * limit, page * limit);
 
     return {
+      // Viewer never has a match with anyone in the discovery feed yet, so
+      // photos flagged isBlurred always render blurred here (revealed=false).
       results: pageItems.map(({ candidate, distanceKm }) =>
-        DiscoveryProfileDto.fromEntity(candidate, distanceKm),
+        DiscoveryProfileDto.fromEntity(candidate, distanceKm, false),
       ),
       page,
       limit,

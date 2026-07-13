@@ -31,6 +31,7 @@ export interface Conversation {
   otherIsOnline: boolean;
   lastMessage: ChatMessage | null;
   unreadCount: number;
+  isMuted: boolean;
 }
 
 export interface TypingEvent {

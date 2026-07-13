@@ -17,6 +17,9 @@ export class UserResponseDto {
   @ApiProperty()
   createdAt: Date;
 
+  @ApiProperty()
+  twoFactorEnabled: boolean;
+
   static fromEntity(user: User): UserResponseDto {
     const dto = new UserResponseDto();
     dto.id = user.id;
@@ -24,6 +27,7 @@ export class UserResponseDto {
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
     dto.createdAt = user.createdAt;
+    dto.twoFactorEnabled = user.twoFactorEnabled;
     return dto;
   }
 }

@@ -7,9 +7,10 @@ import { PresenceService } from './presence.service';
 import { CallsController } from './calls.controller';
 import { CallsService } from './calls.service';
 import { ChatGateway } from './chat.gateway';
+import { SafetyModule } from '../safety/safety.module';
 
 @Module({
-  imports: [JwtModule.register({})],
+  imports: [JwtModule.register({}), SafetyModule],
   controllers: [ConversationsController, CallsController],
   providers: [
     ConversationsService,

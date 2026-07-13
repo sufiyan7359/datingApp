@@ -1,18 +1,34 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { authenticator } from 'otplib';
+import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { UserResponseDto } from '../users/user-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { TwoFactorChallengeDto } from './dto/two-factor-challenge.dto';
+import { TwoFactorSetupResponseDto } from './dto/two-factor-setup-response.dto';
 import type { User } from '@prisma/client';
 
 interface AccessTokenPayload {
   sub: string;
   email: string;
+}
+
+const TWO_FACTOR_CHALLENGE_TTL = '5m';
+const TWO_FACTOR_ISSUER = 'DatingApp';
+
+interface TwoFactorChallengePayload {
+  sub: string;
+  purpose: 'two-factor-challenge';
 }
 
 @Injectable()
@@ -40,8 +56,104 @@ export class AuthService {
     return user;
   }
 
-  async login(user: User): Promise<AuthResponseDto> {
+  async login(user: User): Promise<AuthResponseDto | TwoFactorChallengeDto> {
+    if (!user.twoFactorEnabled) {
+      return this.issueTokens(user);
+    }
+
+    const payload: TwoFactorChallengePayload = {
+      sub: user.id,
+      purpose: 'two-factor-challenge',
+    };
+    const challengeToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+      expiresIn: TWO_FACTOR_CHALLENGE_TTL,
+    });
+    return { requiresTwoFactor: true, challengeToken };
+  }
+
+  async verifyTwoFactorLogin(
+    challengeToken: string,
+    code: string,
+  ): Promise<AuthResponseDto> {
+    let payload: TwoFactorChallengePayload;
+    try {
+      payload = await this.jwtService.verifyAsync<TwoFactorChallengePayload>(
+        challengeToken,
+        { secret: this.configService.get<string>('JWT_ACCESS_SECRET') },
+      );
+    } catch {
+      throw new UnauthorizedException(
+        'Invalid or expired two-factor challenge',
+      );
+    }
+    if (payload.purpose !== 'two-factor-challenge') {
+      throw new UnauthorizedException('Invalid two-factor challenge');
+    }
+
+    const user = await this.usersService.findById(payload.sub);
+    if (
+      !user ||
+      !user.isActive ||
+      !user.twoFactorEnabled ||
+      !user.twoFactorSecret
+    ) {
+      throw new UnauthorizedException(
+        'Two-factor authentication is not available for this account',
+      );
+    }
+    if (!authenticator.verify({ token: code, secret: user.twoFactorSecret })) {
+      throw new UnauthorizedException('Invalid two-factor code');
+    }
+
     return this.issueTokens(user);
+  }
+
+  /** Generates a new secret and QR code. Not enabled until confirmTwoFactor() verifies a code. */
+  async setupTwoFactor(userId: string): Promise<TwoFactorSetupResponseDto> {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Account no longer available');
+    }
+
+    const secret = authenticator.generateSecret();
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorSecret: secret },
+    });
+
+    const otpauthUrl = authenticator.keyuri(
+      user.email,
+      TWO_FACTOR_ISSUER,
+      secret,
+    );
+    const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
+    return { otpauthUrl, qrCodeDataUrl };
+  }
+
+  async confirmTwoFactor(userId: string, code: string): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (!user?.twoFactorSecret) {
+      throw new BadRequestException('Call /auth/2fa/setup first');
+    }
+    if (!authenticator.verify({ token: code, secret: user.twoFactorSecret })) {
+      throw new UnauthorizedException('Invalid two-factor code');
+    }
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorEnabled: true },
+    });
+  }
+
+  async disableTwoFactor(userId: string, password: string): Promise<void> {
+    const user = await this.usersService.findById(userId);
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      throw new UnauthorizedException('Incorrect password');
+    }
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorEnabled: false, twoFactorSecret: null },
+    });
   }
 
   async refresh(rawRefreshToken: string): Promise<AuthResponseDto> {

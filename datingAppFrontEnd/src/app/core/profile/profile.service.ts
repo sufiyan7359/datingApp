@@ -45,4 +45,20 @@ export class ProfileService {
       }),
     );
   }
+
+  setPhotoBlur(photoId: string, isBlurred: boolean): Observable<Photo> {
+    return this.http
+      .patch<Photo>(`${environment.apiUrl}/profiles/me/photos/${photoId}/blur`, { isBlurred })
+      .pipe(
+        tap((updated) => {
+          const current = this.profile();
+          if (current) {
+            this.profile.set({
+              ...current,
+              photos: current.photos.map((p) => (p.id === updated.id ? updated : p)),
+            });
+          }
+        }),
+      );
+  }
 }

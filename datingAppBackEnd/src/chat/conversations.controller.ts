@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
   Query,
@@ -104,6 +106,30 @@ export class ConversationsController {
     @Param('messageId') messageId: string,
   ): Promise<MessageResponseDto> {
     return this.messagesService.togglePin(user.userId, messageId, false);
+  }
+
+  @Post(':id/mute')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Mute a conversation' })
+  async mute(
+    @CurrentUser() user: RequestUser,
+    @Param('id') conversationId: string,
+  ): Promise<void> {
+    await this.conversationsService.setMuted(user.userId, conversationId, true);
+  }
+
+  @Delete(':id/mute')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Unmute a conversation' })
+  async unmute(
+    @CurrentUser() user: RequestUser,
+    @Param('id') conversationId: string,
+  ): Promise<void> {
+    await this.conversationsService.setMuted(
+      user.userId,
+      conversationId,
+      false,
+    );
   }
 
   @Post(':id/attachments')

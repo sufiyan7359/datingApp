@@ -23,4 +23,7 @@ export class ConversationResponseDto {
 
   @ApiProperty()
   unreadCount: number;
+
+  @ApiProperty()
+  isMuted: boolean;
 }

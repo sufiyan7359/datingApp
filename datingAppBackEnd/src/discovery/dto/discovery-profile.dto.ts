@@ -63,11 +63,15 @@ export class DiscoveryProfileDto {
   static fromEntity(
     profile: Profile & { photos: Photo[]; user: { firstName: string } },
     distanceKm: number | null,
+    revealed = false,
   ): DiscoveryProfileDto {
     const dto = new DiscoveryProfileDto();
     dto.userId = profile.userId;
     dto.firstName = profile.user.firstName;
-    dto.age = profile.dateOfBirth ? calculateAge(profile.dateOfBirth) : null;
+    dto.age =
+      !profile.hideAge && profile.dateOfBirth
+        ? calculateAge(profile.dateOfBirth)
+        : null;
     dto.gender = profile.gender;
     dto.bio = profile.bio;
     dto.city = profile.city;
@@ -81,9 +85,11 @@ export class DiscoveryProfileDto {
     dto.interests = profile.interests;
     dto.photos = profile.photos
       .sort((a, b) => a.order - b.order)
-      .map((photo) => PhotoResponseDto.fromEntity(photo));
+      .map((photo) => PhotoResponseDto.fromEntity(photo, revealed));
     dto.distanceKm =
-      distanceKm === null ? null : Math.round(distanceKm * 10) / 10;
+      profile.hideDistance || distanceKm === null
+        ? null
+        : Math.round(distanceKm * 10) / 10;
     return dto;
   }
 }

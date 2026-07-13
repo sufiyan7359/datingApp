@@ -13,12 +13,14 @@ import { LikesReceivedDto } from './dto/likes-received.dto';
 import { PhotoResponseDto } from '../profiles/dto/photo-response.dto';
 import { TIER_LIMITS, UNLIMITED } from './matching.constants';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
+import { BlocksService } from '../safety/blocks.service';
 
 @Injectable()
 export class SwipesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly subscriptions: SubscriptionsService,
+    private readonly blocks: BlocksService,
   ) {}
 
   async swipe(swiperId: string, dto: CreateSwipeDto): Promise<SwipeResultDto> {
@@ -31,6 +33,12 @@ export class SwipesService {
     });
     if (!target || !target.isActive) {
       throw new NotFoundException('Profile not found');
+    }
+
+    if (
+      await this.blocks.isBlockedEitherDirection(swiperId, dto.targetUserId)
+    ) {
+      throw new ForbiddenException('You cannot swipe on this profile');
     }
 
     const existing = await this.prisma.swipe.findUnique({
@@ -170,7 +178,7 @@ export class SwipesService {
   async getLikesReceived(userId: string): Promise<LikesReceivedDto> {
     const tier = await this.subscriptions.getCurrentTier(userId);
 
-    const [likes, matches] = await Promise.all([
+    const [likes, matches, blockedIds] = await Promise.all([
       this.prisma.swipe.findMany({
         where: {
           targetId: userId,
@@ -182,12 +190,16 @@ export class SwipesService {
       this.prisma.match.findMany({
         where: { OR: [{ userAId: userId }, { userBId: userId }] },
       }),
+      this.blocks.blockedEitherDirectionIds(userId),
     ]);
 
     const matchedUserIds = new Set(
       matches.map((m) => (m.userAId === userId ? m.userBId : m.userAId)),
     );
-    const pending = likes.filter((l) => !matchedUserIds.has(l.swiperId));
+    const blockedUserIds = new Set(blockedIds);
+    const pending = likes.filter(
+      (l) => !matchedUserIds.has(l.swiperId) && !blockedUserIds.has(l.swiperId),
+    );
 
     if (tier === 'FREE') {
       return { count: pending.length, isPremium: false, likes: [] };
@@ -209,7 +221,7 @@ export class SwipesService {
           firstName: profile?.user.firstName ?? '',
           photos: (profile?.photos ?? [])
             .sort((a, b) => a.order - b.order)
-            .map((p) => PhotoResponseDto.fromEntity(p)),
+            .map((p) => PhotoResponseDto.fromEntity(p, false)),
           action: l.action,
           likedAt: l.createdAt,
         };

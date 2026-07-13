@@ -4,9 +4,10 @@ import { SwipesService } from './swipes.service';
 import { MatchesController } from './matches.controller';
 import { MatchesService } from './matches.service';
 import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
+import { SafetyModule } from '../safety/safety.module';
 
 @Module({
-  imports: [SubscriptionsModule],
+  imports: [SubscriptionsModule, SafetyModule],
   controllers: [SwipesController, MatchesController],
   providers: [SwipesService, MatchesService],
 })

@@ -25,6 +25,7 @@ import { ProfilesService } from './profiles.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
 import { PhotoResponseDto } from './dto/photo-response.dto';
+import { SetPhotoBlurDto } from './dto/set-photo-blur.dto';
 import { photoMulterOptions } from './multer.config';
 
 @ApiTags('profiles')
@@ -81,6 +82,24 @@ export class ProfilesController {
     @Param('id') photoId: string,
   ): Promise<void> {
     await this.profilesService.removePhoto(user.userId, photoId);
+  }
+
+  @Patch('me/photos/:id/blur')
+  @ApiOperation({
+    summary:
+      'Blur (or unblur) a photo. Blurred photos show a real server-generated blurred image to anyone who has not matched you yet.',
+  })
+  async setPhotoBlur(
+    @CurrentUser() user: RequestUser,
+    @Param('id') photoId: string,
+    @Body() dto: SetPhotoBlurDto,
+  ): Promise<PhotoResponseDto> {
+    const photo = await this.profilesService.setPhotoBlur(
+      user.userId,
+      photoId,
+      dto.isBlurred,
+    );
+    return PhotoResponseDto.fromEntity(photo);
   }
 
   @Post('me/boost')

@@ -14,6 +14,7 @@ import { ChatingBoxComponent } from './components/chating-box/chating-box.compon
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
 import { PremiumComponent } from './components/premium/premium.component';
 import { LikesComponent } from './components/likes/likes.component';
+import { SafetySettingsComponent } from './components/safety-settings/safety-settings.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -29,6 +30,7 @@ export const routes: Routes = [
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'premium', component: PremiumComponent, canActivate: [authGuard] },
   { path: 'likes', component: LikesComponent, canActivate: [authGuard] },
+  { path: 'safety', component: SafetySettingsComponent, canActivate: [authGuard] },
   { path: 'chating/:id', component: ChatingBoxComponent, canActivate: [authGuard] },
   { path: 'chating', component: ChatingBoxComponent, canActivate: [authGuard] },
 ];

@@ -90,6 +90,15 @@ export class ProfileResponseDto {
   @ApiProperty({ nullable: true })
   passportCountry: string | null;
 
+  @ApiProperty()
+  hideAge: boolean;
+
+  @ApiProperty()
+  hideDistance: boolean;
+
+  @ApiProperty()
+  hideOnlineStatus: boolean;
+
   @ApiProperty({ type: [PhotoResponseDto] })
   photos: PhotoResponseDto[];
 
@@ -124,6 +133,9 @@ export class ProfileResponseDto {
     dto.passportLongitude = profile.passportLongitude;
     dto.passportCity = profile.passportCity;
     dto.passportCountry = profile.passportCountry;
+    dto.hideAge = profile.hideAge;
+    dto.hideDistance = profile.hideDistance;
+    dto.hideOnlineStatus = profile.hideOnlineStatus;
     dto.photos = (profile.photos ?? [])
       .sort((a, b) => a.order - b.order)
       .map((photo) => PhotoResponseDto.fromEntity(photo));

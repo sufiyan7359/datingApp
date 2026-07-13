@@ -7,6 +7,7 @@ import {
 import { CallType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConversationsService } from './conversations.service';
+import { BlocksService } from '../safety/blocks.service';
 import { CallResponseDto } from './dto/call-response.dto';
 
 @Injectable()
@@ -14,6 +15,7 @@ export class CallsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly conversationsService: ConversationsService,
+    private readonly blocks: BlocksService,
   ) {}
 
   async inviteCall(callerId: string, conversationId: string, type: CallType) {
@@ -26,6 +28,10 @@ export class CallsService {
       conversation,
       callerId,
     );
+
+    if (await this.blocks.isBlockedEitherDirection(callerId, calleeId)) {
+      throw new ForbiddenException('You cannot call this user');
+    }
 
     const ongoing = await this.prisma.call.findFirst({
       where: { conversationId, status: { in: ['RINGING', 'ACTIVE'] } },

@@ -18,9 +18,40 @@
             <input type="text" class="form-control form-control-sm" style="width: 160px;" placeholder="Search messages"
               [(ngModel)]="searchQuery" (ngModelChange)="runSearch()" />
             <button class="btn btn-sm btn-outline-secondary" *ngIf="searchResults()" (click)="clearSearch()">&times;</button>
+
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" title="More options">
+                <i class="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="javascript:void(0)" (click)="toggleMute()">{{ isMuted() ? 'Unmute' : 'Mute' }} conversation</a></li>
+                <li><a class="dropdown-item" href="javascript:void(0)" (click)="openReportModal()">Report {{ otherFirstName() }}</a></li>
+                <li><a class="dropdown-item text-danger" href="javascript:void(0)" (click)="blockUser()">Block {{ otherFirstName() }}</a></li>
+              </ul>
+            </div>
           </div>
         </div>
         <hr class="textdanger">
+
+        <div class="reply-bar" *ngIf="reportModalOpen()">
+          <div class="mb-2"><b>Report {{ otherFirstName() }}</b></div>
+          <select class="form-select form-select-sm mb-2" [(ngModel)]="reportReason">
+            <option value="HARASSMENT">Harassment</option>
+            <option value="INAPPROPRIATE_PHOTOS">Inappropriate photos</option>
+            <option value="FAKE_PROFILE">Fake profile</option>
+            <option value="SPAM">Spam</option>
+            <option value="UNDERAGE">Underage</option>
+            <option value="OFFLINE_BEHAVIOR">Bad behavior off the app</option>
+            <option value="OTHER">Other</option>
+          </select>
+          <textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Details (optional)" [(ngModel)]="reportDescription"></textarea>
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="alsoBlockCheck" [(ngModel)]="reportAlsoBlock" />
+            <label class="form-check-label" for="alsoBlockCheck">Also block this person</label>
+          </div>
+          <button class="btn btn-sm btn-danger" (click)="submitReport()">Submit report</button>
+          <button class="btn btn-sm btn-outline-secondary ms-2" (click)="closeReportModal()">Cancel</button>
+        </div>
 
         <!-- Search results -->
         <div *ngIf="searchResults() as results">

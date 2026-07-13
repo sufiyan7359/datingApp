@@ -9,6 +9,7 @@ export interface Photo {
   url: string;
   order: number;
   isPrimary: boolean;
+  isBlurred: boolean;
 }
 
 export interface Profile {
@@ -39,6 +40,9 @@ export interface Profile {
   passportLongitude: number | null;
   passportCity: string | null;
   passportCountry: string | null;
+  hideAge: boolean;
+  hideDistance: boolean;
+  hideOnlineStatus: boolean;
   photos: Photo[];
 }
 

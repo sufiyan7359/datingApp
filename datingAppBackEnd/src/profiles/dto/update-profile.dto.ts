@@ -189,4 +189,21 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   clearPassport?: boolean;
+
+  @ApiPropertyOptional({ description: 'Hide your age from other users' })
+  @IsOptional()
+  @IsBoolean()
+  hideAge?: boolean;
+
+  @ApiPropertyOptional({ description: 'Hide your distance from other users' })
+  @IsOptional()
+  @IsBoolean()
+  hideDistance?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Hide your online/last-active status from other users',
+  })
+  @IsOptional()
+  @IsBoolean()
+  hideOnlineStatus?: boolean;
 }

@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { ConversationsService } from './conversations.service';
 import { PresenceService } from './presence.service';
+import { BlocksService } from '../safety/blocks.service';
 import { SendMessageDto } from './dto/send-message.dto';
 import { MessageResponseDto } from './dto/message-response.dto';
 
@@ -19,6 +20,7 @@ export class MessagesService {
     private readonly prisma: PrismaService,
     private readonly conversationsService: ConversationsService,
     private readonly presence: PresenceService,
+    private readonly blocks: BlocksService,
   ) {}
 
   async sendMessage(
@@ -31,6 +33,14 @@ export class MessagesService {
         senderId,
       );
 
+    const otherUserId = this.conversationsService.otherUserId(
+      conversation,
+      senderId,
+    );
+    if (await this.blocks.isBlockedEitherDirection(senderId, otherUserId)) {
+      throw new ForbiddenException('You cannot message this user');
+    }
+
     if (dto.replyToId) {
       const replyTarget = await this.prisma.message.findUnique({
         where: { id: dto.replyToId },
@@ -42,10 +52,6 @@ export class MessagesService {
       }
     }
 
-    const otherUserId = this.conversationsService.otherUserId(
-      conversation,
-      senderId,
-    );
     const recipientOnline = this.presence.isOnline(otherUserId);
 
     const message = await this.prisma.message.create({

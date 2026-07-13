@@ -11,6 +11,7 @@ import { DiscoveryModule } from './discovery/discovery.module';
 import { MatchingModule } from './matching/matching.module';
 import { ChatModule } from './chat/chat.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { SafetyModule } from './safety/safety.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     MatchingModule,
     ChatModule,
     SubscriptionsModule,
+    SafetyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -4,12 +4,24 @@ export interface User {
   firstName: string;
   lastName: string;
   createdAt: string;
+  twoFactorEnabled: boolean;
 }
 
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   user: User;
+}
+
+export interface TwoFactorChallenge {
+  requiresTwoFactor: true;
+  challengeToken: string;
+}
+
+export function isTwoFactorChallenge(
+  response: AuthResponse | TwoFactorChallenge,
+): response is TwoFactorChallenge {
+  return (response as TwoFactorChallenge).requiresTwoFactor === true;
 }
 
 export interface RegisterPayload {
