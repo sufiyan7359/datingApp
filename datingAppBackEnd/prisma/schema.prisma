@@ -53,6 +53,7 @@ model User {
   pushSubscriptions     PushSubscription[]
   analyticsEvents       AnalyticsEvent[]
   experimentAssignments ExperimentAssignment[]
+  passwordResetTokens   PasswordResetToken[]
 
   @@map("users")
 }
@@ -189,6 +190,22 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+/// Single-use, short-lived (1h) token for the forgot-password flow. Only the
+/// SHA-256 hash is stored - see auth.service.ts, mirroring how refresh tokens
+/// are hashed at rest.
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 enum SwipeAction {
