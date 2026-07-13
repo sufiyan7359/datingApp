@@ -60,7 +60,9 @@ export class DiscoveryProfileDto {
   })
   distanceKm: number | null;
 
-  @ApiProperty({ description: 'Whether this user has completed identity verification' })
+  @ApiProperty({
+    description: 'Whether this user has completed identity verification',
+  })
   isVerified: boolean;
 
   static fromEntity(
