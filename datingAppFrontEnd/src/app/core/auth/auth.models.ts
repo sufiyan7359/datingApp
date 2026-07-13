@@ -1,3 +1,5 @@
+export type Role = 'USER' | 'ADMIN';
+
 export interface User {
   id: string;
   email: string;
@@ -5,6 +7,7 @@ export interface User {
   lastName: string;
   createdAt: string;
   twoFactorEnabled: boolean;
+  role: Role;
 }
 
 export interface AuthResponse {

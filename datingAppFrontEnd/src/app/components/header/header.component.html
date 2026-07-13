@@ -46,6 +46,10 @@
           <a class="nav-link" routerLink="/safety">Safety</a>
         </li>
 
+        <li class="nav-item" *ngIf="currentUser()?.role === 'ADMIN'">
+          <a class="nav-link text-danger" routerLink="/admin"><b>Admin</b></a>
+        </li>
+
         <!-- <li class="nav-item">
           <a class="nav-link text-warning" routerLink="/profile"><b>My Profile</b></a>
         </li> -->

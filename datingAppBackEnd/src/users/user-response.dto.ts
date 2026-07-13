@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
 export class UserResponseDto {
   @ApiProperty()
@@ -20,6 +20,9 @@ export class UserResponseDto {
   @ApiProperty()
   twoFactorEnabled: boolean;
 
+  @ApiProperty({ enum: Role })
+  role: Role;
+
   static fromEntity(user: User): UserResponseDto {
     const dto = new UserResponseDto();
     dto.id = user.id;
@@ -28,6 +31,7 @@ export class UserResponseDto {
     dto.lastName = user.lastName;
     dto.createdAt = user.createdAt;
     dto.twoFactorEnabled = user.twoFactorEnabled;
+    dto.role = user.role;
     return dto;
   }
 }

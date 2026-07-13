@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { adminGuard } from './core/auth/admin.guard';
 import { AboutComponent } from './components/about/about.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { ContactComponent } from './components/contact/contact.component';
@@ -15,6 +16,7 @@ import { OnboardingComponent } from './components/onboarding/onboarding.componen
 import { PremiumComponent } from './components/premium/premium.component';
 import { LikesComponent } from './components/likes/likes.component';
 import { SafetySettingsComponent } from './components/safety-settings/safety-settings.component';
+import { AdminComponent } from './components/admin/admin.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -31,6 +33,7 @@ export const routes: Routes = [
   { path: 'premium', component: PremiumComponent, canActivate: [authGuard] },
   { path: 'likes', component: LikesComponent, canActivate: [authGuard] },
   { path: 'safety', component: SafetySettingsComponent, canActivate: [authGuard] },
+  { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
   { path: 'chating/:id', component: ChatingBoxComponent, canActivate: [authGuard] },
   { path: 'chating', component: ChatingBoxComponent, canActivate: [authGuard] },
 ];

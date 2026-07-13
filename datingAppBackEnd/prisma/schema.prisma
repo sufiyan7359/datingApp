@@ -12,6 +12,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id            String   @id @default(uuid())
   email         String   @unique
@@ -19,6 +24,7 @@ model User {
   firstName     String
   lastName      String
   isActive      Boolean  @default(true)
+  role          Role     @default(USER)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -403,6 +409,8 @@ model Report {
   reason      ReportReason
   description String?
   status      ReportStatus @default(PENDING)
+  adminNote   String?
+  reviewedAt  DateTime?
   createdAt   DateTime     @default(now())
 
   @@index([reportedId])

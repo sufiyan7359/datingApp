@@ -12,6 +12,7 @@ import { MatchingModule } from './matching/matching.module';
 import { ChatModule } from './chat/chat.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SafetyModule } from './safety/safety.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SafetyModule } from './safety/safety.module';
     ChatModule,
     SubscriptionsModule,
     SafetyModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -18,6 +18,18 @@ async function main() {
       isActive: true,
     },
   });
+
+  // Promote an existing account to admin: ADMIN_EMAIL=you@example.com npm run prisma:seed
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (adminEmail) {
+    const user = await prisma.user.findUnique({ where: { email: adminEmail } });
+    if (!user) {
+      console.warn(`ADMIN_EMAIL "${adminEmail}" does not match any existing account - register it first, then re-run the seed.`);
+    } else {
+      await prisma.user.update({ where: { email: adminEmail }, data: { role: 'ADMIN' } });
+      console.log(`Promoted ${adminEmail} to ADMIN.`);
+    }
+  }
 }
 
 main()
