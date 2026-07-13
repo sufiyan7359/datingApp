@@ -14,6 +14,7 @@ import { PhotoResponseDto } from '../profiles/dto/photo-response.dto';
 import { TIER_LIMITS, UNLIMITED } from './matching.constants';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { BlocksService } from '../safety/blocks.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class SwipesService {
@@ -21,6 +22,7 @@ export class SwipesService {
     private readonly prisma: PrismaService,
     private readonly subscriptions: SubscriptionsService,
     private readonly blocks: BlocksService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   async swipe(swiperId: string, dto: CreateSwipeDto): Promise<SwipeResultDto> {
@@ -83,6 +85,28 @@ export class SwipesService {
 
       if (reciprocal) {
         match = await this.createMatch(swiperId, dto.targetUserId);
+        const swiper = await this.prisma.user.findUnique({
+          where: { id: swiperId },
+          select: { firstName: true },
+        });
+        await Promise.all([
+          this.notifications.notify(swiperId, {
+            title: "It's a match!",
+            body: `You and ${target.firstName} liked each other.`,
+          }),
+          this.notifications.notify(dto.targetUserId, {
+            title: "It's a match!",
+            body: `You and ${swiper?.firstName ?? 'someone'} liked each other.`,
+          }),
+        ]);
+      } else {
+        // Deliberately doesn't name the swiper - who-liked-me is a paywalled
+        // feature (see getLikesReceived) and a push notification shouldn't
+        // leak it for free.
+        await this.notifications.notify(dto.targetUserId, {
+          title: 'New like',
+          body: 'Someone just liked your profile!',
+        });
       }
     }
 

@@ -50,6 +50,7 @@ model User {
   reportsMade        Report[]             @relation("ReportsMade")
   reportsReceived    Report[]             @relation("ReportsReceived")
   mutedConversations MutedConversation[]
+  pushSubscriptions  PushSubscription[]
 
   @@map("users")
 }
@@ -444,4 +445,20 @@ model MutedConversation {
 
   @@unique([userId, conversationId])
   @@map("muted_conversations")
+}
+
+/// One row per subscribed browser/device (a user can have several). Pruned
+/// automatically when the push service reports it as gone - see
+/// notifications.service.ts.
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }

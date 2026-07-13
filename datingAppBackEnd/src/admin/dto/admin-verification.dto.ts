@@ -19,7 +19,8 @@ export class AdminVerificationDto {
 
   @ApiProperty({
     nullable: true,
-    description: 'Primary profile photo, for the admin to compare against the selfie',
+    description:
+      'Primary profile photo, for the admin to compare against the selfie',
   })
   primaryPhotoUrl: string | null;
 

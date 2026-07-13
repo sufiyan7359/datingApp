@@ -71,7 +71,9 @@ describe('Verification (e2e)', () => {
   });
 
   afterAll(async () => {
-    await prisma.user.deleteMany({ where: { email: { in: Object.values(emails) } } });
+    await prisma.user.deleteMany({
+      where: { email: { in: Object.values(emails) } },
+    });
     for (const id of Object.values(ids)) {
       rmSync(join(process.cwd(), 'uploads', 'photos', id), {
         recursive: true,
@@ -102,7 +104,10 @@ describe('Verification (e2e)', () => {
     await request(app.getHttpServer())
       .post('/verification/submit')
       .set('Authorization', `Bearer ${tokens.plain}`)
-      .attach('selfie', pngBuffer, { filename: 'selfie.png', contentType: 'image/png' })
+      .attach('selfie', pngBuffer, {
+        filename: 'selfie.png',
+        contentType: 'image/png',
+      })
       .expect(400);
   });
 
@@ -110,20 +115,29 @@ describe('Verification (e2e)', () => {
     await request(app.getHttpServer())
       .post('/profiles/me/photos')
       .set('Authorization', `Bearer ${tokens.plain}`)
-      .attach('photo', pngBuffer, { filename: 'profile.png', contentType: 'image/png' })
+      .attach('photo', pngBuffer, {
+        filename: 'profile.png',
+        contentType: 'image/png',
+      })
       .expect(201);
 
     const submitRes = await request(app.getHttpServer())
       .post('/verification/submit')
       .set('Authorization', `Bearer ${tokens.plain}`)
-      .attach('selfie', pngBuffer, { filename: 'selfie.png', contentType: 'image/png' })
+      .attach('selfie', pngBuffer, {
+        filename: 'selfie.png',
+        contentType: 'image/png',
+      })
       .expect(201);
     expect((submitRes.body as VerificationStatusDto).status).toBe('PENDING');
 
     await request(app.getHttpServer())
       .post('/verification/submit')
       .set('Authorization', `Bearer ${tokens.plain}`)
-      .attach('selfie', pngBuffer, { filename: 'selfie.png', contentType: 'image/png' })
+      .attach('selfie', pngBuffer, {
+        filename: 'selfie.png',
+        contentType: 'image/png',
+      })
       .expect(400);
 
     await request(app.getHttpServer())
@@ -162,7 +176,10 @@ describe('Verification (e2e)', () => {
     await request(app.getHttpServer())
       .post('/verification/submit')
       .set('Authorization', `Bearer ${tokens.plain}`)
-      .attach('selfie', pngBuffer, { filename: 'selfie2.png', contentType: 'image/png' })
+      .attach('selfie', pngBuffer, {
+        filename: 'selfie2.png',
+        contentType: 'image/png',
+      })
       .expect(201);
 
     const approveRes = await request(app.getHttpServer())
@@ -181,7 +198,10 @@ describe('Verification (e2e)', () => {
     await request(app.getHttpServer())
       .post('/verification/submit')
       .set('Authorization', `Bearer ${tokens.plain}`)
-      .attach('selfie', pngBuffer, { filename: 'selfie3.png', contentType: 'image/png' })
+      .attach('selfie', pngBuffer, {
+        filename: 'selfie3.png',
+        contentType: 'image/png',
+      })
       .expect(400);
   });
 
