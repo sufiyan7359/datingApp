@@ -44,6 +44,7 @@ export interface Profile {
   hideDistance: boolean;
   hideOnlineStatus: boolean;
   photos: Photo[];
+  isVerified: boolean;
 }
 
 export type UpdateProfilePayload = Partial<Omit<Profile, 'photos'>> & { clearPassport?: boolean };

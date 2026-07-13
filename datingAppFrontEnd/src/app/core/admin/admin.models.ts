@@ -9,6 +9,8 @@ export interface DashboardStats {
   activeSubscriptionRevenueCents: number;
   pendingReports: number;
   totalReports: number;
+  pendingVerifications: number;
+  verifiedUsers: number;
 }
 
 export interface AdminUserSummary {
@@ -20,6 +22,7 @@ export interface AdminUserSummary {
   role: 'USER' | 'ADMIN';
   subscriptionTier: 'FREE' | 'GOLD' | 'PLATINUM';
   onboardingCompleted: boolean;
+  isVerified: boolean;
   reportsReceivedCount: number;
   createdAt: string;
 }
@@ -55,6 +58,28 @@ export interface AdminReport {
 
 export interface AdminReportsPage {
   results: AdminReport[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
+export type VerificationStatus = 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface AdminVerification {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  selfieUrl: string | null;
+  primaryPhotoUrl: string | null;
+  status: VerificationStatus;
+  submittedAt: string | null;
+  reviewedAt: string | null;
+  note: string | null;
+}
+
+export interface AdminVerificationsPage {
+  results: AdminVerification[];
   page: number;
   limit: number;
   total: number;

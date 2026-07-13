@@ -27,13 +27,21 @@ export class AdminUserSummaryDto {
   onboardingCompleted: boolean;
 
   @ApiProperty()
+  isVerified: boolean;
+
+  @ApiProperty()
   reportsReceivedCount: number;
 
   @ApiProperty()
   createdAt: Date;
 
   static fromEntity(
-    user: User & { profile: { onboardingCompleted: boolean } | null },
+    user: User & {
+      profile: {
+        onboardingCompleted: boolean;
+        verificationStatus: string;
+      } | null;
+    },
     subscriptionTier: SubscriptionTier,
     reportsReceivedCount: number,
   ): AdminUserSummaryDto {
@@ -46,6 +54,7 @@ export class AdminUserSummaryDto {
     dto.role = user.role;
     dto.subscriptionTier = subscriptionTier;
     dto.onboardingCompleted = user.profile?.onboardingCompleted ?? false;
+    dto.isVerified = user.profile?.verificationStatus === 'APPROVED';
     dto.reportsReceivedCount = reportsReceivedCount;
     dto.createdAt = user.createdAt;
     return dto;

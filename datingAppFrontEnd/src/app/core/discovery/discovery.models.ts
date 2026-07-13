@@ -17,6 +17,7 @@ export interface DiscoveryProfile {
   interests: string[];
   photos: Photo[];
   distanceKm: number | null;
+  isVerified: boolean;
 }
 
 export interface DiscoveryFeed {

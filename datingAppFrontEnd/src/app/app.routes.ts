@@ -17,6 +17,7 @@ import { PremiumComponent } from './components/premium/premium.component';
 import { LikesComponent } from './components/likes/likes.component';
 import { SafetySettingsComponent } from './components/safety-settings/safety-settings.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { VerificationComponent } from './components/verification/verification.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'premium', component: PremiumComponent, canActivate: [authGuard] },
   { path: 'likes', component: LikesComponent, canActivate: [authGuard] },
   { path: 'safety', component: SafetySettingsComponent, canActivate: [authGuard] },
+  { path: 'verification', component: VerificationComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
   { path: 'chating/:id', component: ChatingBoxComponent, canActivate: [authGuard] },
   { path: 'chating', component: ChatingBoxComponent, canActivate: [authGuard] },

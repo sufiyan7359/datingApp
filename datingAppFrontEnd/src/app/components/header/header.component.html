@@ -46,6 +46,10 @@
           <a class="nav-link" routerLink="/safety">Safety</a>
         </li>
 
+        <li class="nav-item" *ngIf="isAuthenticated()">
+          <a class="nav-link" routerLink="/verification">Get Verified</a>
+        </li>
+
         <li class="nav-item" *ngIf="currentUser()?.role === 'ADMIN'">
           <a class="nav-link text-danger" routerLink="/admin"><b>Admin</b></a>
         </li>

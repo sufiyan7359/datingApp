@@ -8,6 +8,8 @@ import { AdminReportsController } from './admin-reports.controller';
 import { AdminReportsService } from './admin-reports.service';
 import { AdminPromoCodesController } from './admin-promo-codes.controller';
 import { AdminPromoCodesService } from './admin-promo-codes.service';
+import { AdminVerificationsController } from './admin-verifications.controller';
+import { AdminVerificationsService } from './admin-verifications.service';
 
 @Module({
   controllers: [
@@ -15,6 +17,7 @@ import { AdminPromoCodesService } from './admin-promo-codes.service';
     AdminUsersController,
     AdminReportsController,
     AdminPromoCodesController,
+    AdminVerificationsController,
   ],
   providers: [
     AdminGuard,
@@ -22,6 +25,7 @@ import { AdminPromoCodesService } from './admin-promo-codes.service';
     AdminUsersService,
     AdminReportsService,
     AdminPromoCodesService,
+    AdminVerificationsService,
   ],
 })
 export class AdminModule {}

@@ -54,6 +54,13 @@ model User {
   @@map("users")
 }
 
+enum VerificationStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -120,12 +127,21 @@ model Profile {
   hideDistance     Boolean @default(false)
   hideOnlineStatus Boolean @default(false)
 
+  // Identity verification: user submits a selfie, an admin compares it
+  // against the profile photos and approves/rejects - see verification.service.ts.
+  verificationStatus      VerificationStatus @default(NONE)
+  verificationSelfieUrl   String?
+  verificationSubmittedAt DateTime?
+  verificationReviewedAt  DateTime?
+  verificationNote        String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   photos          Photo[]
   boostActivations BoostActivation[]
 
+  @@index([verificationStatus])
   @@map("profiles")
 }
 

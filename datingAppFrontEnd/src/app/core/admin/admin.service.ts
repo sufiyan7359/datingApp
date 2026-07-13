@@ -8,8 +8,11 @@ import {
   AdminReportsPage,
   AdminUserDetail,
   AdminUsersPage,
+  AdminVerification,
+  AdminVerificationsPage,
   DashboardStats,
   ReportStatus,
+  VerificationStatus,
 } from './admin.models';
 
 @Injectable({ providedIn: 'root' })
@@ -81,5 +84,27 @@ export class AdminService {
 
   setPromoCodeActive(id: string, isActive: boolean): Observable<AdminPromoCode> {
     return this.http.patch<AdminPromoCode>(`${environment.apiUrl}/admin/promo-codes/${id}`, { isActive });
+  }
+
+  listVerifications(
+    status: VerificationStatus,
+    page: number,
+    limit = 20,
+  ): Observable<AdminVerificationsPage> {
+    const params = new HttpParams().set('status', status).set('page', page).set('limit', limit);
+    return this.http.get<AdminVerificationsPage>(`${environment.apiUrl}/admin/verifications`, {
+      params,
+    });
+  }
+
+  reviewVerification(
+    userId: string,
+    status: 'APPROVED' | 'REJECTED',
+    note: string,
+  ): Observable<AdminVerification> {
+    return this.http.patch<AdminVerification>(`${environment.apiUrl}/admin/verifications/${userId}`, {
+      status,
+      note: note || undefined,
+    });
   }
 }

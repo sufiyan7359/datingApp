@@ -32,4 +32,10 @@ export class DashboardStatsDto {
 
   @ApiProperty()
   totalReports: number;
+
+  @ApiProperty()
+  pendingVerifications: number;
+
+  @ApiProperty()
+  verifiedUsers: number;
 }
