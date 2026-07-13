@@ -9,17 +9,17 @@ import { CreateSwipeDto } from './dto/create-swipe.dto';
 import { SwipeResultDto } from './dto/swipe-result.dto';
 import { SwipeLimitsDto } from './dto/swipe-limits.dto';
 import { MatchDto } from './dto/match.dto';
+import { LikesReceivedDto } from './dto/likes-received.dto';
 import { PhotoResponseDto } from '../profiles/dto/photo-response.dto';
-import {
-  FREE_DAILY_BOOSTS,
-  FREE_DAILY_LIKES,
-  FREE_DAILY_SUPER_LIKES,
-  FREE_DAILY_UNDOS,
-} from './matching.constants';
+import { TIER_LIMITS, UNLIMITED } from './matching.constants';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 @Injectable()
 export class SwipesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly subscriptions: SubscriptionsService,
+  ) {}
 
   async swipe(swiperId: string, dto: CreateSwipeDto): Promise<SwipeResultDto> {
     if (dto.targetUserId === swiperId) {
@@ -122,6 +122,8 @@ export class SwipesService {
 
   async getLimits(userId: string): Promise<SwipeLimitsDto> {
     const since = startOfToday();
+    const tier = await this.subscriptions.getCurrentTier(userId);
+    const caps = TIER_LIMITS[tier];
 
     const [likesToday, superLikesToday, undosToday, boostsToday] =
       await Promise.all([
@@ -150,13 +152,68 @@ export class SwipesService {
       ]);
 
     return {
-      likesRemaining: Math.max(0, FREE_DAILY_LIKES - likesToday),
-      superLikesRemaining: Math.max(
-        0,
-        FREE_DAILY_SUPER_LIKES - superLikesToday,
-      ),
-      undosRemaining: Math.max(0, FREE_DAILY_UNDOS - undosToday),
-      boostsRemaining: Math.max(0, FREE_DAILY_BOOSTS - boostsToday),
+      tier,
+      likesRemaining: Math.max(0, caps.likes - likesToday),
+      likesUnlimited: caps.likes >= UNLIMITED,
+      superLikesRemaining: Math.max(0, caps.superLikes - superLikesToday),
+      superLikesUnlimited: caps.superLikes >= UNLIMITED,
+      undosRemaining: Math.max(0, caps.undos - undosToday),
+      undosUnlimited: caps.undos >= UNLIMITED,
+      boostsRemaining: Math.max(0, caps.boosts - boostsToday),
+    };
+  }
+
+  /**
+   * Who liked me. Free tier only gets a count (upsell); Gold/Platinum get the
+   * full list, matching how this feature works on Tinder/Bumble/Hinge.
+   */
+  async getLikesReceived(userId: string): Promise<LikesReceivedDto> {
+    const tier = await this.subscriptions.getCurrentTier(userId);
+
+    const [likes, matches] = await Promise.all([
+      this.prisma.swipe.findMany({
+        where: {
+          targetId: userId,
+          undoneAt: null,
+          action: { in: ['LIKE', 'SUPER_LIKE'] },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.match.findMany({
+        where: { OR: [{ userAId: userId }, { userBId: userId }] },
+      }),
+    ]);
+
+    const matchedUserIds = new Set(
+      matches.map((m) => (m.userAId === userId ? m.userBId : m.userAId)),
+    );
+    const pending = likes.filter((l) => !matchedUserIds.has(l.swiperId));
+
+    if (tier === 'FREE') {
+      return { count: pending.length, isPremium: false, likes: [] };
+    }
+
+    const profiles = await this.prisma.profile.findMany({
+      where: { userId: { in: pending.map((l) => l.swiperId) } },
+      include: { photos: true, user: { select: { firstName: true } } },
+    });
+    const profileByUserId = new Map(profiles.map((p) => [p.userId, p]));
+
+    return {
+      count: pending.length,
+      isPremium: true,
+      likes: pending.map((l) => {
+        const profile = profileByUserId.get(l.swiperId);
+        return {
+          userId: l.swiperId,
+          firstName: profile?.user.firstName ?? '',
+          photos: (profile?.photos ?? [])
+            .sort((a, b) => a.order - b.order)
+            .map((p) => PhotoResponseDto.fromEntity(p)),
+          action: l.action,
+          likedAt: l.createdAt,
+        };
+      }),
     };
   }
 

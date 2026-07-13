@@ -1,0 +1,38 @@
+<div class="container mt-4 mb-5">
+  <h3><b>Who Liked You</b></h3>
+
+  <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && likesReceived() as data">
+    <p class="text-muted" *ngIf="data.count === 0">Nobody has liked you yet. Keep swiping!</p>
+
+    <!-- Free tier: blurred teaser -->
+    <div *ngIf="data.count > 0 && !data.isPremium" class="card shadow border-0 rounded-4 p-4 text-center">
+      <div class="d-flex justify-content-center gap-2 mb-3">
+        <div class="likes-blur-avatar" *ngFor="let n of [1, 2, 3]"></div>
+      </div>
+      <h5>{{ data.count }} {{ data.count === 1 ? 'person has' : 'people have' }} liked you</h5>
+      <p class="text-muted">Upgrade to Gold or Platinum to see who they are.</p>
+      <button class="btn btn-danger" (click)="goToPremium()">See who liked you</button>
+    </div>
+
+    <!-- Premium: full list -->
+    <div class="row g-3" *ngIf="data.isPremium">
+      <div class="col-6 col-md-4 col-lg-3" *ngFor="let like of data.likes">
+        <div class="card shadow border-0 rounded-4 overflow-hidden h-100">
+          <img *ngIf="like.photos[0]" [src]="apiUrl + like.photos[0].url" class="w-100" style="height: 180px; object-fit: cover;" />
+          <div class="p-2">
+            <b>{{ like.firstName }}</b>
+            <span class="badge bg-danger ms-1" *ngIf="like.action === 'SUPER_LIKE'">Super Like</span>
+            <div class="d-flex gap-2 mt-2">
+              <button class="btn btn-outline-secondary btn-sm w-50" [disabled]="swipingUserId() === like.userId"
+                (click)="swipeBack(like.userId, 'PASS')">Pass</button>
+              <button class="btn btn-danger btn-sm w-50" [disabled]="swipingUserId() === like.userId"
+                (click)="swipeBack(like.userId, 'LIKE')">Like</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -16,6 +16,7 @@ import { SwipesService } from './swipes.service';
 import { CreateSwipeDto } from './dto/create-swipe.dto';
 import { SwipeResultDto } from './dto/swipe-result.dto';
 import { SwipeLimitsDto } from './dto/swipe-limits.dto';
+import { LikesReceivedDto } from './dto/likes-received.dto';
 
 @ApiTags('swipes')
 @ApiBearerAuth()
@@ -52,5 +53,16 @@ export class SwipesController {
   })
   getLimits(@CurrentUser() user: RequestUser): Promise<SwipeLimitsDto> {
     return this.swipesService.getLimits(user.userId);
+  }
+
+  @Get('likes-received')
+  @ApiOperation({
+    summary:
+      'Who liked you and you have not swiped back on yet. Free tier gets a count only; Gold/Platinum see full profiles.',
+  })
+  getLikesReceived(
+    @CurrentUser() user: RequestUser,
+  ): Promise<LikesReceivedDto> {
+    return this.swipesService.getLikesReceived(user.userId);
   }
 }

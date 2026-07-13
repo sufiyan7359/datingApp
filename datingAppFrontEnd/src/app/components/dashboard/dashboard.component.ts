@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DashboardHeaderComponent } from '../dashboard-header/dashboard-header.component';
 import { NgFor, NgIf } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  imports: [DashboardHeaderComponent, NgFor, NgIf, ReactiveFormsModule],
+  imports: [DashboardHeaderComponent, NgFor, NgIf, ReactiveFormsModule, RouterLink],
 })
 export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);

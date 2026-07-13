@@ -75,6 +75,21 @@ export class ProfileResponseDto {
   @ApiProperty()
   onboardingCompleted: boolean;
 
+  @ApiProperty()
+  isIncognito: boolean;
+
+  @ApiProperty({ nullable: true })
+  passportLatitude: number | null;
+
+  @ApiProperty({ nullable: true })
+  passportLongitude: number | null;
+
+  @ApiProperty({ nullable: true })
+  passportCity: string | null;
+
+  @ApiProperty({ nullable: true })
+  passportCountry: string | null;
+
   @ApiProperty({ type: [PhotoResponseDto] })
   photos: PhotoResponseDto[];
 
@@ -104,6 +119,11 @@ export class ProfileResponseDto {
     dto.hasPets = profile.hasPets;
     dto.interests = profile.interests;
     dto.onboardingCompleted = profile.onboardingCompleted;
+    dto.isIncognito = profile.isIncognito;
+    dto.passportLatitude = profile.passportLatitude;
+    dto.passportLongitude = profile.passportLongitude;
+    dto.passportCity = profile.passportCity;
+    dto.passportCountry = profile.passportCountry;
     dto.photos = (profile.photos ?? [])
       .sort((a, b) => a.order - b.order)
       .map((photo) => PhotoResponseDto.fromEntity(photo));

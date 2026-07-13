@@ -32,6 +32,7 @@ model User {
   reactions      MessageReaction[]
   callsMade      Call[]            @relation("CallsMade")
   callsReceived  Call[]            @relation("CallsReceived")
+  subscriptions  Subscription[]
 
   @@map("users")
 }
@@ -87,6 +88,15 @@ model Profile {
 
   onboardingCompleted Boolean   @default(false)
   boostedUntil        DateTime?
+
+  // Premium-only (Gold/Platinum): browse discovery without appearing in it yourself.
+  isIncognito Boolean @default(false)
+  // Premium-only: browse another location instead of your real one. Presence of
+  // both coordinates means passport mode is active; clear both to go back to `latitude`/`longitude`.
+  passportLatitude  Float?
+  passportLongitude Float?
+  passportCity      String?
+  passportCountry   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -253,6 +263,66 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@map("messages")
+}
+
+enum SubscriptionTier {
+  FREE
+  GOLD
+  PLATINUM
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+}
+
+/// Payment collection is not wired up yet (no Stripe/Razorpay credentials) -
+/// see subscriptions.service.ts. Rows here represent an entitlement, not proof of payment.
+model Subscription {
+  id           String             @id @default(uuid())
+  userId       String
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier         SubscriptionTier
+  billingCycle BillingCycle
+  status       SubscriptionStatus @default(ACTIVE)
+  priceCents   Int
+  autoRenew    Boolean            @default(true)
+
+  startedAt  DateTime  @default(now())
+  expiresAt  DateTime
+  canceledAt DateTime?
+
+  promoCodeId String?
+  promoCode   PromoCode? @relation(fields: [promoCodeId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@map("subscriptions")
+}
+
+model PromoCode {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  discountPercent Int
+  maxRedemptions  Int?
+  redemptionCount Int       @default(0)
+  expiresAt       DateTime?
+  isActive        Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+
+  subscriptions Subscription[]
+
+  @@map("promo_codes")
 }
 
 model MessageReaction {

@@ -34,6 +34,13 @@
           <a class="nav-link textdanger" routerLink="/dashboard"><b>Dashboard</b></a>
         </li>
 
+        <li class="nav-item" *ngIf="isAuthenticated()">
+          <a class="nav-link" routerLink="/likes">Who Liked Me</a>
+        </li>
+
+        <li class="nav-item" *ngIf="isAuthenticated()">
+          <a class="nav-link text-warning" routerLink="/premium"><b>Premium</b></a>
+        </li>
 
         <!-- <li class="nav-item">
           <a class="nav-link text-warning" routerLink="/profile"><b>My Profile</b></a>
@@ -46,6 +53,7 @@
         </li>
         <li class="nav-item mt-2 mt-lg-0 d-flex align-items-center gap-2" *ngIf="isAuthenticated()">
           <span class="textdanger">Hi, {{ currentUser()?.firstName }}</span>
+          <span class="badge bg-warning text-dark" *ngIf="isPremium()">{{ subscriptionTier() }}</span>
           <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
         </li>
       </ul>

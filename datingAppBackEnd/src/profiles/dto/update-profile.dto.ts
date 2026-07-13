@@ -146,4 +146,47 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   onboardingCompleted?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Gold/Platinum only: hide your profile from discovery feeds',
+  })
+  @IsOptional()
+  @IsBoolean()
+  isIncognito?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Gold/Platinum only: browse discovery from this location instead of your real one. Send both, or neither to clear.',
+  })
+  @IsOptional()
+  @IsLatitude()
+  passportLatitude?: number;
+
+  @ApiPropertyOptional({
+    description:
+      'Gold/Platinum only: browse discovery from this location instead of your real one. Send both, or neither to clear.',
+  })
+  @IsOptional()
+  @IsLongitude()
+  passportLongitude?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  passportCity?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  passportCountry?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Set true to turn passport mode off and go back to your real location',
+  })
+  @IsOptional()
+  @IsBoolean()
+  clearPassport?: boolean;
 }

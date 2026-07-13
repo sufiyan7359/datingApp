@@ -1,0 +1,93 @@
+<div class="container mt-4 mb-5">
+  <h3><b>Premium</b></h3>
+  <p class="text-muted">Unlock unlimited likes, more super likes, extra boosts, Who Liked Me, Incognito mode and Passport.</p>
+
+  <div class="alert alert-warning py-2" role="alert">
+    Demo activation only &mdash; no payment is collected yet. Real checkout (Stripe/Razorpay) is coming soon.
+  </div>
+
+  <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+  <div *ngIf="successMessage()" class="alert alert-success py-2">{{ successMessage() }}</div>
+
+  <div class="card shadow border-0 rounded-4 p-3 mb-4" *ngIf="status() as s">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <span class="badge bg-danger me-2">{{ s.tier }}</span>
+        <span class="text-muted" *ngIf="s.isPremium && s.expiresAt">
+          {{ s.autoRenew ? 'Renews' : 'Expires' }} {{ s.expiresAt | date: 'mediumDate' }}
+        </span>
+        <span class="text-muted" *ngIf="!s.isPremium">You're on the free plan.</span>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" *ngIf="s.isPremium && s.autoRenew" (click)="cancelAutoRenew()">
+        Turn off auto-renew
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-3" style="max-width: 360px;">
+    <label class="form-label">Promo code</label>
+    <div class="input-group">
+      <input type="text" class="form-control" [(ngModel)]="promoCode" (ngModelChange)="checkPromo()" placeholder="e.g. WELCOME20" />
+    </div>
+    <div class="form-text" *ngIf="promoCode && promoResult() as result">
+      <span class="text-success" *ngIf="result.valid">{{ result.discountPercent }}% off applied at checkout</span>
+      <span class="text-danger" *ngIf="!result.valid">Invalid or expired code</span>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-5">
+    <div class="col-12 col-md-6" *ngFor="let tier of tiers">
+      <div class="card shadow border-0 rounded-4 p-3 h-100">
+        <h5><b>{{ tier }}</b></h5>
+        <p class="text-muted" *ngIf="tier === 'GOLD'">Unlimited likes &amp; undos, 5 super likes/day, Who Liked Me, Incognito, Passport.</p>
+        <p class="text-muted" *ngIf="tier === 'PLATINUM'">Everything in Gold, plus 10 super likes/day and 3 boosts/day.</p>
+
+        <div class="d-flex flex-column gap-2 mt-2">
+          <div class="d-flex justify-content-between align-items-center" *ngFor="let plan of plansFor(tier)">
+            <span>{{ plan.billingCycle | titlecase }} &middot; {{ plan.durationDays }} days</span>
+            <div class="d-flex align-items-center gap-2">
+              <b>{{ formatPrice(plan.priceCents) }}</b>
+              <button class="btn btn-danger btn-sm" [disabled]="isLoading()" (click)="subscribe(plan)">Subscribe</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow border-0 rounded-4 p-3">
+    <h5><b>Premium controls</b></h5>
+    <p class="text-muted" *ngIf="!isPremium">Upgrade to Gold or Platinum to use Incognito mode and Passport.</p>
+
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" role="switch" id="incognitoSwitch"
+        [checked]="profile()?.isIncognito" [disabled]="!isPremium" (change)="toggleIncognito()" />
+      <label class="form-check-label" for="incognitoSwitch">
+        Incognito mode &mdash; hide your profile from discovery
+      </label>
+    </div>
+
+    <div>
+      <h6>Passport</h6>
+      <p class="text-muted" style="font-size: 0.85rem;">Browse discovery from another location instead of your real one.</p>
+      <div class="row g-2" style="max-width: 600px;">
+        <div class="col-6 col-md-3">
+          <input type="number" class="form-control form-control-sm" placeholder="Latitude" [(ngModel)]="passportLatitude" [disabled]="!isPremium" />
+        </div>
+        <div class="col-6 col-md-3">
+          <input type="number" class="form-control form-control-sm" placeholder="Longitude" [(ngModel)]="passportLongitude" [disabled]="!isPremium" />
+        </div>
+        <div class="col-6 col-md-3">
+          <input type="text" class="form-control form-control-sm" placeholder="City (optional)" [(ngModel)]="passportCity" [disabled]="!isPremium" />
+        </div>
+        <div class="col-6 col-md-3">
+          <input type="text" class="form-control form-control-sm" placeholder="Country (optional)" [(ngModel)]="passportCountry" [disabled]="!isPremium" />
+        </div>
+      </div>
+      <div class="d-flex gap-2 mt-2">
+        <button class="btn btn-danger btn-sm" [disabled]="!isPremium" (click)="setPassport()">Set location</button>
+        <button class="btn btn-outline-secondary btn-sm" [disabled]="!isPremium" (click)="clearPassport()">Use my real location</button>
+      </div>
+    </div>
+  </div>
+</div>

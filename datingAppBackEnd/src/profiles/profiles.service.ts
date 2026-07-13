@@ -8,14 +8,18 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import {
   BOOST_DURATION_MINUTES,
-  FREE_DAILY_BOOSTS,
+  TIER_LIMITS,
 } from '../matching/matching.constants';
+import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 
 const MAX_PHOTOS_PER_PROFILE = 6;
 
 @Injectable()
 export class ProfilesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly subscriptions: SubscriptionsService,
+  ) {}
 
   async getOrCreate(userId: string) {
     const existing = await this.prisma.profile.findUnique({
@@ -34,11 +38,34 @@ export class ProfilesService {
   async update(userId: string, dto: UpdateProfileDto) {
     await this.getOrCreate(userId);
 
+    const wantsPremiumFields =
+      dto.isIncognito === true ||
+      dto.passportLatitude !== undefined ||
+      dto.passportLongitude !== undefined;
+    if (wantsPremiumFields) {
+      const tier = await this.subscriptions.getCurrentTier(userId);
+      if (tier === 'FREE') {
+        throw new ForbiddenException(
+          'Incognito mode and Passport location require a Gold or Platinum subscription',
+        );
+      }
+    }
+
+    const { clearPassport, ...rest } = dto;
+
     return this.prisma.profile.update({
       where: { userId },
       data: {
-        ...dto,
+        ...rest,
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+        ...(clearPassport
+          ? {
+              passportLatitude: null,
+              passportLongitude: null,
+              passportCity: null,
+              passportCountry: null,
+            }
+          : {}),
       },
       include: { photos: true },
     });
@@ -89,11 +116,12 @@ export class ProfilesService {
   async activateBoost(userId: string) {
     const profile = await this.getOrCreate(userId);
     const since = startOfToday();
+    const tier = await this.subscriptions.getCurrentTier(userId);
 
     const boostsToday = await this.prisma.boostActivation.count({
       where: { profileId: profile.id, activatedAt: { gte: since } },
     });
-    if (boostsToday >= FREE_DAILY_BOOSTS) {
+    if (boostsToday >= TIER_LIMITS[tier].boosts) {
       throw new ForbiddenException('You have reached your daily boost limit');
     }
 

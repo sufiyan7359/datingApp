@@ -1,0 +1,7 @@
+.likes-blur-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8a5a5, #e05353);
+  filter: blur(4px);
+}

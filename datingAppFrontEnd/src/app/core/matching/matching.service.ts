@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { MatchInfo, SwipeAction, SwipeLimits, SwipeResult } from './matching.models';
+import { LikesReceived, MatchInfo, SwipeAction, SwipeLimits, SwipeResult } from './matching.models';
 
 @Injectable({ providedIn: 'root' })
 export class MatchingService {
@@ -33,5 +33,9 @@ export class MatchingService {
 
   activateBoost(): Observable<{ boostedUntil: string }> {
     return this.http.post<{ boostedUntil: string }>(`${environment.apiUrl}/profiles/me/boost`, {});
+  }
+
+  loadLikesReceived(): Observable<LikesReceived> {
+    return this.http.get<LikesReceived>(`${environment.apiUrl}/swipes/likes-received`);
   }
 }

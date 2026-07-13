@@ -28,6 +28,7 @@ export class DiscoveryService {
     const where: Prisma.ProfileWhereInput = {
       userId: { not: currentUserId, notIn: swipedTargetIds },
       onboardingCompleted: true,
+      isIncognito: false,
       user: { isActive: true },
     };
 
@@ -107,13 +108,17 @@ export class DiscoveryService {
       include: { photos: true, user: { select: { firstName: true } } },
     });
 
-    const canComputeDistance = !!(viewer?.latitude && viewer?.longitude);
+    // Passport mode (Gold/Platinum) browses from a chosen location instead of
+    // the viewer's real GPS coordinates - see Profile.passportLatitude/Longitude.
+    const originLat = viewer?.passportLatitude ?? viewer?.latitude;
+    const originLng = viewer?.passportLongitude ?? viewer?.longitude;
+    const canComputeDistance = !!(originLat && originLng);
 
     let withDistance = candidates.map((candidate) => {
       const distanceKm =
         canComputeDistance && candidate.latitude && candidate.longitude
           ? haversineDistanceKm(
-              { latitude: viewer.latitude!, longitude: viewer.longitude! },
+              { latitude: originLat, longitude: originLng },
               { latitude: candidate.latitude, longitude: candidate.longitude },
             )
           : null;

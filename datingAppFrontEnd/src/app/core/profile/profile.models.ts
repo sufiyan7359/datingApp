@@ -34,7 +34,12 @@ export interface Profile {
   hasPets: boolean | null;
   interests: string[];
   onboardingCompleted: boolean;
+  isIncognito: boolean;
+  passportLatitude: number | null;
+  passportLongitude: number | null;
+  passportCity: string | null;
+  passportCountry: string | null;
   photos: Photo[];
 }
 
-export type UpdateProfilePayload = Partial<Omit<Profile, 'photos'>>;
+export type UpdateProfilePayload = Partial<Omit<Profile, 'photos'>> & { clearPassport?: boolean };

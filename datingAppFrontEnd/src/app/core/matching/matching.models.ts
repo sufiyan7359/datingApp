@@ -18,8 +18,26 @@ export interface SwipeResult {
 }
 
 export interface SwipeLimits {
+  tier: 'FREE' | 'GOLD' | 'PLATINUM';
   likesRemaining: number;
+  likesUnlimited: boolean;
   superLikesRemaining: number;
+  superLikesUnlimited: boolean;
   undosRemaining: number;
+  undosUnlimited: boolean;
   boostsRemaining: number;
+}
+
+export interface LikeReceivedItem {
+  userId: string;
+  firstName: string;
+  photos: Photo[];
+  action: SwipeAction;
+  likedAt: string;
+}
+
+export interface LikesReceived {
+  count: number;
+  isPremium: boolean;
+  likes: LikeReceivedItem[];
 }
