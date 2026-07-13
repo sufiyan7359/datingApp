@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { ChatService } from '../../core/chat/chat.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { CallService } from '../../core/calls/call.service';
 import { ChatMessage } from '../../core/chat/chat.models';
 import { environment } from '../../../environments/environment';
 
@@ -20,6 +21,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly chatService = inject(ChatService);
   private readonly authService = inject(AuthService);
+  private readonly callService = inject(CallService);
 
   @ViewChild('messageInput') messageInputRef: ElementRef<HTMLInputElement>;
   @ViewChild('scrollAnchor') scrollAnchorRef: ElementRef<HTMLDivElement>;
@@ -50,7 +52,6 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.chatService.connect();
     this.chatService.loadConversations().subscribe({
       next: (conversations) => {
         const conversation = conversations.find((c) => c.otherUserId === targetUserId);
@@ -61,6 +62,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
         this.otherFirstName.set(conversation.otherFirstName);
         this.otherUserId.set(conversation.otherUserId);
         this.conversationId.set(conversation.conversationId);
+        this.chatService.setActiveConversation(conversation.conversationId);
 
         this.chatService.loadMessages(conversation.conversationId).subscribe(() => {
           this.scrollToBottom();
@@ -72,10 +74,22 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.chatService.disconnect();
+    this.chatService.setActiveConversation(null);
     if (this.typingStopTimer) {
       clearTimeout(this.typingStopTimer);
     }
+  }
+
+  startVoiceCall(): void {
+    const conversationId = this.conversationId();
+    if (!conversationId) return;
+    void this.callService.startCall(conversationId, this.otherUserId(), this.otherFirstName(), 'VOICE');
+  }
+
+  startVideoCall(): void {
+    const conversationId = this.conversationId();
+    if (!conversationId) return;
+    void this.callService.startCall(conversationId, this.otherUserId(), this.otherFirstName(), 'VIDEO');
   }
 
   isMine(message: ChatMessage): boolean {

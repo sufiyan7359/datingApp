@@ -1,4 +1,4 @@
-import { Logger, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Logger, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import {
@@ -14,11 +14,16 @@ import { Server, Socket } from 'socket.io';
 import { PrismaService } from '../prisma/prisma.service';
 import { PresenceService } from './presence.service';
 import { MessagesService } from './messages.service';
+import { CallsService } from './calls.service';
+import { WsHttpExceptionFilter } from './ws-http-exception.filter';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingDto } from './dto/typing.dto';
 import { MarkReadDto } from './dto/mark-read.dto';
 import { MessageIdDto } from './dto/message-id.dto';
 import { ReactMessageDto } from './dto/react-message.dto';
+import { CallInviteDto } from './dto/call-invite.dto';
+import { CallIdDto } from './dto/call-id.dto';
+import { WebrtcIceCandidateDto, WebrtcSdpDto } from './dto/webrtc-signal.dto';
 
 interface AuthedSocket extends Socket {
   data: { userId: string };
@@ -35,6 +40,7 @@ interface AuthedSocket extends Socket {
     forbidNonWhitelisted: true,
   }),
 )
+@UseFilters(WsHttpExceptionFilter)
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -51,6 +57,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly prisma: PrismaService,
     private readonly presence: PresenceService,
     private readonly messagesService: MessagesService,
+    private readonly callsService: CallsService,
   ) {}
 
   async handleConnection(client: AuthedSocket): Promise<void> {
@@ -194,5 +201,123 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       added,
     });
     return { added };
+  }
+
+  @SubscribeMessage('callInvite')
+  async handleCallInvite(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: CallInviteDto,
+  ) {
+    const { call, calleeId } = await this.callsService.inviteCall(
+      client.data.userId,
+      dto.conversationId,
+      dto.type,
+    );
+    const caller = await this.prisma.user.findUnique({
+      where: { id: client.data.userId },
+      select: { firstName: true },
+    });
+
+    this.server.to(`user:${calleeId}`).emit('incomingCall', {
+      callId: call.id,
+      conversationId: call.conversationId,
+      callerId: client.data.userId,
+      callerFirstName: caller?.firstName ?? '',
+      type: call.type,
+    });
+    return { callId: call.id };
+  }
+
+  @SubscribeMessage('callAccept')
+  async handleCallAccept(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: CallIdDto,
+  ) {
+    const { call, otherUserId } = await this.callsService.acceptCall(
+      client.data.userId,
+      dto.callId,
+    );
+    this.server
+      .to(`user:${otherUserId}`)
+      .emit('callAccepted', { callId: call.id });
+    return { callId: call.id };
+  }
+
+  @SubscribeMessage('callDecline')
+  async handleCallDecline(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: CallIdDto,
+  ) {
+    const { call, otherUserId } = await this.callsService.declineCall(
+      client.data.userId,
+      dto.callId,
+    );
+    this.server
+      .to(`user:${otherUserId}`)
+      .emit('callDeclined', { callId: call.id });
+    return { callId: call.id };
+  }
+
+  @SubscribeMessage('callEnd')
+  async handleCallEnd(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: CallIdDto,
+  ) {
+    const { call, otherUserId } = await this.callsService.endCall(
+      client.data.userId,
+      dto.callId,
+    );
+    this.server
+      .to(`user:${otherUserId}`)
+      .emit('callEnded', { callId: call.id, status: call.status });
+    return { callId: call.id, status: call.status };
+  }
+
+  @SubscribeMessage('webrtcOffer')
+  async handleWebrtcOffer(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: WebrtcSdpDto,
+  ) {
+    const target = await this.callsService.relayTargetFor(
+      dto.callId,
+      client.data.userId,
+    );
+    this.server.to(`user:${target}`).emit('webrtcOffer', {
+      callId: dto.callId,
+      sdp: dto.sdp,
+      from: client.data.userId,
+    });
+  }
+
+  @SubscribeMessage('webrtcAnswer')
+  async handleWebrtcAnswer(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: WebrtcSdpDto,
+  ) {
+    const target = await this.callsService.relayTargetFor(
+      dto.callId,
+      client.data.userId,
+    );
+    this.server.to(`user:${target}`).emit('webrtcAnswer', {
+      callId: dto.callId,
+      sdp: dto.sdp,
+      from: client.data.userId,
+    });
+  }
+
+  @SubscribeMessage('webrtcIceCandidate')
+  async handleWebrtcIceCandidate(
+    @ConnectedSocket() client: AuthedSocket,
+    @MessageBody() dto: WebrtcIceCandidateDto,
+  ) {
+    const target = await this.callsService.relayTargetFor(
+      dto.callId,
+      client.data.userId,
+    );
+    this.server.to(`user:${target}`).emit('webrtcIceCandidate', {
+      callId: dto.callId,
+      candidate: dto.candidate,
+      from: client.data.userId,
+    });
   }
 }

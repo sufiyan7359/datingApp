@@ -1,0 +1,66 @@
+.call-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.call-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  min-width: 300px;
+  max-width: 90vw;
+}
+
+.call-btn {
+  width: 56px;
+  height: 56px;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-area {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  margin: 1rem auto;
+}
+
+.remote-video {
+  width: 100%;
+  border-radius: 12px;
+  background: #222;
+  max-height: 360px;
+  object-fit: cover;
+}
+
+.local-video {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 30%;
+  border-radius: 8px;
+  border: 2px solid white;
+  background: #444;
+}
+
+.toast-error {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff0000;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  z-index: 2100;
+}

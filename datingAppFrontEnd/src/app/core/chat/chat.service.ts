@@ -14,6 +14,12 @@ import {
   TypingEvent,
 } from './chat.models';
 
+/** Nest's WS exception filter emits this shape for any rejected socket action. */
+export interface SocketErrorEvent {
+  status: number;
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly http = inject(HttpClient);
@@ -24,6 +30,18 @@ export class ChatService {
   readonly messages = signal<ChatMessage[]>([]);
   readonly typingUserIds = signal<Set<string>>(new Set());
   readonly onlineUserIds = signal<Set<string>>(new Set());
+  readonly isConnected = signal(false);
+  readonly lastError = signal<SocketErrorEvent | null>(null);
+
+  /**
+   * The connection is app-wide now (not scoped to a single chat screen), so
+   * "conversations" gets live preview updates for every conversation, but
+   * "messages" (the detailed history) must stay scoped to whichever
+   * conversation is actually open on screen - otherwise a message arriving
+   * for conversation A while the user is viewing conversation B would leak
+   * into B's message list. ChatingBoxComponent sets/clears this on enter/leave.
+   */
+  readonly activeConversationId = signal<string | null>(null);
 
   connect(): void {
     if (this.socket?.connected) {
@@ -39,8 +57,15 @@ export class ChatService {
       transports: ['websocket'],
     });
 
+    this.socket.on('connect', () => this.isConnected.set(true));
+    this.socket.on('disconnect', () => this.isConnected.set(false));
+    this.socket.on('exception', (err: SocketErrorEvent) => this.lastError.set(err));
+
     this.socket.on('newMessage', (message: ChatMessage) => {
-      this.messages.update((current) => [...current, message]);
+      if (message.conversationId === this.activeConversationId()) {
+        this.messages.update((current) => (current.some((m) => m.id === message.id) ? current : [...current, message]));
+      }
+      this.bumpConversationPreview(message);
     });
 
     this.socket.on('typing', (event: TypingEvent) => {
@@ -89,12 +114,52 @@ export class ChatService {
         }
         return next;
       });
+      this.conversations.update((current) =>
+        current.map((c) => (c.otherUserId === event.userId ? { ...c, otherIsOnline: event.online } : c)),
+      );
     });
   }
 
   disconnect(): void {
     this.socket?.disconnect();
     this.socket = null;
+    this.isConnected.set(false);
+  }
+
+  /** Call on entering a chat screen; pass null on leaving it. See activeConversationId above. */
+  setActiveConversation(conversationId: string | null): void {
+    this.activeConversationId.set(conversationId);
+    if (conversationId === null) {
+      this.messages.set([]);
+    }
+  }
+
+  /** Generic escape hatch for other services (e.g. CallService) sharing this one connection. */
+  on<T = unknown>(event: string, handler: (data: T) => void): void {
+    this.socket?.on(event, handler);
+  }
+
+  off(event: string, handler?: (...args: unknown[]) => void): void {
+    this.socket?.off(event, handler);
+  }
+
+  emit<TAck = unknown>(event: string, payload: unknown, ack?: (response: TAck) => void): void {
+    if (ack) {
+      this.socket?.emit(event, payload, ack);
+    } else {
+      this.socket?.emit(event, payload);
+    }
+  }
+
+  private bumpConversationPreview(message: ChatMessage): void {
+    const currentUserId = this.authService.currentUser()?.id;
+    this.conversations.update((current) =>
+      current.map((c) => {
+        if (c.conversationId !== message.conversationId) return c;
+        const isIncoming = message.senderId !== currentUserId;
+        return { ...c, lastMessage: message, unreadCount: isIncoming ? c.unreadCount + 1 : c.unreadCount };
+      }),
+    );
   }
 
   sendMessage(conversationId: string, payload: { type: 'TEXT' | 'IMAGE' | 'VOICE'; content?: string; mediaUrl?: string; replyToId?: string }): void {
@@ -107,6 +172,9 @@ export class ChatService {
 
   markRead(conversationId: string, upToMessageId: string): void {
     this.socket?.emit('markRead', { conversationId, upToMessageId });
+    this.conversations.update((current) =>
+      current.map((c) => (c.conversationId === conversationId ? { ...c, unreadCount: 0 } : c)),
+    );
   }
 
   deleteMessage(messageId: string): void {

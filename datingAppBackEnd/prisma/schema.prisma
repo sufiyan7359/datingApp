@@ -30,6 +30,8 @@ model User {
   matchesAsB     Match[]           @relation("MatchesAsB")
   messages       Message[]
   reactions      MessageReaction[]
+  callsMade      Call[]            @relation("CallsMade")
+  callsReceived  Call[]            @relation("CallsReceived")
 
   @@map("users")
 }
@@ -179,8 +181,44 @@ model Conversation {
   createdAt DateTime @default(now())
 
   messages Message[]
+  calls    Call[]
 
   @@map("conversations")
+}
+
+enum CallType {
+  VOICE
+  VIDEO
+}
+
+enum CallStatus {
+  RINGING
+  ACTIVE
+  ENDED
+  MISSED
+  DECLINED
+}
+
+model Call {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  callerId       String
+  caller         User         @relation("CallsMade", fields: [callerId], references: [id], onDelete: Cascade)
+  calleeId       String
+  callee         User         @relation("CallsReceived", fields: [calleeId], references: [id], onDelete: Cascade)
+
+  type   CallType
+  status CallStatus @default(RINGING)
+
+  startedAt   DateTime  @default(now())
+  connectedAt DateTime?
+  endedAt     DateTime?
+
+  @@index([conversationId])
+  @@index([callerId])
+  @@index([calleeId])
+  @@map("calls")
 }
 
 enum MessageType {

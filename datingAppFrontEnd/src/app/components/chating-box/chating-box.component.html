@@ -13,6 +13,8 @@
             <span class="text-muted ms-2" *ngIf="isOtherTyping()"><i>typing…</i></span>
           </div>
           <div class="d-flex align-items-center gap-2">
+            <button class="btn btn-sm btn-outline-danger" title="Voice call" (click)="startVoiceCall()"><i class="bi bi-telephone-fill"></i></button>
+            <button class="btn btn-sm btn-outline-danger" title="Video call" (click)="startVideoCall()"><i class="bi bi-camera-video-fill"></i></button>
             <input type="text" class="form-control form-control-sm" style="width: 160px;" placeholder="Search messages"
               [(ngModel)]="searchQuery" (ngModelChange)="runSearch()" />
             <button class="btn btn-sm btn-outline-secondary" *ngIf="searchResults()" (click)="clearSearch()">&times;</button>

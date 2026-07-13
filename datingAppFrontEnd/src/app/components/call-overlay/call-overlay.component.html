@@ -1,0 +1,38 @@
+<!-- Incoming call notification -->
+<div class="call-overlay-backdrop" *ngIf="callService.incomingCall() as incoming">
+  <div class="call-card text-center">
+    <h4 class="textdanger"><b>{{ incoming.callerFirstName }}</b></h4>
+    <p class="text-muted">Incoming {{ incoming.type === 'VIDEO' ? 'video' : 'voice' }} call…</p>
+    <div class="d-flex justify-content-center gap-3 mt-3">
+      <button class="btn btn-outline-secondary rounded-circle call-btn" (click)="decline()"><i class="bi bi-telephone-x-fill"></i></button>
+      <button class="btn btn-danger rounded-circle call-btn" (click)="accept()"><i class="bi bi-telephone-fill"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- Active / outgoing call -->
+<div class="call-overlay-backdrop" *ngIf="callService.activeCall() as call">
+  <div class="call-card text-center">
+    <h4 class="textdanger mb-1"><b>{{ call.otherFirstName }}</b></h4>
+    <p class="text-muted" *ngIf="call.phase === 'RINGING_OUTGOING'">Ringing…</p>
+    <p class="text-muted" *ngIf="call.phase === 'ACTIVE'">In call</p>
+
+    <div class="video-area" *ngIf="call.type === 'VIDEO'">
+      <video #remoteVideo autoplay playsinline class="remote-video"></video>
+      <video #localVideo autoplay playsinline muted class="local-video"></video>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3 mt-3">
+      <button class="btn btn-outline-secondary rounded-circle call-btn" (click)="toggleMute()" [title]="call.isMuted ? 'Unmute' : 'Mute'">
+        <i class="bi" [class.bi-mic-mute-fill]="call.isMuted" [class.bi-mic-fill]="!call.isMuted"></i>
+      </button>
+      <button class="btn btn-outline-secondary rounded-circle call-btn" *ngIf="call.type === 'VIDEO'" (click)="toggleCamera()"
+        [title]="call.isCameraOff ? 'Turn camera on' : 'Turn camera off'">
+        <i class="bi" [class.bi-camera-video-off-fill]="call.isCameraOff" [class.bi-camera-video-fill]="!call.isCameraOff"></i>
+      </button>
+      <button class="btn btn-danger rounded-circle call-btn" (click)="hangUp()"><i class="bi bi-telephone-x-fill"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-error" *ngIf="callService.errorMessage() as err">{{ err }}</div>
