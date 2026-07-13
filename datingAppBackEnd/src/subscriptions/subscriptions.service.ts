@@ -13,10 +13,14 @@ import {
   BILLING_CYCLE_DAYS,
   SUBSCRIPTION_PRICING,
 } from './subscriptions.constants';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class SubscriptionsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly analytics: AnalyticsService,
+  ) {}
 
   /**
    * Returns the caller's currently active subscription row, lazily flipping
@@ -125,6 +129,11 @@ export class SubscriptionsService {
           promoCodeId: promo?.id,
         },
       });
+    });
+    await this.analytics.track(userId, 'SUBSCRIPTION_PURCHASED', {
+      tier: dto.tier,
+      billingCycle: dto.billingCycle,
+      priceCents,
     });
 
     return SubscriptionStatusDto.fromEntity(subscription);

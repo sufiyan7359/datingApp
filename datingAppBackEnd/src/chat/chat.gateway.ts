@@ -25,6 +25,7 @@ import { CallInviteDto } from './dto/call-invite.dto';
 import { CallIdDto } from './dto/call-id.dto';
 import { WebrtcIceCandidateDto, WebrtcSdpDto } from './dto/webrtc-signal.dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 interface AuthedSocket extends Socket {
   data: { userId: string };
@@ -66,6 +67,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly messagesService: MessagesService,
     private readonly callsService: CallsService,
     private readonly notifications: NotificationsService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   async handleConnection(client: AuthedSocket): Promise<void> {
@@ -154,6 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       .to(`conversation:${dto.conversationId}`)
       .emit('newMessage', message);
     await this.notifyOtherParticipant(client.data.userId, message);
+    await this.analytics.track(client.data.userId, 'MESSAGE_SENT');
     return message;
   }
 

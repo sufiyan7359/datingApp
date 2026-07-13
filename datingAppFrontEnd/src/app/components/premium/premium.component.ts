@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SubscriptionsService } from '../../core/subscriptions/subscriptions.service';
 import { Plan, PromoValidation } from '../../core/subscriptions/subscriptions.models';
 import { ProfileService } from '../../core/profile/profile.service';
+import { ExperimentsService } from '../../core/experiments/experiments.service';
 
 @Component({
   selector: 'app-premium',
@@ -14,6 +15,12 @@ import { ProfileService } from '../../core/profile/profile.service';
 export class PremiumComponent implements OnInit {
   private readonly subscriptionsService = inject(SubscriptionsService);
   private readonly profileService = inject(ProfileService);
+  private readonly experimentsService = inject(ExperimentsService);
+
+  // A/B test on the page's subtitle copy - see `premium_cta_copy` in the
+  // admin Analytics tab. Defaults to the control variant until the real
+  // assignment loads.
+  readonly ctaVariant = signal<'A' | 'B'>('A');
 
   readonly tiers: readonly Plan['tier'][] = ['GOLD', 'PLATINUM'];
   readonly plans = signal<Plan[]>([]);
@@ -31,6 +38,9 @@ export class PremiumComponent implements OnInit {
   passportCountry = '';
 
   ngOnInit(): void {
+    this.experimentsService
+      .getAssignment('premium_cta_copy')
+      .subscribe((assignment) => this.ctaVariant.set(assignment.variant === 'B' ? 'B' : 'A'));
     this.subscriptionsService.loadPlans().subscribe((plans) => this.plans.set(plans));
     this.subscriptionsService.loadStatus().subscribe();
     this.profileService.loadProfile().subscribe((profile) => {

@@ -95,3 +95,43 @@ export interface AdminPromoCode {
   isActive: boolean;
   createdAt: string;
 }
+
+export type AnalyticsEventType =
+  | 'SIGNUP'
+  | 'LOGIN'
+  | 'ONBOARDING_COMPLETED'
+  | 'SWIPE'
+  | 'MATCH'
+  | 'MESSAGE_SENT'
+  | 'SUBSCRIPTION_PURCHASED'
+  | 'BOOST_ACTIVATED'
+  | 'VERIFICATION_SUBMITTED'
+  | 'PUSH_SUBSCRIBED';
+
+export interface AnalyticsSummary {
+  days: number;
+  since: string;
+  countByType: Partial<Record<AnalyticsEventType, number>>;
+}
+
+export interface Experiment {
+  key: string;
+  name: string;
+  variantBPercent: number;
+  isActive: boolean;
+  assignedCount: number;
+  createdAt: string;
+}
+
+export interface ExperimentVariantResult {
+  variant: string;
+  assignedCount: number;
+  convertedCount: number;
+  conversionRate: number;
+}
+
+export interface ExperimentResults {
+  key: string;
+  goalEvent: AnalyticsEventType;
+  results: ExperimentVariantResult[];
+}

@@ -15,6 +15,8 @@ import { SafetyModule } from './safety/safety.module';
 import { AdminModule } from './admin/admin.module';
 import { VerificationModule } from './verification/verification.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { ExperimentsModule } from './experiments/experiments.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { NotificationsModule } from './notifications/notifications.module';
     AdminModule,
     VerificationModule,
     NotificationsModule,
+    AnalyticsModule,
+    ExperimentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

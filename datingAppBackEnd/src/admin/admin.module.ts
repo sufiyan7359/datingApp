@@ -10,14 +10,21 @@ import { AdminPromoCodesController } from './admin-promo-codes.controller';
 import { AdminPromoCodesService } from './admin-promo-codes.service';
 import { AdminVerificationsController } from './admin-verifications.controller';
 import { AdminVerificationsService } from './admin-verifications.service';
+import { AdminExperimentsController } from './admin-experiments.controller';
+import { AdminAnalyticsController } from './admin-analytics.controller';
+import { ExperimentsModule } from '../experiments/experiments.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
+  imports: [ExperimentsModule, AnalyticsModule],
   controllers: [
     AdminDashboardController,
     AdminUsersController,
     AdminReportsController,
     AdminPromoCodesController,
     AdminVerificationsController,
+    AdminExperimentsController,
+    AdminAnalyticsController,
   ],
   providers: [
     AdminGuard,

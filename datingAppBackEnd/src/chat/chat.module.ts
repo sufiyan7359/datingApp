@@ -9,9 +9,15 @@ import { CallsService } from './calls.service';
 import { ChatGateway } from './chat.gateway';
 import { SafetyModule } from '../safety/safety.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AnalyticsModule } from '../analytics/analytics.module';
 
 @Module({
-  imports: [JwtModule.register({}), SafetyModule, NotificationsModule],
+  imports: [
+    JwtModule.register({}),
+    SafetyModule,
+    NotificationsModule,
+    AnalyticsModule,
+  ],
   controllers: [ConversationsController, CallsController],
   providers: [
     ConversationsService,

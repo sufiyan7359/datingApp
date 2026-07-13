@@ -16,6 +16,7 @@ import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { TwoFactorChallengeDto } from './dto/two-factor-challenge.dto';
 import { TwoFactorSetupResponseDto } from './dto/two-factor-setup-response.dto';
+import { AnalyticsService } from '../analytics/analytics.service';
 import type { User } from '@prisma/client';
 
 interface AccessTokenPayload {
@@ -38,10 +39,12 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResponseDto> {
     const user = await this.usersService.create(dto);
+    await this.analytics.track(user.id, 'SIGNUP');
     return this.issueTokens(user);
   }
 
@@ -58,6 +61,7 @@ export class AuthService {
 
   async login(user: User): Promise<AuthResponseDto | TwoFactorChallengeDto> {
     if (!user.twoFactorEnabled) {
+      await this.analytics.track(user.id, 'LOGIN');
       return this.issueTokens(user);
     }
 
@@ -106,6 +110,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid two-factor code');
     }
 
+    await this.analytics.track(user.id, 'LOGIN');
     return this.issueTokens(user);
   }
 

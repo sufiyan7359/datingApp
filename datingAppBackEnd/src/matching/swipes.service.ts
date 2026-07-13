@@ -15,6 +15,7 @@ import { TIER_LIMITS, UNLIMITED } from './matching.constants';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { BlocksService } from '../safety/blocks.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class SwipesService {
@@ -23,6 +24,7 @@ export class SwipesService {
     private readonly subscriptions: SubscriptionsService,
     private readonly blocks: BlocksService,
     private readonly notifications: NotificationsService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   async swipe(swiperId: string, dto: CreateSwipeDto): Promise<SwipeResultDto> {
@@ -70,6 +72,7 @@ export class SwipesService {
       : await this.prisma.swipe.create({
           data: { swiperId, targetId: dto.targetUserId, action: dto.action },
         });
+    await this.analytics.track(swiperId, 'SWIPE', { action: dto.action });
 
     let match: MatchDto | null = null;
 
@@ -98,6 +101,8 @@ export class SwipesService {
             title: "It's a match!",
             body: `You and ${swiper?.firstName ?? 'someone'} liked each other.`,
           }),
+          this.analytics.track(swiperId, 'MATCH'),
+          this.analytics.track(dto.targetUserId, 'MATCH'),
         ]);
       } else {
         // Deliberately doesn't name the swiper - who-liked-me is a paywalled
