@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as webpush from 'web-push';
 import { PrismaService } from '../prisma/prisma.service';
 import { PushSubscriptionDto } from './dto/push-subscription.dto';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 export interface NotificationPayload {
   title: string;
@@ -17,6 +18,7 @@ export class NotificationsService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   onModuleInit(): void {
@@ -55,6 +57,7 @@ export class NotificationsService implements OnModuleInit {
         auth: dto.keys.auth,
       },
     });
+    await this.analytics.track(userId, 'PUSH_SUBSCRIBED');
   }
 
   async unsubscribe(userId: string, endpoint: string): Promise<void> {

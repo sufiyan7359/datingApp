@@ -1,10 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { VerificationStatusDto } from './dto/verification-status.dto';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 @Injectable()
 export class VerificationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly analytics: AnalyticsService,
+  ) {}
 
   async getStatus(userId: string): Promise<VerificationStatusDto> {
     const profile = await this.getOrCreate(userId);
@@ -45,6 +49,7 @@ export class VerificationService {
         verificationNote: null,
       },
     });
+    await this.analytics.track(userId, 'VERIFICATION_SUBMITTED');
     return VerificationStatusDto.fromEntity(updated);
   }
 

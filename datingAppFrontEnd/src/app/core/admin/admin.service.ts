@@ -10,7 +10,11 @@ import {
   AdminUsersPage,
   AdminVerification,
   AdminVerificationsPage,
+  AnalyticsEventType,
+  AnalyticsSummary,
   DashboardStats,
+  Experiment,
+  ExperimentResults,
   ReportStatus,
   VerificationStatus,
 } from './admin.models';
@@ -105,6 +109,34 @@ export class AdminService {
     return this.http.patch<AdminVerification>(`${environment.apiUrl}/admin/verifications/${userId}`, {
       status,
       note: note || undefined,
+    });
+  }
+
+  getAnalyticsSummary(days: number): Observable<AnalyticsSummary> {
+    const params = new HttpParams().set('days', days);
+    return this.http.get<AnalyticsSummary>(`${environment.apiUrl}/admin/analytics/summary`, { params });
+  }
+
+  listExperiments(): Observable<Experiment[]> {
+    return this.http.get<Experiment[]>(`${environment.apiUrl}/admin/experiments`);
+  }
+
+  createExperiment(key: string, name: string, variantBPercent: number): Observable<Experiment> {
+    return this.http.post<Experiment>(`${environment.apiUrl}/admin/experiments`, {
+      key,
+      name,
+      variantBPercent,
+    });
+  }
+
+  setExperimentActive(key: string, isActive: boolean): Observable<Experiment> {
+    return this.http.patch<Experiment>(`${environment.apiUrl}/admin/experiments/${key}`, { isActive });
+  }
+
+  getExperimentResults(key: string, goalEvent: AnalyticsEventType): Observable<ExperimentResults> {
+    const params = new HttpParams().set('goalEvent', goalEvent);
+    return this.http.get<ExperimentResults>(`${environment.apiUrl}/admin/experiments/${key}/results`, {
+      params,
     });
   }
 }

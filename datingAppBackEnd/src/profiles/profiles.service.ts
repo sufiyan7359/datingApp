@@ -14,6 +14,7 @@ import {
 } from '../matching/matching.constants';
 import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { PHOTOS_ROOT } from './multer.config';
+import { AnalyticsService } from '../analytics/analytics.service';
 
 const MAX_PHOTOS_PER_PROFILE = 6;
 const BLUR_SIGMA = 25;
@@ -23,6 +24,7 @@ export class ProfilesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly subscriptions: SubscriptionsService,
+    private readonly analytics: AnalyticsService,
   ) {}
 
   async getOrCreate(userId: string) {
@@ -40,7 +42,7 @@ export class ProfilesService {
   }
 
   async update(userId: string, dto: UpdateProfileDto) {
-    await this.getOrCreate(userId);
+    const existing = await this.getOrCreate(userId);
 
     const wantsPremiumFields =
       dto.isIncognito === true ||
@@ -57,7 +59,7 @@ export class ProfilesService {
 
     const { clearPassport, ...rest } = dto;
 
-    return this.prisma.profile.update({
+    const updated = await this.prisma.profile.update({
       where: { userId },
       data: {
         ...rest,
@@ -73,6 +75,12 @@ export class ProfilesService {
       },
       include: { photos: true },
     });
+
+    if (dto.onboardingCompleted === true && !existing.onboardingCompleted) {
+      await this.analytics.track(userId, 'ONBOARDING_COMPLETED');
+    }
+
+    return updated;
   }
 
   async addPhoto(userId: string, url: string) {
@@ -173,6 +181,7 @@ export class ProfilesService {
         data: { boostedUntil },
       }),
     ]);
+    await this.analytics.track(userId, 'BOOST_ACTIVATED');
 
     return { boostedUntil };
   }

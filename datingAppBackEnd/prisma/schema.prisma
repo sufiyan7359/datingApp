@@ -49,8 +49,10 @@ model User {
   blocksReceived     Block[]              @relation("BlocksReceived")
   reportsMade        Report[]             @relation("ReportsMade")
   reportsReceived    Report[]             @relation("ReportsReceived")
-  mutedConversations MutedConversation[]
-  pushSubscriptions  PushSubscription[]
+  mutedConversations    MutedConversation[]
+  pushSubscriptions     PushSubscription[]
+  analyticsEvents       AnalyticsEvent[]
+  experimentAssignments ExperimentAssignment[]
 
   @@map("users")
 }
@@ -461,4 +463,64 @@ model PushSubscription {
 
   @@index([userId])
   @@map("push_subscriptions")
+}
+
+enum AnalyticsEventType {
+  SIGNUP
+  LOGIN
+  ONBOARDING_COMPLETED
+  SWIPE
+  MATCH
+  MESSAGE_SENT
+  SUBSCRIPTION_PURCHASED
+  BOOST_ACTIVATED
+  VERIFICATION_SUBMITTED
+  PUSH_SUBSCRIBED
+}
+
+/// Lightweight product-analytics event log - see analytics.service.ts. Not a
+/// full event pipeline (no batching/streaming), just enough to back the admin
+/// analytics summary and experiment conversion rates.
+model AnalyticsEvent {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      AnalyticsEventType
+  metadata  Json?
+  createdAt DateTime           @default(now())
+
+  @@index([type, createdAt])
+  @@index([userId])
+  @@map("analytics_events")
+}
+
+/// A/B test definition. `variantBPercent` of traffic is deterministically
+/// bucketed into 'B'; the bucket is persisted on first assignment
+/// (ExperimentAssignment) so a later split change never reshuffles someone
+/// already in the test - see experiments.service.ts.
+model Experiment {
+  id              String   @id @default(uuid())
+  key             String   @unique
+  name            String
+  variantBPercent Int      @default(50)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  assignments ExperimentAssignment[]
+
+  @@map("experiments")
+}
+
+model ExperimentAssignment {
+  id           String     @id @default(uuid())
+  experimentId String
+  experiment   Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  variant      String
+  assignedAt   DateTime   @default(now())
+
+  @@unique([experimentId, userId])
+  @@index([userId])
+  @@map("experiment_assignments")
 }

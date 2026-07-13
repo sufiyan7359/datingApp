@@ -19,6 +19,16 @@ async function main() {
     },
   });
 
+  await prisma.experiment.upsert({
+    where: { key: 'premium_cta_copy' },
+    update: {},
+    create: {
+      key: 'premium_cta_copy',
+      name: 'Premium page subtitle copy',
+      variantBPercent: 50,
+    },
+  });
+
   // Promote an existing account to admin: ADMIN_EMAIL=you@example.com npm run prisma:seed
   const adminEmail = process.env.ADMIN_EMAIL;
   if (adminEmail) {
