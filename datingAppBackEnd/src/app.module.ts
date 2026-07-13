@@ -13,6 +13,7 @@ import { ChatModule } from './chat/chat.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { SafetyModule } from './safety/safety.module';
 import { AdminModule } from './admin/admin.module';
+import { VerificationModule } from './verification/verification.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AdminModule } from './admin/admin.module';
     SubscriptionsModule,
     SafetyModule,
     AdminModule,
+    VerificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

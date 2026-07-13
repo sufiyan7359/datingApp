@@ -2,16 +2,19 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../core/admin/admin.service';
+import { environment } from '../../../environments/environment';
 import {
   AdminPromoCode,
   AdminReport,
   AdminUserDetail,
   AdminUserSummary,
+  AdminVerification,
   DashboardStats,
   ReportStatus,
+  VerificationStatus,
 } from '../../core/admin/admin.models';
 
-type Tab = 'dashboard' | 'users' | 'reports' | 'promo-codes';
+type Tab = 'dashboard' | 'users' | 'reports' | 'verifications' | 'promo-codes';
 
 @Component({
   selector: 'app-admin',
@@ -22,6 +25,7 @@ type Tab = 'dashboard' | 'users' | 'reports' | 'promo-codes';
 export class AdminComponent implements OnInit {
   private readonly adminService = inject(AdminService);
 
+  readonly apiUrl = environment.apiUrl;
   readonly tab = signal<Tab>('dashboard');
   readonly errorMessage = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
@@ -45,6 +49,14 @@ export class AdminComponent implements OnInit {
   reviewNote = '';
   reviewSuspend = false;
 
+  // Verifications
+  readonly verifications = signal<AdminVerification[]>([]);
+  readonly verificationsTotal = signal(0);
+  readonly verificationsPage = signal(1);
+  verificationStatusFilter: VerificationStatus = 'PENDING';
+  readonly reviewingVerificationUserId = signal<string | null>(null);
+  verificationReviewNote = '';
+
   // Promo codes
   readonly promoCodes = signal<AdminPromoCode[]>([]);
   newPromoCode = '';
@@ -62,6 +74,7 @@ export class AdminComponent implements OnInit {
     if (tab === 'dashboard') this.loadStats();
     if (tab === 'users') this.loadUsers();
     if (tab === 'reports') this.loadReports();
+    if (tab === 'verifications') this.loadVerifications();
     if (tab === 'promo-codes') this.loadPromoCodes();
   }
 
@@ -148,6 +161,43 @@ export class AdminComponent implements OnInit {
         this.reviewingReportId.set(null);
         this.successMessage.set('Report updated.');
         this.loadReports(this.reportsPage());
+      },
+      error: (err) => this.handleError(err),
+    });
+  }
+
+  loadVerifications(page = 1): void {
+    this.adminService.listVerifications(this.verificationStatusFilter, page).subscribe({
+      next: (result) => {
+        this.verifications.set(result.results);
+        this.verificationsTotal.set(result.total);
+        this.verificationsPage.set(result.page);
+      },
+      error: (err) => this.handleError(err),
+    });
+  }
+
+  startVerificationReview(v: AdminVerification): void {
+    this.reviewingVerificationUserId.set(v.userId);
+    this.verificationReviewNote = '';
+  }
+
+  cancelVerificationReview(): void {
+    this.reviewingVerificationUserId.set(null);
+  }
+
+  submitVerificationReview(status: 'APPROVED' | 'REJECTED'): void {
+    const userId = this.reviewingVerificationUserId();
+    if (!userId) return;
+    if (status === 'REJECTED' && !this.verificationReviewNote.trim()) {
+      this.errorMessage.set('A note explaining the rejection is required.');
+      return;
+    }
+    this.adminService.reviewVerification(userId, status, this.verificationReviewNote).subscribe({
+      next: () => {
+        this.reviewingVerificationUserId.set(null);
+        this.successMessage.set('Verification updated.');
+        this.loadVerifications(this.verificationsPage());
       },
       error: (err) => this.handleError(err),
     });

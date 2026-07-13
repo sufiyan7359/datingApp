@@ -34,7 +34,11 @@ export class AdminUsersService {
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
-        include: { profile: { select: { onboardingCompleted: true } } },
+        include: {
+          profile: {
+            select: { onboardingCompleted: true, verificationStatus: true },
+          },
+        },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
@@ -80,7 +84,11 @@ export class AdminUsersService {
   async getUserDetail(id: string): Promise<AdminUserDetailDto> {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: { profile: { select: { onboardingCompleted: true } } },
+      include: {
+        profile: {
+          select: { onboardingCompleted: true, verificationStatus: true },
+        },
+      },
     });
     if (!user) {
       throw new NotFoundException('User not found');

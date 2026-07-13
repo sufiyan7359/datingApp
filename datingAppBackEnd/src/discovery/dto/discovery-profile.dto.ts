@@ -60,6 +60,9 @@ export class DiscoveryProfileDto {
   })
   distanceKm: number | null;
 
+  @ApiProperty({ description: 'Whether this user has completed identity verification' })
+  isVerified: boolean;
+
   static fromEntity(
     profile: Profile & { photos: Photo[]; user: { firstName: string } },
     distanceKm: number | null,
@@ -90,6 +93,7 @@ export class DiscoveryProfileDto {
       profile.hideDistance || distanceKm === null
         ? null
         : Math.round(distanceKm * 10) / 10;
+    dto.isVerified = profile.verificationStatus === 'APPROVED';
     return dto;
   }
 }

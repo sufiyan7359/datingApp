@@ -1,0 +1,44 @@
+<div class="container mt-4 mb-5" style="max-width: 500px;">
+  <h3><b>Get Verified</b></h3>
+  <p class="text-muted">
+    Submit a selfie so an admin can confirm it matches your profile photos. Verified
+    profiles get a checkmark badge that helps others trust you're really you.
+  </p>
+
+  <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+
+  <div class="card shadow-sm border-0 rounded-4 p-3" *ngIf="status() as s">
+    <div *ngIf="s.status === 'APPROVED'" class="text-success">
+      <i class="bi bi-patch-check-fill fs-4 me-1"></i>
+      <b>You're verified!</b>
+    </div>
+
+    <div *ngIf="s.status === 'PENDING'" class="text-warning">
+      <b>Your submission is pending review.</b>
+      <p class="text-muted mb-0" style="font-size: 0.85rem;">
+        Submitted {{ s.submittedAt | date: 'medium' }}
+      </p>
+    </div>
+
+    <div *ngIf="s.status === 'REJECTED'">
+      <b class="text-danger">Your last submission was rejected.</b>
+      <p class="mb-2" *ngIf="s.note">Reason: {{ s.note }}</p>
+      <label class="btn btn-danger btn-sm" [class.disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Uploading…' : 'Try again' }}
+        <input type="file" hidden accept="image/jpeg,image/png,image/webp"
+          [disabled]="isSubmitting()" (change)="onSelfieSelected($event)" />
+      </label>
+    </div>
+
+    <div *ngIf="s.status === 'NONE'">
+      <label class="btn btn-danger btn-sm" [class.disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Uploading…' : 'Submit a selfie' }}
+        <input type="file" hidden accept="image/jpeg,image/png,image/webp"
+          [disabled]="isSubmitting()" (change)="onSelfieSelected($event)" />
+      </label>
+      <p class="text-muted mt-2 mb-0" style="font-size: 0.8rem;">
+        Make sure you've uploaded at least one profile photo first.
+      </p>
+    </div>
+  </div>
+</div>

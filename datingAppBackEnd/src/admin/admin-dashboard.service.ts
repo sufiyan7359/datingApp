@@ -18,6 +18,8 @@ export class AdminDashboardService {
       activeSubscriptions,
       pendingReports,
       totalReports,
+      pendingVerifications,
+      verifiedUsers,
     ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.user.count({ where: { isActive: true } }),
@@ -30,6 +32,8 @@ export class AdminDashboardService {
       }),
       this.prisma.report.count({ where: { status: 'PENDING' } }),
       this.prisma.report.count(),
+      this.prisma.profile.count({ where: { verificationStatus: 'PENDING' } }),
+      this.prisma.profile.count({ where: { verificationStatus: 'APPROVED' } }),
     ]);
 
     const stillActive = activeSubscriptions.filter(
@@ -50,6 +54,8 @@ export class AdminDashboardService {
       ),
       pendingReports,
       totalReports,
+      pendingVerifications,
+      verifiedUsers,
     };
   }
 }

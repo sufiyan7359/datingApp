@@ -102,6 +102,9 @@ export class ProfileResponseDto {
   @ApiProperty({ type: [PhotoResponseDto] })
   photos: PhotoResponseDto[];
 
+  @ApiProperty()
+  isVerified: boolean;
+
   static fromEntity(
     profile: Profile & { photos?: Photo[] },
   ): ProfileResponseDto {
@@ -139,6 +142,7 @@ export class ProfileResponseDto {
     dto.photos = (profile.photos ?? [])
       .sort((a, b) => a.order - b.order)
       .map((photo) => PhotoResponseDto.fromEntity(photo));
+    dto.isVerified = profile.verificationStatus === 'APPROVED';
     return dto;
   }
 }
