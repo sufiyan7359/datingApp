@@ -57,6 +57,10 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: datingAppFrontEnd/package-lock.json
-      - run: npm ci
+      # package-lock.json was generated on macOS and is missing the Linux
+      # variants of a couple of optional transitive deps (chokidar/readdirp),
+      # which `npm ci`'s strict lockfile check rejects on this runner - use
+      # the more lenient `npm install` instead.
+      - run: npm install
       - run: npx ng test --watch=false --browsers=ChromeHeadlessCI
       - run: npx ng build --configuration production
