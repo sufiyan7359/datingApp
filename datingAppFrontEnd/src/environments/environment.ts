@@ -2,9 +2,14 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+// Deriving apiUrl from the browser's own hostname (instead of hardcoding
+// "localhost") means the same build works whether you open it as
+// http://localhost:4200 on this machine or http://<lan-ip>:4200 from a phone
+// on the same network - the backend is assumed to be reachable on the same
+// host, port 8000.
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8000',
+  apiUrl: `http://${window.location.hostname}:8000`,
 };
 
 /*

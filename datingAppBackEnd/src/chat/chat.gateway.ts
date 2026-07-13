@@ -31,7 +31,13 @@ interface AuthedSocket extends Socket {
 
 @WebSocketGateway({
   namespace: '/chat',
-  cors: { origin: ['http://localhost:4200'], credentials: true },
+  // See the matching comment in main.ts - reflects localhost or any LAN IP on
+  // port 4200 so chat/calls also work when the frontend is opened from a
+  // phone on the same network.
+  cors: {
+    origin: /^http:\/\/(localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):4200$/,
+    credentials: true,
+  },
 })
 @UsePipes(
   new ValidationPipe({
