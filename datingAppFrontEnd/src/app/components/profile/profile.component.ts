@@ -4,6 +4,7 @@ import { NgClass, NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProfileService } from '../../core/profile/profile.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { ThemeService } from '../../core/theme/theme.service';
 import { Gender, LifestyleChoice, Profile, RelationshipGoal } from '../../core/profile/profile.models';
 import { environment } from '../../../environments/environment';
 
@@ -34,6 +35,7 @@ function minimumAgeValidator(minAge: number): ValidatorFn {
 export class ProfileComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
+  private readonly themeService = inject(ThemeService);
 
   readonly genders: Gender[] = ['MALE', 'FEMALE', 'NON_BINARY', 'OTHER'];
   readonly lifestyleOptions: LifestyleChoice[] = ['NEVER', 'SOMETIMES', 'REGULARLY'];
@@ -42,6 +44,7 @@ export class ProfileComponent implements OnInit {
   readonly apiUrl = environment.apiUrl;
   readonly profile = this.profileService.profile;
   readonly currentUser = this.authService.currentUser;
+  readonly isDarkTheme = this.themeService.isDark;
 
   readonly tab = signal<Tab>('about');
   readonly isLoading = signal(true);
@@ -228,5 +231,9 @@ export class ProfileComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggle();
   }
 }

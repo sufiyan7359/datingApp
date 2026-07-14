@@ -278,6 +278,13 @@
             <hr>
             <div class="d-flex flex-wrap">
                 <div class="settingGroup m-2">
+                    <button class="btn btn-outline-danger" (click)="toggleTheme()">
+                        <i class="bi" [class.bi-moon-stars-fill]="!isDarkTheme()" [class.bi-sun-fill]="isDarkTheme()"></i>
+                        {{ isDarkTheme() ? 'Light Theme' : 'Dark Theme' }}
+                    </button>
+                </div>
+
+                <div class="settingGroup m-2">
                     <a class="btn btn-outline-danger" routerLink="/safety">Privacy &amp; Safety</a>
                 </div>
 

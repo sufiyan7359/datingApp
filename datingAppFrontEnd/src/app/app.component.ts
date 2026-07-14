@@ -6,6 +6,7 @@ import { CallOverlayComponent } from './components/call-overlay/call-overlay.com
 import { AuthService } from './core/auth/auth.service';
 import { ChatService } from './core/chat/chat.service';
 import { CallService } from './core/calls/call.service';
+import { ThemeService } from './core/theme/theme.service';
 import { SwUpdate } from '@angular/service-worker';
 
 @Component({
@@ -21,6 +22,11 @@ export class AppComponent {
   private readonly chatService = inject(ChatService);
   private readonly callService = inject(CallService);
   private readonly swUpdate = inject(SwUpdate);
+  // Injected only to force early instantiation - ThemeService applies the
+  // saved/system theme in its own constructor, as soon as the app root
+  // component is created, so every page loads with the right theme already
+  // set instead of only after a user happens to visit Profile > Settings.
+  private readonly themeService = inject(ThemeService);
 
   constructor() {
     // Keep one socket connection alive for the whole authenticated session
