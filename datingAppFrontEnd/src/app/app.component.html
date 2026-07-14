@@ -6,6 +6,6 @@
   <router-outlet></router-outlet>
 </main>
 
-<app-footer></app-footer>
+<app-footer *ngIf="showFooter()"></app-footer>
 
 <app-call-overlay></app-call-overlay>

@@ -1,6 +1,9 @@
 import { Component, DestroyRef, NgZone, effect, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NgIf } from '@angular/common';
+import { filter, map } from 'rxjs';
 import { HeaderComponent } from './components/header/header.component';
-import { RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { FooterComponent } from './components/footer/footer.component';
 import { CallOverlayComponent } from './components/call-overlay/call-overlay.component';
 import { AuthService } from './core/auth/auth.service';
@@ -9,11 +12,15 @@ import { CallService } from './core/calls/call.service';
 import { ThemeService } from './core/theme/theme.service';
 import { SwUpdate } from '@angular/service-worker';
 
+// Route prefixes where the marketing footer just adds dead space below an
+// already-scrollable, chrome-heavy screen (chat has its own fixed composer).
+const ROUTES_WITHOUT_FOOTER = ['/chating'];
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  imports: [HeaderComponent, RouterOutlet, FooterComponent, CallOverlayComponent],
+  imports: [HeaderComponent, RouterOutlet, FooterComponent, CallOverlayComponent, NgIf],
 })
 export class AppComponent {
   title = 'datingAppFront';
@@ -24,6 +31,15 @@ export class AppComponent {
   private readonly swUpdate = inject(SwUpdate);
   private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+
+  readonly showFooter = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => !ROUTES_WITHOUT_FOOTER.some((prefix) => event.urlAfterRedirects.startsWith(prefix))),
+    ),
+    { initialValue: !ROUTES_WITHOUT_FOOTER.some((prefix) => this.router.url.startsWith(prefix)) },
+  );
   // Injected only to force early instantiation - ThemeService applies the
   // saved/system theme in its own constructor, as soon as the app root
   // component is created, so every page loads with the right theme already
