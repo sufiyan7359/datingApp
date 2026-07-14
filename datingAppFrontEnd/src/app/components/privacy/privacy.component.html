@@ -1,1 +1,30 @@
-<p>privacy works!</p>
+<div class="container mt-5 mb-3 text-center privacy-hero">
+  <span class="text-danger fw-semibold">Your Data, Your Rules</span>
+  <h1 class="mb-3"><b>Privacy <span class="textdanger">Policy</span></b></h1>
+  <p class="text-muted mx-auto" style="max-width: 640px;">
+    A plain-language summary of what we collect, how we use it, and the controls you have over your own profile.
+  </p>
+</div>
+
+<div class="container mb-5">
+  <div class="row g-4">
+    <div class="col-12 col-md-6" *ngFor="let section of sections; let i = index">
+      <div class="privacy-card h-100 p-4 rounded-4 shadow border-0" [style.animation-delay.ms]="i * 80">
+        <div class="d-flex align-items-center mb-3">
+          <div class="privacy-icon me-3">
+            <i class="bi" [class]="section.icon"></i>
+          </div>
+          <h5 class="mb-0"><b>{{ section.title }}</b></h5>
+        </div>
+        <ul class="mb-0 ps-3">
+          <li class="text-muted mb-2" *ngFor="let point of section.points">{{ point }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container mb-5 text-center text-muted small">
+  Questions about your data? Reach out any time from our
+  <a routerLink="/contact" class="textdanger fw-semibold text-decoration-none">Contact page</a>.
+</div>

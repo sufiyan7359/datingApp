@@ -17,6 +17,7 @@ import { VerificationModule } from './verification/verification.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ExperimentsModule } from './experiments/experiments.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ExperimentsModule } from './experiments/experiments.module';
     NotificationsModule,
     AnalyticsModule,
     ExperimentsModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],

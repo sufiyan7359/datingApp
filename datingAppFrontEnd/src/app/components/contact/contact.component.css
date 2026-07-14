@@ -1,0 +1,106 @@
+.contact-hero h1 {
+  font-size: 2.4rem;
+  animation: fadeInDown 0.4s ease both;
+}
+
+.contact-hero span.text-danger {
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.contact-hero p {
+  animation: fadeIn 0.5s 0.1s ease both;
+}
+
+.contact-info-card,
+.contact-form-card {
+  background: #fff;
+  color: #212529;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.contact-info-card h6,
+.contact-form-card h4,
+.contact-form-card label {
+  color: #212529;
+}
+
+.contact-info-card span,
+.contact-form-card p {
+  color: #6c757d !important;
+}
+
+.contact-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff0000, #b30000);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.contact-form-card {
+  animation-delay: 0.1s;
+}
+
+.contact-form-card .form-control {
+  background-color: #fff;
+  color: #212529;
+  border-color: #ced4da;
+}
+
+.contact-form-card .form-control::placeholder {
+  color: #9ca3af;
+}
+
+.contact-form-card .form-control:focus {
+  background-color: #fff;
+  color: #212529;
+  border-color: #ff0000;
+  box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.12);
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff0000, #b30000);
+  color: #fff;
+  font-size: 1.8rem;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-hero h1, .contact-hero p, .contact-info-card, .contact-form-card, .success-icon {
+    animation: none !important;
+    transition: none !important;
+  }
+}
