@@ -1,45 +1,106 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { adminGuard } from './core/auth/admin.guard';
-import { AboutComponent } from './components/about/about.component';
-import { BlogComponent } from './components/blog/blog.component';
-import { ContactComponent } from './components/contact/contact.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { LandingComponent } from './components/landing/landing.component';
-import { LoginComponent } from './components/login/login.component';
-import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
-import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
-import { PrivacyComponent } from './components/privacy/privacy.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { RegisterComponent } from './components/register/register.component';
-import { ServiceComponent } from './components/service/service.component';
-import { ChatingBoxComponent } from './components/chating-box/chating-box.component';
-import { OnboardingComponent } from './components/onboarding/onboarding.component';
-import { PremiumComponent } from './components/premium/premium.component';
-import { LikesComponent } from './components/likes/likes.component';
-import { SafetySettingsComponent } from './components/safety-settings/safety-settings.component';
-import { AdminComponent } from './components/admin/admin.component';
-import { VerificationComponent } from './components/verification/verification.component';
 
+// Every route is lazy so the initial bundle is just the app shell (header,
+// footer, router) - each screen's code only downloads when it's actually
+// visited, instead of every feature (admin panel, chat, premium, etc.)
+// shipping up front regardless of which page loads first.
 export const routes: Routes = [
-  { path: '', component: LandingComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
-  { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'service', component: ServiceComponent },
-  { path: 'blog', component: BlogComponent },
-  { path: 'privacy', component: PrivacyComponent },
-  { path: 'contact', component: ContactComponent },
-  { path: 'about', component: AboutComponent },
-  { path: 'onboarding', component: OnboardingComponent, canActivate: [authGuard] },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
-  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-  { path: 'premium', component: PremiumComponent, canActivate: [authGuard] },
-  { path: 'likes', component: LikesComponent, canActivate: [authGuard] },
-  { path: 'safety', component: SafetySettingsComponent, canActivate: [authGuard] },
-  { path: 'verification', component: VerificationComponent, canActivate: [authGuard] },
-  { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
-  { path: 'chating/:id', component: ChatingBoxComponent, canActivate: [authGuard] },
-  { path: 'chating', component: ChatingBoxComponent, canActivate: [authGuard] },
+  {
+    path: '',
+    loadComponent: () => import('./components/landing/landing.component').then((m) => m.LandingComponent),
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./components/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./components/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./components/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./components/register/register.component').then((m) => m.RegisterComponent),
+  },
+  {
+    path: 'service',
+    loadComponent: () => import('./components/service/service.component').then((m) => m.ServiceComponent),
+  },
+  {
+    path: 'blog',
+    loadComponent: () => import('./components/blog/blog.component').then((m) => m.BlogComponent),
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./components/privacy/privacy.component').then((m) => m.PrivacyComponent),
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./components/contact/contact.component').then((m) => m.ContactComponent),
+  },
+  {
+    path: 'about',
+    loadComponent: () => import('./components/about/about.component').then((m) => m.AboutComponent),
+  },
+  {
+    path: 'onboarding',
+    loadComponent: () => import('./components/onboarding/onboarding.component').then((m) => m.OnboardingComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'dashboard',
+    loadComponent: () => import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'profile',
+    loadComponent: () => import('./components/profile/profile.component').then((m) => m.ProfileComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'premium',
+    loadComponent: () => import('./components/premium/premium.component').then((m) => m.PremiumComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'likes',
+    loadComponent: () => import('./components/likes/likes.component').then((m) => m.LikesComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'safety',
+    loadComponent: () =>
+      import('./components/safety-settings/safety-settings.component').then((m) => m.SafetySettingsComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'verification',
+    loadComponent: () =>
+      import('./components/verification/verification.component').then((m) => m.VerificationComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./components/admin/admin.component').then((m) => m.AdminComponent),
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'chating/:id',
+    loadComponent: () =>
+      import('./components/chating-box/chating-box.component').then((m) => m.ChatingBoxComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'chating',
+    loadComponent: () =>
+      import('./components/chating-box/chating-box.component').then((m) => m.ChatingBoxComponent),
+    canActivate: [authGuard],
+  },
 ];

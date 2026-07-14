@@ -2,11 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import compression from 'compression';
 import { join } from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  app.use(compression());
 
   // Reflects any origin on port 4200 (localhost or a LAN IP) so the same
   // backend works for local dev in a browser and for a phone on the same
@@ -17,7 +20,14 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads/' });
+  // Uploaded files are named with a random UUID and never overwritten with
+  // different content at the same URL (deletion removes the row, it doesn't
+  // reuse the filename), so it's safe to cache them aggressively.
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
+    prefix: '/uploads/',
+    maxAge: '30d',
+    immutable: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

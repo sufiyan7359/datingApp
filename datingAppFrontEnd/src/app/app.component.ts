@@ -6,6 +6,7 @@ import { CallOverlayComponent } from './components/call-overlay/call-overlay.com
 import { AuthService } from './core/auth/auth.service';
 import { ChatService } from './core/chat/chat.service';
 import { CallService } from './core/calls/call.service';
+import { SwUpdate } from '@angular/service-worker';
 
 @Component({
   selector: 'app-root',
@@ -19,6 +20,7 @@ export class AppComponent {
   private readonly authService = inject(AuthService);
   private readonly chatService = inject(ChatService);
   private readonly callService = inject(CallService);
+  private readonly swUpdate = inject(SwUpdate);
 
   constructor() {
     // Keep one socket connection alive for the whole authenticated session
@@ -32,5 +34,16 @@ export class AppComponent {
         this.chatService.disconnect();
       }
     });
+
+    // Without this, a user could stay on a stale cached build indefinitely -
+    // the service worker only fetches new versions in the background, it
+    // never forces a reload on its own.
+    if (this.swUpdate.isEnabled) {
+      this.swUpdate.versionUpdates.subscribe((event) => {
+        if (event.type === 'VERSION_READY' && confirm('A new version of DatingApp is available. Reload now?')) {
+          document.location.reload();
+        }
+      });
+    }
   }
 }

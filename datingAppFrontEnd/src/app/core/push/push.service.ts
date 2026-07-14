@@ -15,7 +15,7 @@ export class PushService {
 
   async refreshStatus(): Promise<void> {
     if (!this.isSupported) return;
-    const registration = await navigator.serviceWorker.register('/push-sw.js');
+    const registration = await navigator.serviceWorker.register('/combined-sw.js');
     const existing = await registration.pushManager.getSubscription();
     this.status.set(existing ? 'subscribed' : 'unsubscribed');
   }
@@ -28,7 +28,7 @@ export class PushService {
       throw new Error('Notification permission was not granted');
     }
 
-    const registration = await navigator.serviceWorker.register('/push-sw.js');
+    const registration = await navigator.serviceWorker.register('/combined-sw.js');
     const { publicKey } = await firstValueFrom(
       this.http.get<{ publicKey: string }>(`${environment.apiUrl}/notifications/vapid-public-key`),
     );
@@ -46,7 +46,7 @@ export class PushService {
 
   async unsubscribe(): Promise<void> {
     if (!this.isSupported) return;
-    const registration = await navigator.serviceWorker.getRegistration('/push-sw.js');
+    const registration = await navigator.serviceWorker.getRegistration();
     const subscription = await registration?.pushManager.getSubscription();
     if (!subscription) {
       this.status.set('unsubscribed');

@@ -1,6 +1,17 @@
-// Minimal push notification service worker - not a full PWA/offline-caching
-// worker, just enough to show notifications and route clicks back into the
-// app. Registered by core/push/push.service.ts.
+// Only one service worker can control this origin, so Angular's generated
+// caching worker (ngsw-worker.js, built from ngsw-config.json) and the app's
+// push-notification handling have to live in the same file. importScripts
+// pulls in and runs Angular's install/activate/fetch logic verbatim; the
+// push/notificationclick listeners below are added on top of that, in the
+// same worker global scope, and don't collide with anything ngsw-worker.js
+// listens for.
+try {
+  importScripts('./ngsw-worker.js');
+} catch {
+  // ngsw-worker.js is only emitted for production builds (main.ts registers
+  // it with `enabled: !isDevMode()`) - under `ng serve` this worker just
+  // handles push notifications, with no offline caching.
+}
 
 self.addEventListener('push', (event) => {
   if (!event.data) return;
