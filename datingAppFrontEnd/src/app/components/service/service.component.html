@@ -1,1 +1,27 @@
-<p>service works!</p>
+<div class="container mt-5 mb-3 text-center service-hero">
+  <span class="text-danger fw-semibold">What We Offer</span>
+  <h1 class="mb-3"><b>Our <span class="textdanger">Services</span></b></h1>
+  <p class="text-muted mx-auto" style="max-width: 640px;">
+    Everything you need to meet people, build a real connection, and stay safe while doing it.
+  </p>
+</div>
+
+<div class="container mb-5">
+  <div class="row g-4">
+    <div class="col-12 col-sm-6 col-lg-4" *ngFor="let service of services; let i = index">
+      <div class="service-card h-100 p-4 rounded-4 shadow border-0" [style.animation-delay.ms]="i * 80">
+        <div class="service-icon mb-3">
+          <i class="bi" [class]="service.icon"></i>
+        </div>
+        <h5><b>{{ service.title }}</b></h5>
+        <p class="text-muted mb-0">{{ service.description }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid service-cta py-5 text-center text-white">
+  <h2 class="mb-3"><b>Ready to find your match?</b></h2>
+  <p class="mb-4">Join thousands of people already chatting, calling, and connecting today.</p>
+  <button class="btn btn-light text-danger fw-bold px-4" routerLink="/register">JOIN NOW</button>
+</div>

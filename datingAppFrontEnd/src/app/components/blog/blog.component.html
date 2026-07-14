@@ -1,1 +1,29 @@
-<p>blog works!</p>
+<div class="container mt-5 mb-3 text-center blog-hero">
+  <span class="text-danger fw-semibold">From the Blog</span>
+  <h1 class="mb-3"><b>Dating <span class="textdanger">Tips</span> & Stories</b></h1>
+  <p class="text-muted mx-auto" style="max-width: 640px;">
+    Advice on conversation, safety, and making the most of your profile - straight from the team building the app.
+  </p>
+</div>
+
+<div class="container mb-5">
+  <div class="row g-4">
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let post of posts; let i = index">
+      <article class="blog-card h-100 rounded-4 shadow border-0" [style.animation-delay.ms]="i * 80">
+        <div class="blog-card-header">
+          <i class="bi" [class]="post.icon"></i>
+        </div>
+        <div class="p-4">
+          <span class="badge blog-tag mb-2">{{ post.tag }}</span>
+          <h5 class="mb-2"><b>{{ post.title }}</b></h5>
+          <div class="text-muted small mb-2">{{ post.date }} &middot; {{ post.readTime }}</div>
+          <p class="text-muted mb-2">{{ isExpanded(i) ? post.body : post.excerpt }}</p>
+          <button class="btn btn-sm btn-link px-0 text-danger fw-semibold text-decoration-none" (click)="toggle(i)">
+            {{ isExpanded(i) ? 'Show less' : 'Read more' }}
+            <i class="bi" [class.bi-chevron-down]="!isExpanded(i)" [class.bi-chevron-up]="isExpanded(i)"></i>
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
