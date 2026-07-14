@@ -1,4 +1,50 @@
-.message-list {
+.chat-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chat-header-identity {
+    min-width: 0;
+  }
+
+  .chat-header-identity h3 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .chat-header-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chat-header-search {
+    width: 160px;
+  }
+
+  @media (max-width: 575px) {
+    .chat-header-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .chat-header-actions {
+      justify-content: flex-start;
+    }
+
+    .chat-header-search {
+      width: auto;
+      flex: 1 1 100%;
+      order: 3;
+    }
+  }
+
+  .message-list {
     height: 60vh;
     min-height: 320px;
     overflow-y: auto;
