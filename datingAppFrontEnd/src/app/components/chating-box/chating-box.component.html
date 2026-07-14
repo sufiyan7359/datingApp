@@ -10,7 +10,9 @@
             <h3 class="mb-0"><b>{{ otherFirstName() }}</b></h3>
             <span class="textsuccess" *ngIf="isOtherOnline()">online</span>
             <span class="text-muted" *ngIf="!isOtherOnline()">offline</span>
-            <span class="text-muted ms-2" *ngIf="isOtherTyping()"><i>typing…</i></span>
+            <span class="typing-indicator" *ngIf="isOtherTyping()">
+              <span></span><span></span><span></span>
+            </span>
           </div>
           <div class="d-flex align-items-center gap-2">
             <button class="btn btn-sm btn-outline-danger" title="Voice call" (click)="startVoiceCall()"><i class="bi bi-telephone-fill"></i></button>
@@ -61,8 +63,15 @@
         </div>
 
         <!-- Message list -->
-        <ng-container *ngIf="!searchResults()">
-          <ng-container *ngFor="let message of messages()">
+        <div class="message-list" #messageList (scroll)="onMessagesScroll($event)" *ngIf="!searchResults()">
+          <div class="load-more-indicator" *ngIf="isLoadingOlder()">
+            <span class="spinner-border spinner-border-sm text-danger"></span> Loading older messages…
+          </div>
+          <div class="conversation-start" *ngIf="!hasMoreMessages() && messages().length > 0">
+            You've reached the start of the conversation
+          </div>
+
+          <ng-container *ngFor="let message of messages(); trackBy: trackByMessageId">
             <div class="message" [ngClass]="{ 'from': !isMine(message), 'to': isMine(message) }">
               <div *ngIf="message.replyToId" class="reply-preview">
                 &#8617; {{ getReplySnippet(message.replyToId) }}
@@ -101,7 +110,7 @@
             </div>
           </ng-container>
           <div #scrollAnchor></div>
-        </ng-container>
+        </div>
 
         <!-- Reply preview -->
         <div class="reply-bar" *ngIf="replyTo() as r">
@@ -127,12 +136,12 @@
           </div>
 
           <div class="col-7 col-md-9">
-            <input #messageInput class="form-control" [(ngModel)]="value" (ngModelChange)="onInputChange()"
+            <input #messageInput class="form-control" [class.is-composing]="value.length > 0" [(ngModel)]="value" (ngModelChange)="onInputChange()"
               (keyup.enter)="sendMessage()" type="text" placeholder="Type a message…">
           </div>
 
           <div class="col-3 col-md-2">
-            <button class="btn btn-danger w-100" (click)="sendMessage()">Send</button>
+            <button class="btn btn-danger w-100 send-btn" [class.armed]="value.trim().length > 0" (click)="sendMessage()">Send</button>
           </div>
         </div>
 

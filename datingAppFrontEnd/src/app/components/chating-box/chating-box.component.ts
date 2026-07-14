@@ -12,6 +12,11 @@ import { environment } from '../../../environments/environment';
 
 const QUICK_REACTIONS = ['❤️', '😂', '😮', '😢', '👍'];
 const TYPING_STOP_DELAY_MS = 2000;
+// Must match HISTORY_PAGE_SIZE in the backend's messages.service.ts - used to
+// detect whether a page was the last one (a short page means no more history).
+const MESSAGES_PAGE_SIZE = 30;
+// Load older messages once the user scrolls within this many pixels of the top.
+const LOAD_MORE_SCROLL_THRESHOLD = 80;
 
 @Component({
   selector: 'app-chating-box',
@@ -29,6 +34,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
 
   @ViewChild('messageInput') messageInputRef: ElementRef<HTMLInputElement>;
   @ViewChild('scrollAnchor') scrollAnchorRef: ElementRef<HTMLDivElement>;
+  @ViewChild('messageList') messageListRef: ElementRef<HTMLDivElement>;
 
   readonly apiUrl = environment.apiUrl;
   readonly quickReactions = QUICK_REACTIONS;
@@ -47,6 +53,8 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   readonly openReactionPickerFor = signal<string | null>(null);
   readonly isMuted = signal(false);
   readonly reportModalOpen = signal(false);
+  readonly isLoadingOlder = signal(false);
+  readonly hasMoreMessages = signal(true);
 
   value = '';
   reportReason: ReportReason = 'HARASSMENT';
@@ -74,7 +82,8 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
         this.isMuted.set(conversation.isMuted);
         this.chatService.setActiveConversation(conversation.conversationId);
 
-        this.chatService.loadMessages(conversation.conversationId).subscribe(() => {
+        this.chatService.loadMessages(conversation.conversationId).subscribe((history) => {
+          this.hasMoreMessages.set(history.length === MESSAGES_PAGE_SIZE);
           this.scrollToBottom();
           this.markLatestRead();
         });
@@ -100,6 +109,42 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
     const conversationId = this.conversationId();
     if (!conversationId) return;
     void this.callService.startCall(conversationId, this.otherUserId(), this.otherFirstName(), 'VIDEO');
+  }
+
+  onMessagesScroll(event: Event): void {
+    const target = event.target as HTMLDivElement;
+    if (target.scrollTop < LOAD_MORE_SCROLL_THRESHOLD) {
+      this.loadOlderMessages();
+    }
+  }
+
+  private loadOlderMessages(): void {
+    const conversationId = this.conversationId();
+    const oldest = this.messages().at(0);
+    if (!conversationId || !oldest || this.isLoadingOlder() || !this.hasMoreMessages()) return;
+
+    this.isLoadingOlder.set(true);
+    const container = this.messageListRef?.nativeElement;
+    const previousScrollHeight = container?.scrollHeight ?? 0;
+    const previousScrollTop = container?.scrollTop ?? 0;
+
+    this.chatService.loadMessages(conversationId, oldest.id).subscribe({
+      next: (history) => {
+        this.hasMoreMessages.set(history.length === MESSAGES_PAGE_SIZE);
+        this.isLoadingOlder.set(false);
+        // Prepending older messages shifts scrollHeight - restore the user's
+        // visual position instead of letting the page jump to the top.
+        setTimeout(() => {
+          if (!container) return;
+          container.scrollTop = container.scrollHeight - previousScrollHeight + previousScrollTop;
+        });
+      },
+      error: () => this.isLoadingOlder.set(false),
+    });
+  }
+
+  trackByMessageId(_index: number, message: ChatMessage): string {
+    return message.id;
   }
 
   isMine(message: ChatMessage): boolean {
