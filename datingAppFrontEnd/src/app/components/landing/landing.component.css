@@ -98,22 +98,83 @@ font-weight: bolder;
   width: 70%;
 }
 
+/* .counting's col-6 children rely on Bootstrap's row/col gutter, but the
+   parent here isn't a `.row` (it's a plain d-flex), so --bs-gutter-x is
+   never set and the two stats render flush against each other. */
+.counting {
+  gap: 2rem;
+}
+
 .fourthSectionImg {
   max-height: 500px;
+}
+
+.highlights-section,
+.dynamic-section {
+  background-color: rgba(211, 201, 201, 0.3);
+}
+
+/* ---- Highlight cards (Smart Matching / Video Calls / Real-time Chat) ---- */
+.highlight-card {
+  background: #fff;
+  color: #212529;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.highlight-card h5 {
+  color: #212529;
+}
+
+.highlight-card p {
+  color: #6c757d;
+}
+
+.highlight-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 28px rgba(255, 0, 0, 0.18) !important;
+}
+
+.highlight-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff0000, #b30000);
+  color: #fff;
+  font-size: 1.6rem;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* This is Bootstrap's `md` breakpoint - the same one `imgBack`'s
+   `d-md-block` uses. Below it the columns stack to one, so the photo would
+   render directly behind the hero text instead of beside it; at or above it
+   the two-column layout is still intact and the photo belongs in view. */
+@media (max-width: 767.98px) {
+  .slide {
+    height: auto;
+    min-height: 0;
+    background-image: none;
+  }
 }
 
 @media (max-width: 991px) {
   h1 {
     font-size: 2.5rem;
-  }
-
-  .slide {
-    height: auto;
-    min-height: 0;
-    /* The photo has no offset column to sit beside once the layout
-       stacks to one column, so it renders directly behind the hero
-       text instead of next to it - just drop it here. */
-    background-image: none;
   }
 
   .thirdSectionImage {
