@@ -94,8 +94,58 @@ h1 span .text-danger {
 font-weight: bolder;
 }
 
+/* Rebuilt as a proper flex row with gap instead of fixed mx-5 margins and
+   floated col-6 wrappers - those didn't participate in any grid context, so
+   the fixed-size avatar + margins + two 60px icon buttons simply didn't fit
+   side by side below ~450px and overflowed the card horizontally. */
 .dealCard {
   width: 70%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dealCard-avatar img {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.dealCard-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dealCard-content h5 {
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dealCard-content span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+.dealCard-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.callIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* .counting's col-6 children rely on Bootstrap's row/col gutter, but the
