@@ -111,7 +111,11 @@
 
   <div class="row mb-4" *ngIf="discoveryResults().length > 0">
     <div class="col-6 col-md-4 col-lg-3 mb-4" *ngFor="let p of discoveryResults()">
-      <div class="card shadow border-0 rounded-4 h-100">
+      <div class="card shadow border-0 rounded-4 h-100" style="position: relative;">
+        <span class="badge bg-danger" style="position: absolute; top: 8px; left: 8px; z-index: 1;"
+          *ngIf="p.compatibilityScore > 0" title="Compatibility estimate from shared interests, goals, and lifestyle">
+          {{ p.compatibilityScore }}% match
+        </span>
         <img
           [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'"
           class="card-img-top rounded-top-4"

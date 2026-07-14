@@ -18,6 +18,7 @@ export interface DiscoveryProfile {
   photos: Photo[];
   distanceKm: number | null;
   isVerified: boolean;
+  compatibilityScore: number;
 }
 
 export interface DiscoveryFeed {

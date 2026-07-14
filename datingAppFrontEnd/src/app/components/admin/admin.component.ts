@@ -15,6 +15,7 @@ import {
   Experiment,
   ExperimentResults,
   ReportStatus,
+  RiskAssessment,
   VerificationStatus,
 } from '../../core/admin/admin.models';
 
@@ -56,6 +57,8 @@ export class AdminComponent implements OnInit {
   readonly usersPage = signal(1);
   userSearch = '';
   readonly selectedUser = signal<AdminUserDetail | null>(null);
+  readonly riskAssessment = signal<RiskAssessment | null>(null);
+  readonly riskLoading = signal(false);
 
   // Reports
   readonly reports = signal<AdminReport[]>([]);
@@ -131,6 +134,7 @@ export class AdminComponent implements OnInit {
   }
 
   viewUser(id: string): void {
+    this.riskAssessment.set(null);
     this.adminService.getUserDetail(id).subscribe({
       next: (detail) => this.selectedUser.set(detail),
       error: (err) => this.handleError(err),
@@ -139,6 +143,21 @@ export class AdminComponent implements OnInit {
 
   closeUserDetail(): void {
     this.selectedUser.set(null);
+    this.riskAssessment.set(null);
+  }
+
+  checkFakeProfileRisk(id: string): void {
+    this.riskLoading.set(true);
+    this.adminService.getRiskAssessment(id).subscribe({
+      next: (assessment) => {
+        this.riskLoading.set(false);
+        this.riskAssessment.set(assessment);
+      },
+      error: (err) => {
+        this.riskLoading.set(false);
+        this.handleError(err);
+      },
+    });
   }
 
   suspendUser(id: string): void {

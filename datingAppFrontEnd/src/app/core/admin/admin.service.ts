@@ -16,6 +16,7 @@ import {
   Experiment,
   ExperimentResults,
   ReportStatus,
+  RiskAssessment,
   VerificationStatus,
 } from './admin.models';
 
@@ -37,6 +38,10 @@ export class AdminService {
 
   getUserDetail(id: string): Observable<AdminUserDetail> {
     return this.http.get<AdminUserDetail>(`${environment.apiUrl}/admin/users/${id}`);
+  }
+
+  getRiskAssessment(id: string): Observable<RiskAssessment> {
+    return this.http.get<RiskAssessment>(`${environment.apiUrl}/admin/users/${id}/risk`);
   }
 
   suspendUser(id: string): Observable<void> {

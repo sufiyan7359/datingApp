@@ -96,6 +96,17 @@ export interface AdminPromoCode {
   createdAt: string;
 }
 
+export interface RiskFactor {
+  code: string;
+  description: string;
+  points: number;
+}
+
+export interface RiskAssessment {
+  score: number;
+  factors: RiskFactor[];
+}
+
 export type AnalyticsEventType =
   | 'SIGNUP'
   | 'LOGIN'

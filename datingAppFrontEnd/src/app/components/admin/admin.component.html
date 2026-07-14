@@ -68,6 +68,21 @@
         <p class="mb-3">Status: <b [class.text-danger]="!u.isActive">{{ u.isActive ? 'Active' : 'Suspended' }}</b></p>
         <button class="btn btn-danger btn-sm" *ngIf="u.isActive && u.role !== 'ADMIN'" (click)="suspendUser(u.id)">Suspend</button>
         <button class="btn btn-success btn-sm" *ngIf="!u.isActive" (click)="reactivateUser(u.id)">Reactivate</button>
+
+        <hr />
+        <button class="btn btn-outline-secondary btn-sm" [disabled]="riskLoading()" (click)="checkFakeProfileRisk(u.id)">
+          {{ riskLoading() ? 'Checking…' : 'Check fake-profile signals' }}
+        </button>
+        <div class="mt-2" *ngIf="riskAssessment() as risk">
+          <p class="mb-1" style="font-size: 0.85rem;">
+            Heuristic risk score: <b [class.text-danger]="risk.score >= 40" [class.text-warning]="risk.score > 0 && risk.score < 40">{{ risk.score }}/100</b>
+            <span class="text-muted"> (not a verdict - a triage aid)</span>
+          </p>
+          <ul class="mb-0" style="font-size: 0.8rem;" *ngIf="risk.factors.length > 0">
+            <li *ngFor="let f of risk.factors">{{ f.description }} (+{{ f.points }})</li>
+          </ul>
+          <p class="text-muted mb-0" style="font-size: 0.8rem;" *ngIf="risk.factors.length === 0">No signals found.</p>
+        </div>
       </div>
     </div>
   </div>

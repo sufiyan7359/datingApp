@@ -65,10 +65,17 @@ export class DiscoveryProfileDto {
   })
   isVerified: boolean;
 
+  @ApiProperty({
+    description:
+      'Heuristic 0-100 compatibility estimate from shared interests, relationship goal, and lifestyle - not ML, just a weighted point system',
+  })
+  compatibilityScore: number;
+
   static fromEntity(
     profile: Profile & { photos: Photo[]; user: { firstName: string } },
     distanceKm: number | null,
     revealed = false,
+    compatibilityScore = 0,
   ): DiscoveryProfileDto {
     const dto = new DiscoveryProfileDto();
     dto.userId = profile.userId;
@@ -96,6 +103,7 @@ export class DiscoveryProfileDto {
         ? null
         : Math.round(distanceKm * 10) / 10;
     dto.isVerified = profile.verificationStatus === 'APPROVED';
+    dto.compatibilityScore = compatibilityScore;
     return dto;
   }
 }

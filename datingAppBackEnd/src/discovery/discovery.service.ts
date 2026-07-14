@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { haversineDistanceKm } from '../common/utils/geo';
 import { BlocksService } from '../safety/blocks.service';
+import { computeCompatibilityScore } from '../ai/compatibility-score.util';
 import { DiscoveryQueryDto } from './dto/discovery-query.dto';
 import { DiscoveryFeedDto } from './dto/discovery-feed.dto';
 import { DiscoveryProfileDto } from './dto/discovery-profile.dto';
@@ -132,7 +133,8 @@ export class DiscoveryService {
               { latitude: candidate.latitude, longitude: candidate.longitude },
             )
           : null;
-      return { candidate, distanceKm };
+      const compatibilityScore = computeCompatibilityScore(viewer, candidate);
+      return { candidate, distanceKm, compatibilityScore };
     });
 
     if (query.maxDistanceKm) {
@@ -151,6 +153,9 @@ export class DiscoveryService {
         Number(isBoosted(a.candidate.boostedUntil));
       if (boostDiff !== 0) return boostDiff;
 
+      const compatDiff = b.compatibilityScore - a.compatibilityScore;
+      if (compatDiff !== 0) return compatDiff;
+
       if (a.distanceKm !== null && b.distanceKm !== null) {
         return a.distanceKm - b.distanceKm;
       }
@@ -167,8 +172,13 @@ export class DiscoveryService {
     return {
       // Viewer never has a match with anyone in the discovery feed yet, so
       // photos flagged isBlurred always render blurred here (revealed=false).
-      results: pageItems.map(({ candidate, distanceKm }) =>
-        DiscoveryProfileDto.fromEntity(candidate, distanceKm, false),
+      results: pageItems.map(({ candidate, distanceKm, compatibilityScore }) =>
+        DiscoveryProfileDto.fromEntity(
+          candidate,
+          distanceKm,
+          false,
+          compatibilityScore,
+        ),
       ),
       page,
       limit,
