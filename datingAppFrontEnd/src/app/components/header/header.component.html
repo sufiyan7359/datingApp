@@ -1,74 +1,69 @@
-<nav class="navbar navbar-expand-lg sticky-top" [ngStyle]="{'background-color': bgColor}">
-  <div class="container">
-    <a class="navbar-brand text-danger" style="font-weight: 800; font-size: 2rem; cursor:pointer;"
-      [routerLink]="isAuthenticated() ? '/dashboard' : '/'">Dating</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mx-auto gap-lg-4 text-center">
+<div class="mobile-topbar d-lg-none">
+  <button class="topbar-toggle" type="button" (click)="toggleSidebar()" [attr.aria-expanded]="isOpen()" aria-label="Toggle navigation">
+    <i class="bi" [class.bi-list]="!isOpen()" [class.bi-x-lg]="isOpen()"></i>
+  </button>
+  <a class="topbar-brand" [routerLink]="isAuthenticated() ? '/dashboard' : '/'">
+    <i class="bi bi-heart-fill"></i> Dating
+  </a>
+</div>
 
-        <li class="nav-item" *ngIf="!isAuthenticated()">
-          <a class="nav-link active" aria-current="page" routerLink="/">Home</a>
-        </li>
+<div class="sidebar-backdrop d-lg-none" *ngIf="isOpen()" (click)="closeSidebar()"></div>
 
+<aside class="sidebar" [class.open]="isOpen()">
+  <a class="sidebar-brand" [routerLink]="isAuthenticated() ? '/dashboard' : '/'">
+    <i class="bi bi-heart-fill"></i> Dating
+  </a>
 
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/service">Services</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/blog">Blog</a>
-        </li>
+  <nav class="sidebar-nav">
+    <a class="sidebar-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" *ngIf="!isAuthenticated()">
+      <i class="bi bi-house-door-fill"></i><span>Home</span>
+    </a>
+    <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active" *ngIf="isAuthenticated()">
+      <i class="bi bi-grid-fill"></i><span>Dashboard</span>
+    </a>
+    <a class="sidebar-link" routerLink="/service" routerLinkActive="active">
+      <i class="bi bi-stars"></i><span>Services</span>
+    </a>
+    <a class="sidebar-link" routerLink="/blog" routerLinkActive="active">
+      <i class="bi bi-journal-richtext"></i><span>Blog</span>
+    </a>
+    <a class="sidebar-link" routerLink="/privacy" routerLinkActive="active">
+      <i class="bi bi-shield-lock-fill"></i><span>Privacy</span>
+    </a>
+    <a class="sidebar-link" routerLink="/contact" routerLinkActive="active">
+      <i class="bi bi-envelope-fill"></i><span>Contact</span>
+    </a>
 
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/privacy">Privacy</a>
-        </li>
+    <ng-container *ngIf="isAuthenticated()">
+      <div class="sidebar-divider"></div>
 
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/contact">Contact </a>
-        </li>
+      <a class="sidebar-link" routerLink="/likes" routerLinkActive="active">
+        <i class="bi bi-heart-fill"></i><span>Who Liked Me</span>
+      </a>
+      <a class="sidebar-link premium-link" routerLink="/premium" routerLinkActive="active">
+        <i class="bi bi-gem"></i><span>Premium</span>
+      </a>
+      <a class="sidebar-link" routerLink="/safety" routerLinkActive="active">
+        <i class="bi bi-shield-check"></i><span>Safety</span>
+      </a>
+      <a class="sidebar-link" routerLink="/verification" routerLinkActive="active">
+        <i class="bi bi-patch-check-fill"></i><span>Get Verified</span>
+      </a>
+      <a class="sidebar-link" routerLink="/admin" routerLinkActive="active" *ngIf="currentUser()?.role === 'ADMIN'">
+        <i class="bi bi-speedometer2"></i><span>Admin</span>
+      </a>
+    </ng-container>
+  </nav>
 
+  <div class="sidebar-footer">
+    <button class="btn btn-danger w-100" routerLink="/login" *ngIf="!isAuthenticated()">Sign in</button>
 
-        <li class="nav-item">
-          <a class="nav-link textdanger" routerLink="/dashboard"><b>Dashboard</b></a>
-        </li>
-
-        <li class="nav-item" *ngIf="isAuthenticated()">
-          <a class="nav-link" routerLink="/likes">Who Liked Me</a>
-        </li>
-
-        <li class="nav-item" *ngIf="isAuthenticated()">
-          <a class="nav-link text-warning" routerLink="/premium"><b>Premium</b></a>
-        </li>
-
-        <li class="nav-item" *ngIf="isAuthenticated()">
-          <a class="nav-link" routerLink="/safety">Safety</a>
-        </li>
-
-        <li class="nav-item" *ngIf="isAuthenticated()">
-          <a class="nav-link" routerLink="/verification">Get Verified</a>
-        </li>
-
-        <li class="nav-item" *ngIf="currentUser()?.role === 'ADMIN'">
-          <a class="nav-link text-danger" routerLink="/admin"><b>Admin</b></a>
-        </li>
-
-        <!-- <li class="nav-item">
-          <a class="nav-link text-warning" routerLink="/profile"><b>My Profile</b></a>
-        </li> -->
-
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item mt-2 mt-lg-0" *ngIf="!isAuthenticated()">
-          <button class="btn btn-danger" routerLink="login">Sign in</button>
-        </li>
-        <li class="nav-item mt-2 mt-lg-0 d-flex align-items-center gap-2" *ngIf="isAuthenticated()">
-          <span class="textdanger">Hi, {{ currentUser()?.firstName }}</span>
-          <span class="badge bg-warning text-dark" *ngIf="isPremium()">{{ subscriptionTier() }}</span>
-          <button class="btn btn-outline-danger btn-sm" (click)="logout()">Logout</button>
-        </li>
-      </ul>
+    <div class="sidebar-user" *ngIf="isAuthenticated()">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="sidebar-user-name">Hi, {{ currentUser()?.firstName }}</span>
+        <span class="badge bg-warning text-dark" *ngIf="isPremium()">{{ subscriptionTier() }}</span>
+      </div>
+      <button class="btn btn-outline-danger btn-sm w-100" (click)="logout()">Logout</button>
     </div>
   </div>
-</nav>
+</aside>

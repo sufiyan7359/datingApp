@@ -1,6 +1,7 @@
-import { Component, HostListener, computed, effect, inject } from '@angular/core';
-import { NgIf, NgStyle } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Component, DestroyRef, HostListener, computed, effect, inject, signal } from '@angular/core';
+import { NgIf } from '@angular/common';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionsService } from '../../core/subscriptions/subscriptions.service';
 
@@ -8,17 +9,20 @@ import { SubscriptionsService } from '../../core/subscriptions/subscriptions.ser
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  imports: [NgStyle, NgIf, RouterLink],
+  imports: [NgIf, RouterLink, RouterLinkActive],
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly subscriptionsService = inject(SubscriptionsService);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
-  bgColor = 'transparent'; // Initialize header as transparent
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
   readonly isPremium = computed(() => this.subscriptionsService.status()?.isPremium ?? false);
   readonly subscriptionTier = computed(() => this.subscriptionsService.status()?.tier ?? 'FREE');
+
+  readonly isOpen = signal(false);
 
   constructor() {
     effect(() => {
@@ -26,15 +30,33 @@ export class HeaderComponent {
         this.subscriptionsService.loadStatus().subscribe();
       }
     });
+
+    // Closing on navigation covers every way a route can change - link
+    // clicks, browser back/forward, programmatic redirects - without
+    // needing a (click) handler wired to every single sidebar link.
+    const sub = this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
+      this.isOpen.set(false);
+    });
+    this.destroyRef.onDestroy(() => sub.unsubscribe());
+
+    // The mobile drawer covers the page - scrolling the body underneath it
+    // while it's open is disorienting, so lock it for as long as it's open.
+    effect(() => {
+      document.body.classList.toggle('sidebar-open', this.isOpen());
+    });
   }
 
-  @HostListener('window:scroll')
-  onScroll() {
-    if (window.pageYOffset > 10) {
-      this.bgColor = '#ffff'; // Change background color after scrolling 50px
-    } else {
-      this.bgColor = 'transparent'; // Change background color back to transparent
-    }
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.isOpen.set(false);
+  }
+
+  toggleSidebar(): void {
+    this.isOpen.update((open) => !open);
+  }
+
+  closeSidebar(): void {
+    this.isOpen.set(false);
   }
 
   logout(): void {

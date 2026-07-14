@@ -8,21 +8,17 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 
-/* Tailwind's `.collapse` utility (visibility:collapse, for table rows) gets
-   generated because the navbar's Bootstrap markup literally contains the
-   class name "collapse" (class="collapse navbar-collapse"). Bootstrap's own
-   .collapse:not(.show) rule still governs `display` correctly, but nothing
-   overrides Tailwind's `visibility: collapse` for that same element, so the
-   mobile menu's content stayed invisible even after the toggle "opened" it.
-   This rule is plain (unlayered) CSS, which always wins over Tailwind's
-   layered utility regardless of specificity - see CSS Cascade Layers. */
-.navbar-collapse {
-  visibility: visible;
-}
-
 html, body {
   overflow-x: hidden;
   max-width: 100%;
+}
+
+/* Locks page scroll while the mobile sidebar drawer is open (see
+   HeaderComponent), so the page underneath can't scroll behind it. */
+@media (max-width: 991.98px) {
+  body.sidebar-open {
+    overflow: hidden;
+  }
 }
 
 img {

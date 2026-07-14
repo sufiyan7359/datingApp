@@ -10,9 +10,10 @@
   min-height: 100vh;
 }
 
-/* The sticky-top nav inside HeaderComponent's own template does the actual
-   sticking; this just fixes app-header's default inline display so it's a
-   normal block-level flex child instead of a layout no-op. */
+/* HeaderComponent renders a fixed-position sidebar (out of normal flow) plus
+   a mobile-only top bar (in flow). Without this, app-header defaults to
+   `display: inline` and contributes nothing to the flex column even for the
+   mobile top bar. */
 app-header {
   display: block;
   flex-shrink: 0;
@@ -28,25 +29,63 @@ app-footer {
   flex-shrink: 0;
 }
 
+/* The sidebar is persistent on desktop (see header.component.css), so the
+   rest of the page shell needs to make room for it there. On mobile the
+   sidebar is an overlay drawer and takes no layout space. */
+@media (min-width: 992px) {
+  .app-main,
+  app-footer {
+    margin-left: 260px;
+  }
+}
+
 /* A soft brand-red glow that follows the cursor, positioned behind
    everything (z-index: 0) and never intercepts clicks. Values are written
    directly to --mouse-x/--mouse-y by app.component.ts, outside Angular's
    change detection. Defaults to the viewport center until the first
-   mousemove so it doesn't render at (0, 0) on load. */
+   mousemove so it doesn't render at (0, 0) on load.
+   Registering the custom properties as animatable <length>s lets the browser
+   smoothly interpolate them across every frame in between JS writes, so the
+   glow visibly "chases" the cursor instead of jumping frame to frame. */
+@property --mouse-x {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 50vw;
+}
+
+@property --mouse-y {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 40vh;
+}
+
 .mouse-glow {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(
-    600px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh),
-    rgba(255, 0, 0, 0.07),
-    transparent 70%
-  );
-  transition: background 0.05s linear;
+  background:
+    radial-gradient(420px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), rgba(255, 0, 0, 0.10), transparent 60%),
+    radial-gradient(800px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), rgba(255, 0, 0, 0.045), transparent 70%);
+  transition: --mouse-x 0.15s ease-out, --mouse-y 0.15s ease-out, background 0.15s ease-out;
+  animation: glowPulse 6s ease-in-out infinite;
 }
 
-app-header, .app-main, app-footer, app-call-overlay {
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* app-header's sidebar is fixed-position and must float above page content
+   and the mouse-glow regardless of DOM order; app-call-overlay (z-index
+   2000+, see call-overlay.component.css) still wins over both during an
+   active call. */
+app-header {
+  position: relative;
+  z-index: 20;
+}
+
+.app-main, app-footer, app-call-overlay {
   position: relative;
   z-index: 1;
 }

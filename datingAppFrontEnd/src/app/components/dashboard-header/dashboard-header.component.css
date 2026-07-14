@@ -1,7 +1,16 @@
+/* Sticks right below the mobile top bar (60px, see header.component.css);
+   on desktop the sidebar takes no vertical space at all, so it sticks to
+   the very top instead. */
 .secondHeader{
-   top: 70px !important;
+   top: 0 !important;
    background-color: black;
    color: white;
+}
+
+@media (max-width: 991.98px) {
+  .secondHeader{
+    top: 60px !important;
+  }
 }
 
 b{
