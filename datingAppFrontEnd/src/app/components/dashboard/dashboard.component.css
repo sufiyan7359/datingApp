@@ -1,19 +1,13 @@
 .shadow{
     box-shadow: 5px 2px 10px #aaa6a6 !important;
-
-}
-
-.btnwarning{
-    background-color: yellow;
-    box-shadow: 5px 2px 10px rgb(170, 170, 161) !important;
-
 }
 
 .imgSection img{
     height: 60px;
     width: 60px;
     border-radius: 50%;
-    background-color: pink;
+    object-fit: cover;
+    background-color: #f1f1f1;
 }
 
 hr{
@@ -22,94 +16,164 @@ hr{
 }
 .CARD{
     height: 50% !important;
-   
 }
-
 
 .buttonSection i {
     cursor: pointer;
     font-size: 1.5rem;
+    color: #ff0000;
+    transition: transform 0.25s ease, color 0.25s ease;
+    display: inline-block;
 }
 
 .buttonSection i:hover {
-    cursor: pointer;
-    font-size: 1.8rem;
-    color: #ff0000;
-    transition:  0.3s ease !important;
-
-}
-
-
-.imgContent img{
-    height: 160px !important;
-    width: 320px !important;
-    max-width: 100%;
-}
-
-@media (max-width: 575px) {
-    .imgContent img {
-        width: 100% !important;
-        height: auto !important;
-    }
-}
-
-.imageSection img{
-    height: 100px;
-    width: 100px;
-    background-color: aqua;
-    border-radius: 20%;
-    margin-top: 10%;
-    /* margin-left: 30%; */
+    transform: scale(1.25);
+    color: #cc0000;
 }
 
 .card{
     height: 100%;
-    
 }
 
-.buttonSections i {
-    cursor: pointer;
-    font-size: 1.5rem;
+/* ---- Panel headers (You may like / Your Matches) - brand red, not warning yellow ---- */
+.panel-header {
+    background: linear-gradient(135deg, #ff0000, #b30000);
+    color: #fff;
+    border: none;
 }
 
-
-.buttonSections i:hover {
-    cursor: pointer;
-   color: black;
+.info-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.4s ease both;
 }
 
-
-.bgFlower{
-    background-image: url(../../../assets/images/flower.png);
-    background-repeat:no-repeat;
-    background-position:left;
-    background-size: contain;
-    height: 100px;
-    margin-top: 20px;
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 26px rgba(255, 0, 0, 0.15) !important;
 }
 
-.bgflowertop{
-    margin-top:-110px !important;
+/* ---- Discovery cards ---- */
+.discovery-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.45s ease both;
 }
 
+.discovery-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 28px rgba(255, 0, 0, 0.18) !important;
+}
+
+.match-badge {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.swipe-btn {
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.swipe-btn:hover:not(:disabled) {
+    transform: scale(1.2);
+}
+
+.swipe-btn-like:hover:not(:disabled) {
+    box-shadow: 0 6px 16px rgba(255, 0, 0, 0.4);
+}
+
+.swipe-btn-super:hover:not(:disabled) {
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.4);
+}
+
+.swipe-btn-pass:hover:not(:disabled) {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ---- Premium upsell card ---- */
+.premium-card {
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.4s ease both;
+}
+
+.premium-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 16px 28px rgba(221, 36, 118, 0.35) !important;
+}
+
+.premium-icon {
+    font-size: 2.5rem;
+    animation: floaty 2.4s ease-in-out infinite;
+}
+
+/* ---- Filters panel ---- */
+.filters-panel {
+    animation: fadeInDown 0.3s ease both;
+}
+
+/* ---- Match modal ---- */
+.match-overlay {
+    animation: fadeIn 0.25s ease both;
+}
+
+.match-modal {
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.match-photo {
+    animation: popIn 0.5s 0.1s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+@keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .discovery-card, .info-card, .premium-card, .filters-panel, .match-overlay,
+    .match-modal, .match-photo, .match-badge, .premium-icon, .swipe-btn {
+        animation: none !important;
+        transition: none !important;
+    }
+}
 
 /* Webkit Scrollbar */
 ::-webkit-scrollbar {
-    width: 3px; /* Scrollbar width */
-  }
-  
-  /* Webkit Scrollbar Track */
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; /* Scrollbar track color */
-  }
-  
-  /* Webkit Scrollbar Handle */
-  ::-webkit-scrollbar-thumb {
-    background: black /* Scrollbar handle color */
-  }
-  
-  /* Webkit Scrollbar Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background:#ff0000; /* Scrollbar handle color on hover */
-  }
-  
+    width: 3px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: black;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff0000;
+}

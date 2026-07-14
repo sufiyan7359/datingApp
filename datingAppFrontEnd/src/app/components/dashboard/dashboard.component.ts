@@ -7,6 +7,7 @@ import { DiscoveryService } from '../../core/discovery/discovery.service';
 import { DiscoveryProfile } from '../../core/discovery/discovery.models';
 import { MatchingService } from '../../core/matching/matching.service';
 import { MatchInfo, SwipeAction } from '../../core/matching/matching.models';
+import { SubscriptionsService } from '../../core/subscriptions/subscriptions.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -19,6 +20,7 @@ export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly discoveryService = inject(DiscoveryService);
   private readonly matchingService = inject(MatchingService);
+  private readonly subscriptionsService = inject(SubscriptionsService);
 
   readonly apiUrl = environment.apiUrl;
   readonly discoveryResults = signal<DiscoveryProfile[]>([]);
@@ -31,6 +33,7 @@ export class DashboardComponent implements OnInit {
   readonly newMatch = signal<MatchInfo | null>(null);
   readonly limits = this.matchingService.limits;
   readonly matches = this.matchingService.matches;
+  readonly subscriptionStatus = this.subscriptionsService.status;
 
   filtersForm = new FormGroup({
     minAge: new FormControl<number | null>(null),
@@ -50,6 +53,7 @@ export class DashboardComponent implements OnInit {
     this.loadFeed();
     this.matchingService.loadLimits().subscribe();
     this.matchingService.loadMatches().subscribe();
+    this.subscriptionsService.loadStatus().subscribe();
   }
 
   loadFeed(): void {
