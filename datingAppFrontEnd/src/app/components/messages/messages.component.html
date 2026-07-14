@@ -1,0 +1,40 @@
+<div class="container mt-4 mb-5">
+  <h3><b>Messages</b></h3>
+
+  <div *ngIf="isLoading()" class="text-muted">Loading your conversations…</div>
+  <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+
+  <div *ngIf="!isLoading() && conversations().length === 0" class="text-muted text-center my-5">
+    No conversations yet. Once you match with someone, you can message them here.
+  </div>
+
+  <div class="list-group" *ngIf="!isLoading() && conversations().length > 0">
+    <div class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3"
+      style="cursor: pointer;" *ngFor="let c of conversations()" (click)="openChat(c.otherUserId)">
+      <div class="position-relative">
+        <img [src]="c.otherPhotos.length ? apiUrl + c.otherPhotos[0].url : '../../../assets/images/FiveSection.png'"
+          class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover;" />
+        <span class="position-absolute bottom-0 end-0 rounded-circle bg-success border border-white"
+          style="width: 12px; height: 12px;" *ngIf="c.otherIsOnline"></span>
+      </div>
+
+      <div class="flex-grow-1 min-w-0">
+        <div class="d-flex justify-content-between align-items-center">
+          <b>{{ c.otherFirstName }}</b>
+          <span class="text-muted" style="font-size: 0.75rem;" *ngIf="c.lastMessage">
+            {{ c.lastMessage.createdAt | date: 'short' }}
+          </span>
+        </div>
+        <p class="mb-0 text-muted text-truncate" [class.fw-bold]="c.unreadCount > 0 && !c.isMuted" style="font-size: 0.9rem;">
+          {{ previewText(c) }}
+        </p>
+      </div>
+
+      <span class="badge bg-danger rounded-pill" *ngIf="c.unreadCount > 0">{{ c.unreadCount }}</span>
+      <button class="btn btn-sm btn-outline-secondary" (click)="toggleMute($event, c.conversationId, c.isMuted)"
+        [title]="c.isMuted ? 'Unmute' : 'Mute'">
+        <i class="bi" [class.bi-bell-slash-fill]="c.isMuted" [class.bi-bell]="!c.isMuted"></i>
+      </button>
+    </div>
+  </div>
+</div>

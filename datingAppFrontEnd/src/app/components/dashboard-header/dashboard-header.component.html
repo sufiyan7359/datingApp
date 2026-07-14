@@ -1,16 +1,19 @@
 <div class="container-fluid  secondHeader sticky-top">
 <div class="row d-flex justify-content-center text-center">
 
-<div class="col-4 col-md-2  p-1">
-  <b>Messages</b>
+<div class="col-4 col-md-2 p-1">
+  <b routerLink="/messages" routerLinkActive="text-danger">
+    Messages
+    <span class="badge bg-danger rounded-pill ms-1" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+  </b>
 </div>
 
 <div class="col-4 col-md-2 p-1">
-  <b>Request</b>
+  <b routerLink="/likes" routerLinkActive="text-danger">Request</b>
 </div>
 
 <div class="col-4 col-md-2 p-1">
-  <b routerLink="/profile">My Profile</b>
+  <b routerLink="/profile" routerLinkActive="text-danger">My Profile</b>
 </div>
 
 </div>
