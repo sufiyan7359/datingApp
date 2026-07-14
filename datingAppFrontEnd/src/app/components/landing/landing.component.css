@@ -109,8 +109,11 @@ font-weight: bolder;
 
   .slide {
     height: auto;
-    min-height: 450px;
-    background-position: center;
+    min-height: 0;
+    /* The photo has no offset column to sit beside once the layout
+       stacks to one column, so it renders directly behind the hero
+       text instead of next to it - just drop it here. */
+    background-image: none;
   }
 
   .thirdSectionImage {
@@ -135,10 +138,6 @@ font-weight: bolder;
 @media (max-width: 575px) {
   h1 {
     font-size: 2rem;
-  }
-
-  .slide {
-    min-height: 380px;
   }
 
   .paragraph {

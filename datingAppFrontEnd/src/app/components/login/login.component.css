@@ -104,8 +104,11 @@ background-position: center;
   @media (max-width: 767px) {
     .slide {
       height: auto;
-      min-height: 350px;
-      background-position: center;
+      min-height: 0;
+      /* The photo has no offset column to sit beside once the layout
+         stacks to one column, so it renders directly behind the form
+         text instead of next to it - just drop it here. */
+      background-image: none;
     }
 
     .form,
