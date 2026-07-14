@@ -90,12 +90,20 @@
   .typing-indicator {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
+    gap: 5px;
     margin-left: 8px;
+    color: #888;
+    font-size: 0.85rem;
     animation: messageInUp 0.2s ease both;
   }
 
-  .typing-indicator span {
+  .typing-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .typing-dots span {
     width: 6px;
     height: 6px;
     border-radius: 50%;
@@ -104,11 +112,11 @@
     animation: typingBounce 1.2s infinite ease-in-out;
   }
 
-  .typing-indicator span:nth-child(2) {
+  .typing-dots span:nth-child(2) {
     animation-delay: 0.15s;
   }
 
-  .typing-indicator span:nth-child(3) {
+  .typing-dots span:nth-child(3) {
     animation-delay: 0.3s;
   }
 
@@ -137,7 +145,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .message, .typing-indicator, .typing-indicator span, .send-btn {
+    .message, .typing-indicator, .typing-dots span, .send-btn {
       animation: none !important;
       transition: none !important;
     }

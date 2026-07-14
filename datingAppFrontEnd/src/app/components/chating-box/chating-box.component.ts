@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass, NgFor, NgIf } from '@angular/common';
@@ -61,6 +61,27 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   reportDescription = '';
   reportAlsoBlock = false;
   private typingStopTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastSeenMessageId: string | null = null;
+  // Tracks whether the user is currently near the bottom of the scrollable
+  // message list, so a newly arrived message only auto-scrolls into view
+  // when they're already reading recent messages - not while they're
+  // scrolled up reading history via loadOlderMessages().
+  private isNearBottom = true;
+
+  constructor() {
+    // Fires on every messages() change (new message, deletion, reaction,
+    // pagination prepend...) but only actually scrolls when the *last*
+    // message in the list changed - i.e. a message was appended, not when
+    // older history was prepended to the front.
+    effect(() => {
+      const latest = this.messages().at(-1);
+      if (!latest || latest.id === this.lastSeenMessageId) return;
+      this.lastSeenMessageId = latest.id;
+      if (this.isMine(latest) || this.isNearBottom) {
+        this.scrollToBottom();
+      }
+    });
+  }
 
   ngOnInit(): void {
     const targetUserId = this.route.snapshot.paramMap.get('id');
@@ -116,6 +137,8 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
     if (target.scrollTop < LOAD_MORE_SCROLL_THRESHOLD) {
       this.loadOlderMessages();
     }
+    const distanceFromBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
+    this.isNearBottom = distanceFromBottom < 150;
   }
 
   private loadOlderMessages(): void {

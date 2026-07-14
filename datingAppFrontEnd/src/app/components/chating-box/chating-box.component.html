@@ -11,7 +11,8 @@
             <span class="textsuccess" *ngIf="isOtherOnline()">online</span>
             <span class="text-muted" *ngIf="!isOtherOnline()">offline</span>
             <span class="typing-indicator" *ngIf="isOtherTyping()">
-              <span></span><span></span><span></span>
+              <i>typing</i>
+              <span class="typing-dots"><span></span><span></span><span></span></span>
             </span>
           </div>
           <div class="d-flex align-items-center gap-2">
