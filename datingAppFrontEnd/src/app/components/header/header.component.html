@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg sticky-top" [ngStyle]="{'background-color': bgColor}">
   <div class="container">
     <a class="navbar-brand text-danger" style="font-weight: 800; font-size: 2rem; cursor:pointer;"
-      routerLink="/">Dating</a>
+      [routerLink]="isAuthenticated() ? '/dashboard' : '/'">Dating</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
       aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -9,7 +9,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav mx-auto gap-lg-4 text-center">
 
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="!isAuthenticated()">
           <a class="nav-link active" aria-current="page" routerLink="/">Home</a>
         </li>
 

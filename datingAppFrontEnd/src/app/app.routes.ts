@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { adminGuard } from './core/auth/admin.guard';
+import { guestGuard } from './core/auth/guest.guard';
 
 // Every route is lazy so the initial bundle is just the app shell (header,
 // footer, router) - each screen's code only downloads when it's actually
@@ -10,12 +11,16 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./components/landing/landing.component').then((m) => m.LandingComponent),
+    canActivate: [guestGuard],
   },
   {
     path: 'login',
     loadComponent: () => import('./components/login/login.component').then((m) => m.LoginComponent),
+    canActivate: [guestGuard],
   },
   {
+    // Not guestGuard-ed on purpose: a logged-in user (e.g. in another tab,
+    // or with a stale session) should still be able to reset their password.
     path: 'forgot-password',
     loadComponent: () =>
       import('./components/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent),
@@ -28,6 +33,7 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./components/register/register.component').then((m) => m.RegisterComponent),
+    canActivate: [guestGuard],
   },
   {
     path: 'service',
