@@ -1,4 +1,4 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, DestroyRef, NgZone, effect, inject } from '@angular/core';
 import { HeaderComponent } from './components/header/header.component';
 import { RouterOutlet } from '@angular/router';
 import { FooterComponent } from './components/footer/footer.component';
@@ -22,6 +22,8 @@ export class AppComponent {
   private readonly chatService = inject(ChatService);
   private readonly callService = inject(CallService);
   private readonly swUpdate = inject(SwUpdate);
+  private readonly ngZone = inject(NgZone);
+  private readonly destroyRef = inject(DestroyRef);
   // Injected only to force early instantiation - ThemeService applies the
   // saved/system theme in its own constructor, as soon as the app root
   // component is created, so every page loads with the right theme already
@@ -29,6 +31,8 @@ export class AppComponent {
   private readonly themeService = inject(ThemeService);
 
   constructor() {
+    this.bindMouseGlow();
+
     // Keep one socket connection alive for the whole authenticated session
     // (not scoped to a specific chat screen) so messages and incoming calls
     // reach the user from anywhere in the app.
@@ -51,5 +55,42 @@ export class AppComponent {
         }
       });
     }
+  }
+
+  /**
+   * Drives the .mouse-glow background layer (see app.component.css) with two
+   * CSS custom properties. Runs entirely outside Angular's zone and writes
+   * directly to the DOM - a signal/template binding here would trigger a full
+   * change-detection pass on every mousemove event, which fires far too
+   * often for that to be free.
+   */
+  private bindMouseGlow(): void {
+    if (typeof window === 'undefined' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      let ticking = false;
+      let lastEvent: MouseEvent | null = null;
+
+      const apply = () => {
+        ticking = false;
+        if (!lastEvent) return;
+        const root = document.documentElement.style;
+        root.setProperty('--mouse-x', `${lastEvent.clientX}px`);
+        root.setProperty('--mouse-y', `${lastEvent.clientY}px`);
+      };
+
+      const onMouseMove = (event: MouseEvent) => {
+        lastEvent = event;
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(apply);
+        }
+      };
+
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      this.destroyRef.onDestroy(() => window.removeEventListener('mousemove', onMouseMove));
+    });
   }
 }

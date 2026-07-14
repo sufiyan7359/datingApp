@@ -162,24 +162,29 @@
             <h6 class="mb-0"><i class="bi bi-stars me-1"></i> You may like</h6>
           </div>
           <div class="">
-            <ul class="CARD list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between " *ngFor="let p of discoveryResults().slice(0, 5);">
-                <div class="imgSection m-1">
-                  <img class="img-fluid " [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'" />
+            <ul class="CARD match-list">
+              <li class="match-row" *ngFor="let p of discoveryResults().slice(0, 5); let i = index" [style.animation-delay.ms]="i * 60">
+                <div class="match-avatar">
+                  <img [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'" />
                 </div>
 
-                <div class="DetailSection m-1 ">
-                  <h5>{{ p.firstName }} <br>
-                  </h5>
-                  <span class="text-muted ">{{ p.profession || 'Member' }}<span *ngIf="p.age">, {{ p.age }}</span></span>
+                <div class="match-info">
+                  <p class="match-name">{{ p.firstName }}</p>
+                  <span class="match-meta">{{ p.profession || 'Member' }}<span *ngIf="p.age">, {{ p.age }}</span></span>
                 </div>
 
-                <div class="buttonSection m-1 mt-3">
-                  <i class="bi bi-patch-plus-fill" title="Like"
-                    [style.opacity]="swipingUserId() === p.userId ? 0.5 : 1" (click)="swipe(p.userId, 'LIKE')"></i>
-                </div>
+                <button
+                  class="match-action-btn"
+                  type="button"
+                  title="Like"
+                  [disabled]="swipingUserId() === p.userId"
+                  [style.opacity]="swipingUserId() === p.userId ? 0.5 : 1"
+                  (click)="swipe(p.userId, 'LIKE')">
+                  <i class="bi bi-heart-fill"></i>
+                </button>
               </li>
-              <li class="list-group-item text-muted" *ngIf="discoveryResults().length === 0">
+              <li class="match-empty" *ngIf="discoveryResults().length === 0">
+                <i class="bi bi-stars"></i>
                 No suggestions yet.
               </li>
             </ul>
@@ -195,23 +200,23 @@
             <h6 class="mb-0"><i class="bi bi-heart-fill me-1"></i> Your Matches</h6>
           </div>
           <div class="">
-            <ul class="CARD list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between " *ngFor="let m of matches()">
-                <div class="imgSection m-1 ">
-                  <img class="img-fluid" [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'" />
+            <ul class="CARD match-list">
+              <li class="match-row" *ngFor="let m of matches(); let i = index" [style.animation-delay.ms]="i * 60">
+                <div class="match-avatar">
+                  <img [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'" />
                 </div>
 
-                <div class="DetailSection m-1 ">
-                  <h5>{{ m.firstName }} <br>
-                  </h5>
-                  <span class="text-muted ">It's a match!</span>
+                <div class="match-info">
+                  <p class="match-name">{{ m.firstName }}</p>
+                  <span class="match-meta">It's a match!</span>
                 </div>
 
-                <div class="buttonSection m-1 mt-3">
-                  <i class="bi bi-chat-heart-fill" title="Message" (click)="goToChat(m.userId)"></i>
-                </div>
+                <button class="match-action-btn" type="button" title="Message" (click)="goToChat(m.userId)">
+                  <i class="bi bi-chat-heart-fill"></i>
+                </button>
               </li>
-              <li class="list-group-item text-muted" *ngIf="matches().length === 0">
+              <li class="match-empty" *ngIf="matches().length === 0">
+                <i class="bi bi-heart"></i>
                 No matches yet - keep swiping!
               </li>
             </ul>

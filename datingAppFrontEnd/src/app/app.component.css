@@ -1,0 +1,58 @@
+/* Sticky header/footer shell. app-root, app-header and app-footer are custom
+   elements with no browser-default display, so without this they default to
+   `display: inline` - which is why the footer could end up sitting wherever
+   the document flow happened to leave it instead of pinned to the bottom of
+   short pages, and why nothing here was a reliable flex/height context for
+   the header's sticky-top to size against. */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* The sticky-top nav inside HeaderComponent's own template does the actual
+   sticking; this just fixes app-header's default inline display so it's a
+   normal block-level flex child instead of a layout no-op. */
+app-header {
+  display: block;
+  flex-shrink: 0;
+}
+
+.app-main {
+  display: block;
+  flex: 1 0 auto;
+}
+
+app-footer {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* A soft brand-red glow that follows the cursor, positioned behind
+   everything (z-index: 0) and never intercepts clicks. Values are written
+   directly to --mouse-x/--mouse-y by app.component.ts, outside Angular's
+   change detection. Defaults to the viewport center until the first
+   mousemove so it doesn't render at (0, 0) on load. */
+.mouse-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh),
+    rgba(255, 0, 0, 0.07),
+    transparent 70%
+  );
+  transition: background 0.05s linear;
+}
+
+app-header, .app-main, app-footer, app-call-overlay {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mouse-glow {
+    display: none;
+  }
+}
