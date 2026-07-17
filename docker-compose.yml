@@ -12,6 +12,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U datingapp -d datingapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -26,16 +31,35 @@ services:
       context: ./datingAppBackEnd
     restart: unless-stopped
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       DATABASE_URL: postgresql://datingapp:datingapp@postgres:5432/datingapp?schema=public
       REDIS_URL: redis://redis:6379
       PORT: 8000
       NODE_ENV: production
+      # Replace these with real random secrets for any non-local deployment.
+      JWT_ACCESS_SECRET: change-me-access-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: change-me-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 7d
     ports:
       - "8000:8000"
+    volumes:
+      - api_uploads:/app/uploads
+
+  web:
+    build:
+      context: ./datingAppFrontEnd
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "4200:80"
 
 volumes:
   postgres_data:
   redis_data:
+  api_uploads:

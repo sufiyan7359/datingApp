@@ -14,4 +14,6 @@ COPY prisma ./prisma
 RUN npm ci --omit=dev
 COPY --from=builder /app/dist ./dist
 EXPOSE 8000
-CMD ["node", "dist/main"]
+# Apply any pending migrations before starting - a fresh production database
+# has no tables otherwise.
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

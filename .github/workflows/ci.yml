@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [dev-sufiyan, main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: datingAppBackEnd
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: datingapp
+          POSTGRES_PASSWORD: datingapp
+          POSTGRES_DB: datingapp
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U datingapp -d datingapp"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://datingapp:datingapp@localhost:5432/datingapp?schema=public
+      JWT_ACCESS_SECRET: ci-access-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: ci-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 7d
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: datingAppBackEnd/package-lock.json
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: npx eslint "{src,test}/**/*.ts"
+      - run: npm run test:e2e
+      - run: npm run build
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: datingAppFrontEnd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: datingAppFrontEnd/package-lock.json
+      # package-lock.json was generated on macOS and is missing the Linux
+      # variants of a couple of optional transitive deps (chokidar/readdirp),
+      # which `npm ci`'s strict lockfile check rejects on this runner - use
+      # the more lenient `npm install` instead.
+      - run: npm install
+      - run: npx ng test --watch=false --browsers=ChromeHeadlessCI
+      - run: npx ng build --configuration production
