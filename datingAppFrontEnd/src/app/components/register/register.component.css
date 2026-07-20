@@ -1,100 +1,100 @@
-
-.slide{
-  background-image: url(../../../assets/images/SignUpposter.png);
-  background-size: contain;
-  height: 650px;
-  background-repeat: no-repeat;
-background-position: right;
-
+.auth-page {
+  min-height: calc(100vh - 60px);
 }
 
-.imgBack{
-  height: 750px !important;
-  margin-top: -100px !important;
+@media (min-width: 992px) {
+  .auth-page {
+    min-height: 100vh;
+  }
 }
 
-.loveCircle{
-  background-image: url(../../../assets/images/circle.png);
-  background-size: cover;
-  height: 1000px;
-  background-repeat: no-repeat;
-background-position: center;
-}
-
-.instant{
-  text-shadow: 2px 9px 20px #ff0000;
-}
-
-#lineCurve{
-  text-decoration: wavy underline  #ff0000; /* Curved lines ke liye text-decoration property ka istemal kiya gaya hai */
-  text-underline-position: under; /* Underline ko word ke nichle position par laane ke liye text-underline-position property ka istemal kiya gaya hai */
-}
-
-.imgHeartBeat{
-  width: 150px;
-}
-
-#percent{
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-/* form */
-.form {
-  width: 60%;
-  position: relative;
-  height: 60px;
-  overflow: hidden;
-  margin-bottom: 15px;
-}
-
-.form input {
-  width: 100%;
-  height: 100%;
-  padding-top: 20px;
-  border: none;
-  background: inherit;
-  outline: none;
-}
-
-.form label {
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  border-bottom: 1px solid rgb(210, 42, 42);
-  color: rgba(23, 7, 7, 0.671);
-}
-
-.content-name {
-  position: absolute;
-  bottom: 5px;
-  right:  0px;
-  transition: all 0.3s ease;
-}
-
-.paragraph {
+.auth-card {
   max-width: 460px;
+  background: #fff;
+  color: #212529;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.auth-card .form-label {
+  color: #212529;
+  font-weight: 500;
+}
+
+.auth-icon {
+  width: 64px;
+  height: 64px;
   margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ff0000, #b30000);
+  color: #fff;
+  font-size: 1.6rem;
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-@media (max-width: 767px) {
-  .slide {
-    height: auto;
-    min-height: 0;
-    /* The photo has no offset column to sit beside once the layout
-       stacks to one column, so it renders directly behind the form
-       text instead of next to it - just drop it here. */
-    background-image: none;
-  }
-
-  .form {
-    width: 100% !important;
-  }
-
-  .paragraph {
-    float: none !important;
-  }
+.auth-card h1 {
+  animation: fadeInDown 0.4s ease both;
 }
 
+.auth-card .form-control {
+  background-color: #fff;
+  color: #212529;
+  border-color: #ced4da;
+}
+
+.auth-card .form-control::placeholder {
+  color: #9ca3af;
+}
+
+.auth-card .form-control:focus {
+  background-color: #fff;
+  color: #212529;
+  border-color: #ff0000;
+  box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.12);
+}
+
+.auth-card .input-group .btn-outline-secondary {
+  border-color: #ced4da;
+  color: #6c757d;
+}
+
+.auth-card .input-group .btn-outline-secondary:hover,
+.auth-card .input-group .btn-outline-secondary:focus {
+  background: transparent;
+  color: #ff0000;
+  border-color: #ff0000;
+  box-shadow: none;
+}
+
+.auth-link {
+  color: #ff0000;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card, .auth-icon, .auth-card h1 {
+    animation: none !important;
+  }
+}

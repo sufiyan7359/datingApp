@@ -1,93 +1,118 @@
-<div class="container slide">
-  <div class="row d-flex justify-content-center">
-    <div class="col-12 col-md-7 mt-5 p-3 p-md-5 paragraph">
-      <h3 class="textdanger">
-        <b><u> Sign-Up</u></b>
-      </h3>
-      <form [formGroup]="SignupForm">
-        <div class="form ">
-          <input type="name" formControlName="firstName" />
-          <label class="label-name">First Name </label>
+<div class="auth-page d-flex align-items-center justify-content-center px-3 py-5">
+  <div class="auth-card w-100 p-4 p-sm-5 rounded-4 shadow border-0">
+
+    <div class="text-center mb-4">
+      <div class="auth-icon mb-3"><i class="bi bi-heart-fill"></i></div>
+      <h1 class="h3 mb-1"><b>Join <span class="textdanger">Dating</span></b></h1>
+      <p class="text-muted mb-0">Create your account and start matching.</p>
+    </div>
+
+    <form [formGroup]="SignupForm" (ngSubmit)="signupData()">
+      <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-sm-6">
+          <label class="form-label">First name</label>
+          <input type="text" class="form-control" formControlName="firstName" placeholder="Jordan" />
+          <div class="text-danger small mt-1"
+            *ngIf="SignupForm.get('firstName').hasError('required') && SignupForm.get('firstName').touched">
+            First name is required
+          </div>
+          <div class="text-danger small mt-1"
+            *ngIf="SignupForm.get('firstName').getError('invalidName') && SignupForm.get('firstName').touched">
+            First name is invalid
+          </div>
         </div>
-        <span class="textdanger" *ngIf="SignupForm.get('firstName').hasError('required') && SignupForm.get('firstName').touched"> Name is
-          required</span>
-        <span class="textdanger"
-          *ngIf="SignupForm.get('firstName').getError('invalidName') && SignupForm.get('firstName').touched"> First Name
-          is Invalid</span>
-        <div class="form ">
-          <input type="name" class="form" formControlName="lastName" />
-          <label class="label-name"> Last Name </label>
+        <div class="col-12 col-sm-6">
+          <label class="form-label">Last name</label>
+          <input type="text" class="form-control" formControlName="lastName" placeholder="Lee" />
+          <div class="text-danger small mt-1"
+            *ngIf="SignupForm.get('lastName').getError('required') != null && SignupForm.get('lastName').touched">
+            Last name is required
+          </div>
+          <div class="text-danger small mt-1"
+            *ngIf="SignupForm.get('lastName').getError('invalidlastName') && SignupForm.get('lastName').touched">
+            Last name is invalid
+          </div>
         </div>
-        <span *ngIf="
-        SignupForm.get('lastName').getError('required') != null && SignupForm.get('lastName').touched
-          " class="textdanger"> Last Name is required</span>
-        <span class="textdanger"
-          *ngIf="SignupForm.get('lastName').getError('invalidlastName') && SignupForm.get('lastName').touched"> Last
-          Name is Invalid</span>
-        <div class="form">
-          <input type="email" class="form" formControlName="email" aria-describedby="emailHelp" />
-          <label class="label-name">E-mail</label>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">E-mail</label>
+        <input type="email" class="form-control" formControlName="email" placeholder="you@example.com"
+          aria-describedby="emailHelp" />
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('email').getError('required') != null && SignupForm.get('email').touched">
+          Email is required
         </div>
-        <span *ngIf="SignupForm.get('email').getError('required') != null && SignupForm.get('email').touched" class="textdanger">Email is
-          required</span>
-        <span *ngIf="SignupForm.get('email').getError('email') != null && SignupForm.get('email').touched" class="textdanger">Invalid Email
-          formet</span>
-
-        <div class="form">
-          <input type="text" class="form" formControlName="number" />
-          <label class="label-name">Number</label>
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('email').getError('email') != null && SignupForm.get('email').touched">
+          Invalid email format
         </div>
-        <span class="textdanger"
-          *ngIf="SignupForm.get('number').getError('invalidNumber') && SignupForm.get('number').touched"> Password is
-          Invalid</span>
+      </div>
 
-        <div class="form ">
-          <input type="{{ showPassword ? 'text' : 'password' }}" class="form-control" formControlName="password" />
-          <label class="label-name">Password</label>
-          <span class="content-name mb-2" (click)="togglePasswordVisibility('Password')">{{
-            showPassword
-            ? "Hide
-            Password"
-            : "Show Password"
-            }}
-          </span>
-
+      <div class="mb-3">
+        <label class="form-label">Phone number</label>
+        <input type="text" class="form-control" formControlName="number" placeholder="9876543210" />
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('number').getError('required') != null && SignupForm.get('number').touched">
+          Phone number is required
         </div>
-        <span *ngIf="
-        SignupForm.get('password').getError('required') != null && SignupForm.get('password').touched
-          " class="textdanger">Password is required
-        </span>
-        <span class="textdanger"
-          *ngIf="SignupForm.get('password').getError('invalidPassword') && SignupForm.get('password').touched"> Password
-          is Invalid</span>
-
-        <div class="form ">
-          <input type="{{ showconPassword ? 'text' : 'password' }}" class="form-control"
-            formControlName="confirmPassword" placeholder="" />
-          <label class="label-name"> Confirm Password </label>
-          <span class="content-name mb-2" (click)="togglePasswordVisibility('confirmPassword')">{{ showconPassword ?
-            "Hide Password" : "Show Password" }}
-          </span>
-
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('number').getError('invalidNumber') && SignupForm.get('number').touched">
+          Phone number is invalid
         </div>
-        <span *ngIf="
-        SignupForm.get('confirmPassword').getError('required') != null &&
-        SignupForm.get('confirmPassword').touched
-          " class="textdanger">Password is required</span>
-        <span *ngIf="
-        SignupForm.get('confirmPassword').getError('mustMatch') != null &&
-        SignupForm.get('confirmPassword').touched
-          " class="textdanger">Password is mismatch</span>
+      </div>
 
-        <div *ngIf="errorMessage()" class="textdanger mt-2">{{ errorMessage() }}</div>
-
-        <div class="form m-2 ">
-          <button type="submit" (click)="signupData()" class="btn btn-danger" [disabled]="isSubmitting()">
-            {{ isSubmitting() ? 'Signing up…' : 'Sign Up' }}
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control" formControlName="password"
+            placeholder="••••••••" />
+          <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility('Password')"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
           </button>
         </div>
-      </form>
-    </div>
-    <div class="col-4 d-none d-md-block bg-warning imgBack" style="z-index: -999 !important"></div>
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('password').getError('required') != null && SignupForm.get('password').touched">
+          Password is required
+        </div>
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('password').getError('invalidPassword') && SignupForm.get('password').touched">
+          Must include an uppercase letter, a lowercase letter, and a number
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label">Confirm password</label>
+        <div class="input-group">
+          <input [type]="showconPassword ? 'text' : 'password'" class="form-control"
+            formControlName="confirmPassword" placeholder="••••••••" />
+          <button type="button" class="btn btn-outline-secondary" (click)="togglePasswordVisibility('confirmPassword')"
+            [attr.aria-label]="showconPassword ? 'Hide password' : 'Show password'">
+            <i class="bi" [class.bi-eye]="!showconPassword" [class.bi-eye-slash]="showconPassword"></i>
+          </button>
+        </div>
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('confirmPassword').getError('required') != null && SignupForm.get('confirmPassword').touched">
+          Please confirm your password
+        </div>
+        <div class="text-danger small mt-1"
+          *ngIf="SignupForm.get('confirmPassword').getError('mustMatch') != null && SignupForm.get('confirmPassword').touched">
+          Passwords do not match
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-danger w-100 py-2" [disabled]="isSubmitting()">
+        <span *ngIf="!isSubmitting()">Sign Up</span>
+        <span *ngIf="isSubmitting()"><span class="spinner-border spinner-border-sm me-2"></span>Signing up…</span>
+      </button>
+
+      <p class="text-center text-muted mt-4 mb-0">
+        Already have an account? <a routerLink="/login" class="auth-link fw-semibold">Log in</a>
+      </p>
+    </form>
+
   </div>
 </div>

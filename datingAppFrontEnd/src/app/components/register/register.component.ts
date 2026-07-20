@@ -9,14 +9,14 @@ import {
   Validators,
 } from '@angular/forms';
 import { NgIf } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [ReactiveFormsModule, NgIf, RouterLink],
 })
 export class RegisterComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
