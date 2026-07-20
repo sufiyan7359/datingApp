@@ -37,6 +37,9 @@ export class ProfileResponseDto {
   bio: string | null;
 
   @ApiProperty({ nullable: true })
+  coverPhotoUrl: string | null;
+
+  @ApiProperty({ nullable: true })
   city: string | null;
 
   @ApiProperty({ nullable: true })
@@ -118,6 +121,7 @@ export class ProfileResponseDto {
     dto.profession = profile.profession;
     dto.education = profile.education;
     dto.bio = profile.bio;
+    dto.coverPhotoUrl = profile.coverPhotoUrl;
     dto.city = profile.city;
     dto.country = profile.country;
     dto.latitude = profile.latitude;

@@ -3,17 +3,59 @@
     /* border: 3px solid white; */
     height: 15% !important;
     width: 80%;
+    /* Needs to paint above .coverPhoto in their 80px overlap band. This used
+       to fall out "for free" from DOM order (later sibling paints on top of
+       an earlier, non-positioned one) - until .coverPhoto became a
+       position:relative container (for the Change cover button) and, being
+       positioned with z-index:auto, started painting above non-positioned
+       siblings like this one regardless of DOM order. Explicit z-index on
+       both settles it unambiguously. */
+    position: relative;
+    z-index: 2;
+}
+
+/* .profilFrame (bg-light) stays a light pill in both themes, but its own
+   text had no explicit color - in dark mode it inherited the page's light
+   body text color from data-bs-theme, which is nearly invisible against a
+   light pill (rgb(222,226,230) text on rgb(248,249,250) background). */
+.profilFrame h2 {
+    color: #212529;
 }
 
 
 .profilePicture{
-background-image: url(../../../assets/images/commiunicatGirl.jpg);
-background-repeat: no-repeat;
-background-size: cover;
-background-position: center;
-height: 50%;
+/* height:50% of .profilFrame used to resolve against a fragile percentage
+   chain (.profilFrame's own height is 15%!important of an ancestor with no
+   fixed height) and landed nowhere near the width from the Bootstrap col-*
+   classes - border-radius:50% on that non-square box drew an oval, not a
+   circle, which the old background-image photo mostly hid (cover-fit crops
+   into it fine) but is obvious now that a fallback avatar needs to actually
+   fit a circle. aspect-ratio ties height to width directly instead - but
+   .profilFrame is a flex row (d-flex), and flex's default align-items:
+   stretch overrides aspect-ratio's height with the row's own (taller,
+   content-driven) cross-size unless this opts out of stretching. */
+aspect-ratio: 1 / 1;
+align-self: flex-start;
 margin-top: 1.5% !important;
-/* width: 150px; */
+}
+
+.profile-avatar-skeleton {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #e4e4e4 25%, #f2f2f2 37%, #e4e4e4 63%);
+  background-size: 400% 100%;
+  animation: profileAvatarShimmer 1.4s ease infinite;
+}
+
+@keyframes profileAvatarShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-avatar-skeleton {
+    animation: none;
+  }
 }
 
 .profilePictureIcon{
@@ -66,7 +108,52 @@ margin-top: 1.5% !important;
     background-image: url(../../../assets/images/star.jpg);
     background-repeat: no-repeat;
     background-size: cover;
+    background-position: center;
     height: 40vh;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.cover-photo-edit-btn {
+    /* Top, not bottom - the profile pill overlaps the bottom ~80px of the
+       cover photo (and now correctly paints above it, see .profilFrame's
+       z-index), so a bottom-anchored button here would sit right where the
+       pill covers it. */
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.cover-photo-edit-btn:hover {
+    background: rgba(255, 0, 0, 0.85);
+    transform: translateY(-2px);
+}
+
+.cover-photo-edit-btn .bi-arrow-repeat {
+    animation: coverUploadSpin 0.8s linear infinite;
+}
+
+@keyframes coverUploadSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cover-photo-edit-btn .bi-arrow-repeat {
+        animation: none;
+    }
 }
 
 .profilFrame .btn{
@@ -81,16 +168,23 @@ margin-top: 1.5% !important;
 }
 
 .box {
-    margin-top: -0.5%;
-    width: 50px; 
-    height: 100px;  
+    /* Small decorative squiggle under each About Profile heading. Its
+       height used to be 100px (with the paragraph below it pulled back up
+       by margin-top: -15vh to compensate) - on any viewport where 15vh was
+       taller than that 100px gap, the pull-up overshot and dragged every
+       paragraph up into the row above it, overlapping everything. Sizing
+       the box like the underline it's meant to look like removes the need
+       for that compensating hack entirely. */
+    margin-top: 2px;
+    width: 50px;
+    height: 12px;
     border: solid 3px #ff0000;
     border-color: #ff0000 transparent transparent transparent;
-    border-radius: 60%/25px 2px 0 0;
+    border-radius: 60%/8px 2px 0 0;
   }
 
   .AboutSection p{
-      margin-top: -15vh;
+      margin-top: 0.25rem;
   }
 
   .photoBox{

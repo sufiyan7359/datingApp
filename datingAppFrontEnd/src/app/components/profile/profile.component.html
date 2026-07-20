@@ -3,12 +3,30 @@
 <div class="container">
     <div class="row d-flex justify-content-center">
         <div class="col-12">
-            <div class="coverPhoto rounded-4"></div>
+            <div class="coverPhoto rounded-4 position-relative"
+                [style.background-image]="profile()?.coverPhotoUrl ? 'url(' + apiUrl + profile()!.coverPhotoUrl + ')' : null">
+                <label class="cover-photo-edit-btn" title="Change cover photo">
+                    <i class="bi" [class.bi-camera-fill]="!isUploadingCover()" [class.bi-arrow-repeat]="isUploadingCover()"></i>
+                    {{ isUploadingCover() ? 'Uploading…' : 'Change cover' }}
+                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden
+                        [disabled]="isUploadingCover()" (change)="onCoverPhotoSelected($event)" />
+                </label>
+            </div>
+            <div *ngIf="coverUploadError()" class="textdanger mt-1">{{ coverUploadError() }}</div>
         </div>
 
         <div class="text-end profilFrame d-flex flex-wrap bg-light rounded-pill shadow">
-            <div class="col-4 col-sm-3 col-md-2 profilePicture mt-2 mb-2 m-1 rounded-circle img-fluid"
-                [style.background-image]="profile()?.photos?.length ? 'url(' + apiUrl + profile()!.photos[0].url + ')' : null">
+            <div class="col-4 col-sm-3 col-md-2 profilePicture mt-2 mb-2 m-1 rounded-circle overflow-hidden">
+                <!-- profile()/currentUser() are both null until loadProfile() resolves - rendering
+                     the avatar before then read as "no photo" and flashed initials even for users
+                     who do have one, only correcting itself once the real data arrived. -->
+                <div class="profile-avatar-skeleton" *ngIf="isLoading()"></div>
+                <app-user-avatar
+                    *ngIf="!isLoading()"
+                    [photoUrl]="profile()?.photos?.length ? apiUrl + profile()!.photos[0].url : null"
+                    [firstName]="currentUser()?.firstName || ''"
+                    [lastName]="currentUser()?.lastName || ''"
+                ></app-user-avatar>
             </div>
 
             <div class="col-7 col-sm-8 col-md-9 mt-2 mb-2 m-1">
@@ -17,7 +35,7 @@
                     <p class="textdanger">{{ profile()?.profession || 'Add your profession' }}</p>
                 </div>
 
-                <div class="col-12 col-md-10 d-flex flex-wrap justify-content-evenly btnHover mt-5 mb-3 text-start mx-2">
+                <div class="col-12 col-md-10 row justify-content-evenly btnHover mt-5 mb-3 text-start mx-2">
                     <div class="col-6 col-sm-3 mb-2">
                         <a class="btn btn-outline-danger btn-sm" (click)="setTab('about')" [ngClass]="tab() === 'about' ? 'active' : 'inactive'">About</a>
                     </div>
@@ -54,6 +72,9 @@
                     <img [src]="apiUrl + photo.url" class="w-100" style="height: 150px; object-fit: cover;" />
                     <div class="p-2">
                         <span class="badge bg-danger" *ngIf="photo.isPrimary">Primary</span>
+                        <button class="btn btn-sm btn-outline-danger w-100 mt-1" *ngIf="!photo.isPrimary" (click)="makePrimary(photo.id)">
+                            <i class="bi bi-star-fill me-1"></i>Set as profile picture
+                        </button>
                         <div class="d-flex justify-content-between align-items-center mt-1">
                             <button class="btn btn-sm btn-outline-secondary" (click)="togglePhotoBlur(photo.id, photo.isBlurred)">
                                 {{ photo.isBlurred ? 'Unblur' : 'Blur' }}

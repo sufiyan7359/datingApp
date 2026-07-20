@@ -133,11 +133,10 @@
           (pointerup)="i === 0 && onPointerUp()"
           (pointercancel)="i === 0 && onPointerUp()">
 
-          <img
-            [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'"
-            loading="lazy"
-            draggable="false"
-          />
+          <app-user-avatar
+            [photoUrl]="p.photos.length ? apiUrl + p.photos[0].url : null"
+            [firstName]="p.firstName"
+          ></app-user-avatar>
 
           <span class="match-badge" *ngIf="p.compatibilityScore > 0"
             title="Compatibility estimate from shared interests, goals, and lifestyle">
@@ -204,7 +203,10 @@
         <ul class="match-list">
           <li class="match-row" *ngFor="let p of discoveryResults().slice(0, 5); let i = index" [style.animation-delay.ms]="i * 60">
             <div class="match-avatar">
-              <img [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'" />
+              <app-user-avatar
+                [photoUrl]="p.photos.length ? apiUrl + p.photos[0].url : null"
+                [firstName]="p.firstName"
+              ></app-user-avatar>
             </div>
 
             <div class="match-info">
@@ -239,7 +241,10 @@
         <ul class="match-list">
           <li class="match-row" *ngFor="let m of matches(); let i = index" [style.animation-delay.ms]="i * 60">
             <div class="match-avatar">
-              <img [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'" />
+              <app-user-avatar
+                [photoUrl]="m.photos.length ? apiUrl + m.photos[0].url : null"
+                [firstName]="m.firstName"
+              ></app-user-avatar>
             </div>
 
             <div class="match-info">
@@ -274,8 +279,12 @@
   <div *ngIf="newMatch() as m" class="match-overlay position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
     style="background: rgba(0,0,0,0.6); z-index: 1050;">
     <div class="card match-modal shadow border-0 rounded-4 p-4 text-center" style="max-width: 360px;">
-      <img [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'"
-        class="rounded-circle mx-auto mb-3 match-photo" style="width: 120px; height: 120px; object-fit: cover;" />
+      <div class="rounded-circle mx-auto mb-3 match-photo overflow-hidden" style="width: 120px; height: 120px;">
+        <app-user-avatar
+          [photoUrl]="m.photos.length ? apiUrl + m.photos[0].url : null"
+          [firstName]="m.firstName"
+        ></app-user-avatar>
+      </div>
       <h3 class="textdanger"><b>It's a Match!</b></h3>
       <p>You and {{ m.firstName }} liked each other.</p>
       <div class="d-flex justify-content-center gap-2 mt-2">

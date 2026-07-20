@@ -22,6 +22,14 @@ export class ProfileService {
       .pipe(tap((profile) => this.profile.set(profile)));
   }
 
+  uploadCoverPhoto(file: File): Observable<Profile> {
+    const formData = new FormData();
+    formData.append('photo', file);
+    return this.http
+      .post<Profile>(`${environment.apiUrl}/profiles/me/cover-photo`, formData)
+      .pipe(tap((profile) => this.profile.set(profile)));
+  }
+
   uploadPhoto(file: File): Observable<Photo> {
     const formData = new FormData();
     formData.append('photo', file);
@@ -42,6 +50,31 @@ export class ProfileService {
         if (current) {
           this.profile.set({ ...current, photos: current.photos.filter((p) => p.id !== photoId) });
         }
+      }),
+    );
+  }
+
+  setPrimaryPhoto(photoId: string): Observable<Photo> {
+    return this.http.patch<Photo>(`${environment.apiUrl}/profiles/me/photos/${photoId}/primary`, {}).pipe(
+      tap((updated) => {
+        const current = this.profile();
+        if (!current) return;
+
+        // The backend swaps `order` with whoever was order:0, since every
+        // photo list (discovery, matches, messages, this profile's own hero)
+        // reads photos[0] after sorting by order, not the isPrimary flag -
+        // mirror that swap locally so the UI doesn't wait on a reload to
+        // agree with what was just picked.
+        const previousOrder = current.photos.find((p) => p.id === photoId)?.order ?? 0;
+        const photos = current.photos
+          .map((p) => {
+            if (p.id === updated.id) return { ...p, ...updated };
+            if (p.order === updated.order) return { ...p, order: previousOrder, isPrimary: false };
+            return { ...p, isPrimary: false };
+          })
+          .sort((a, b) => a.order - b.order);
+
+        this.profile.set({ ...current, photos });
       }),
     );
   }

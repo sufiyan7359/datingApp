@@ -8,12 +8,13 @@ import { MatchingService } from '../../core/matching/matching.service';
 import { MatchInfo, SwipeAction } from '../../core/matching/matching.models';
 import { SubscriptionsService } from '../../core/subscriptions/subscriptions.service';
 import { environment } from '../../../environments/environment';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  imports: [NgFor, NgIf, ReactiveFormsModule, RouterLink],
+  imports: [NgFor, NgIf, ReactiveFormsModule, RouterLink, UserAvatarComponent],
 })
 export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);

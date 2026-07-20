@@ -7,6 +7,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ThemeService } from '../../core/theme/theme.service';
 import { Gender, LifestyleChoice, Profile, RelationshipGoal } from '../../core/profile/profile.models';
 import { environment } from '../../../environments/environment';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 type Tab = 'about' | 'edit' | 'photos' | 'settings';
 
@@ -30,7 +31,7 @@ function minimumAgeValidator(minAge: number): ValidatorFn {
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
-  imports: [NgClass, NgIf, NgFor, ReactiveFormsModule, RouterLink],
+  imports: [NgClass, NgIf, NgFor, ReactiveFormsModule, RouterLink, UserAvatarComponent],
 })
 export class ProfileComponent implements OnInit {
   private readonly profileService = inject(ProfileService);
@@ -52,6 +53,8 @@ export class ProfileComponent implements OnInit {
   readonly errorMessage = signal<string | null>(null);
   readonly successMessage = signal<string | null>(null);
   readonly uploadError = signal<string | null>(null);
+  readonly coverUploadError = signal<string | null>(null);
+  readonly isUploadingCover = signal(false);
 
   form: FormGroup;
 
@@ -204,6 +207,26 @@ export class ProfileComponent implements OnInit {
       });
   }
 
+  onCoverPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.coverUploadError.set(null);
+    this.isUploadingCover.set(true);
+    this.profileService.uploadCoverPhoto(file).subscribe({
+      next: () => {
+        this.isUploadingCover.set(false);
+        input.value = '';
+      },
+      error: (err) => {
+        this.isUploadingCover.set(false);
+        this.coverUploadError.set(err?.error?.message ?? 'Could not upload that cover photo.');
+        input.value = '';
+      },
+    });
+  }
+
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -223,6 +246,13 @@ export class ProfileComponent implements OnInit {
 
   removePhoto(photoId: string): void {
     this.profileService.deletePhoto(photoId).subscribe();
+  }
+
+  makePrimary(photoId: string): void {
+    this.uploadError.set(null);
+    this.profileService.setPrimaryPhoto(photoId).subscribe({
+      error: (err) => this.uploadError.set(err?.error?.message ?? 'Could not set that as your profile picture.'),
+    });
   }
 
   togglePhotoBlur(photoId: string, currentlyBlurred: boolean): void {

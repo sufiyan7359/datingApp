@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Lets .avatar-fallback size its initials off *this* box's own rendered
+     dimensions (cqmin) instead of a hand-picked size preset per call site -
+     the old sm/md/lg/xl classes assumed each usage was roughly the shape it
+     was designed for, and broke (54px letters in an 81px-tall oval) the
+     moment a container turned out to be a different shape than expected. */
+  container-type: size;
+}
+
+.avatar-img,
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+.avatar-img {
+  object-fit: cover;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-size: 58cqmin;
+  line-height: 1;
+}

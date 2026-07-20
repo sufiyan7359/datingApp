@@ -12,8 +12,12 @@
     <div class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-3"
       style="cursor: pointer;" *ngFor="let c of conversations()" (click)="openChat(c.otherUserId)">
       <div class="position-relative">
-        <img [src]="c.otherPhotos.length ? apiUrl + c.otherPhotos[0].url : '../../../assets/images/FiveSection.png'"
-          class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover;" />
+        <div class="rounded-circle overflow-hidden" style="width: 56px; height: 56px;">
+          <app-user-avatar
+            [photoUrl]="c.otherPhotos.length ? apiUrl + c.otherPhotos[0].url : null"
+            [firstName]="c.otherFirstName"
+          ></app-user-avatar>
+        </div>
         <span class="position-absolute bottom-0 end-0 rounded-circle bg-success border border-white"
           style="width: 12px; height: 12px;" *ngIf="c.otherIsOnline"></span>
       </div>

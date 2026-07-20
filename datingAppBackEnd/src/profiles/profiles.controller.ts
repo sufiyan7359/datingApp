@@ -26,7 +26,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ProfileResponseDto } from './dto/profile-response.dto';
 import { PhotoResponseDto } from './dto/photo-response.dto';
 import { SetPhotoBlurDto } from './dto/set-photo-blur.dto';
-import { photoMulterOptions } from './multer.config';
+import { coverPhotoMulterOptions, photoMulterOptions } from './multer.config';
 
 @ApiTags('profiles')
 @ApiBearerAuth()
@@ -57,6 +57,27 @@ export class ProfilesController {
     return ProfileResponseDto.fromEntity(profile);
   }
 
+  @Post('me/cover-photo')
+  @ApiOperation({
+    summary: 'Upload/replace your profile cover photo (JPEG/PNG/WebP, max 5MB)',
+  })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('photo', coverPhotoMulterOptions))
+  async uploadCoverPhoto(
+    @CurrentUser() user: RequestUser,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<ProfileResponseDto> {
+    if (!file) {
+      throw new BadRequestException('No photo file was provided');
+    }
+    const url = `/uploads/covers/${user.userId}/${file.filename}`;
+    const profile = await this.profilesService.setCoverPhoto(
+      user.userId,
+      url,
+    );
+    return ProfileResponseDto.fromEntity(profile);
+  }
+
   @Post('me/photos')
   @ApiOperation({
     summary: 'Upload a profile photo (JPEG/PNG/WebP, max 5MB, up to 6 photos)',
@@ -82,6 +103,19 @@ export class ProfilesController {
     @Param('id') photoId: string,
   ): Promise<void> {
     await this.profilesService.removePhoto(user.userId, photoId);
+  }
+
+  @Patch('me/photos/:id/primary')
+  @ApiOperation({ summary: 'Set a photo as your primary profile picture' })
+  async setPrimaryPhoto(
+    @CurrentUser() user: RequestUser,
+    @Param('id') photoId: string,
+  ): Promise<PhotoResponseDto> {
+    const photo = await this.profilesService.setPrimaryPhoto(
+      user.userId,
+      photoId,
+    );
+    return PhotoResponseDto.fromEntity(photo);
   }
 
   @Patch('me/photos/:id/blur')

@@ -22,6 +22,7 @@ export interface Profile {
   profession: string | null;
   education: string | null;
   bio: string | null;
+  coverPhotoUrl: string | null;
   city: string | null;
   country: string | null;
   latitude: number | null;

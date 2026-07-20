@@ -1,0 +1,4 @@
+<img *ngIf="photoUrl; else fallback" [src]="photoUrl" [alt]="firstName" class="avatar-img" draggable="false" />
+<ng-template #fallback>
+  <div class="avatar-fallback" [style.background]="background">{{ initials }}</div>
+</ng-template>

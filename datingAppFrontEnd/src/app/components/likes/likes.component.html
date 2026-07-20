@@ -20,7 +20,12 @@
     <div class="row g-3" *ngIf="data.isPremium">
       <div class="col-6 col-md-4 col-lg-3" *ngFor="let like of data.likes">
         <div class="card shadow border-0 rounded-4 overflow-hidden h-100">
-          <img *ngIf="like.photos[0]" [src]="apiUrl + like.photos[0].url" class="w-100" style="height: 180px; object-fit: cover;" />
+          <div style="height: 180px;">
+            <app-user-avatar
+              [photoUrl]="like.photos[0] ? apiUrl + like.photos[0].url : null"
+              [firstName]="like.firstName"
+            ></app-user-avatar>
+          </div>
           <div class="p-2">
             <b>{{ like.firstName }}</b>
             <span class="badge bg-danger ms-1" *ngIf="like.action === 'SUPER_LIKE'">Super Like</span>

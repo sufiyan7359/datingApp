@@ -83,6 +83,14 @@ export class ProfilesService {
     return updated;
   }
 
+  async setCoverPhoto(userId: string, url: string) {
+    const profile = await this.getOrCreate(userId);
+    return this.prisma.profile.update({
+      where: { id: profile.id },
+      data: { coverPhotoUrl: url },
+    });
+  }
+
   async addPhoto(userId: string, url: string) {
     const profile = await this.getOrCreate(userId);
 
@@ -123,6 +131,49 @@ export class ProfilesService {
         });
       }
     }
+  }
+
+  /**
+   * Makes an existing photo the profile picture. Every place that displays
+   * someone's "main" photo (discovery, matches, messages, this profile's own
+   * hero) reads photos[0] after sorting by `order` - none of them check
+   * `isPrimary` - so flipping just the flag left the flag and the display
+   * disagreeing with each other. This also swaps `order` with whichever
+   * photo currently holds order 0, so the picked photo actually becomes the
+   * one everyone sees.
+   */
+  async setPrimaryPhoto(userId: string, photoId: string) {
+    const profile = await this.getOrCreate(userId);
+    const photo = profile.photos.find((p) => p.id === photoId);
+    if (!photo) {
+      throw new NotFoundException('Photo not found');
+    }
+    if (photo.isPrimary && photo.order === 0) {
+      return photo;
+    }
+
+    const currentFirst = profile.photos.find((p) => p.order === 0);
+
+    await this.prisma.$transaction([
+      this.prisma.photo.updateMany({
+        where: { profileId: profile.id, isPrimary: true },
+        data: { isPrimary: false },
+      }),
+      ...(currentFirst && currentFirst.id !== photoId
+        ? [
+            this.prisma.photo.update({
+              where: { id: currentFirst.id },
+              data: { order: photo.order },
+            }),
+          ]
+        : []),
+      this.prisma.photo.update({
+        where: { id: photoId },
+        data: { order: 0, isPrimary: true },
+      }),
+    ]);
+
+    return { ...photo, order: 0, isPrimary: true };
   }
 
   /**

@@ -4,12 +4,13 @@ import { Router } from '@angular/router';
 import { ChatService } from '../../core/chat/chat.service';
 import { Conversation } from '../../core/chat/chat.models';
 import { environment } from '../../../environments/environment';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css'],
-  imports: [NgFor, NgIf, DatePipe],
+  imports: [NgFor, NgIf, DatePipe, UserAvatarComponent],
 })
 export class MessagesComponent implements OnInit {
   private readonly chatService = inject(ChatService);

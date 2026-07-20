@@ -5,12 +5,13 @@ import { MatchingService } from '../../core/matching/matching.service';
 import { LikesReceived } from '../../core/matching/matching.models';
 import { SwipeAction } from '../../core/matching/matching.models';
 import { environment } from '../../../environments/environment';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 @Component({
   selector: 'app-likes',
   templateUrl: './likes.component.html',
   styleUrls: ['./likes.component.css'],
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, UserAvatarComponent],
 })
 export class LikesComponent implements OnInit {
   private readonly matchingService = inject(MatchingService);
