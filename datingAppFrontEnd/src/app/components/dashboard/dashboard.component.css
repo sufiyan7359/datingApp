@@ -451,9 +451,47 @@
   animation: floaty 2.4s ease-in-out infinite;
 }
 
-/* ---- Filters panel ---- */
+/* ---- Filters panel ----
+   Stays in the DOM always (toggled with a class, not *ngIf) so both the open
+   and the close get an animated transition - *ngIf only animates mounting,
+   never removal, which is why this used to just snap shut. max-height can't
+   transition to/from "auto" in plain CSS, so it animates to a generous fixed
+   cap instead; the border/padding are zeroed on the collapsed state via
+   selector specificity rather than !important, which is enough to beat the
+   single-class Bootstrap p-3/mb-4 utilities already on this element. */
 .filters-panel {
-  animation: fadeInDown 0.3s ease both;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease,
+    transform 0.3s ease, border-width 0.35s ease;
+}
+
+.filters-panel:not(.filters-panel-open) {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border-width: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.filters-panel.filters-panel-open {
+  max-height: 700px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.filter-chevron {
+  font-size: 0.7rem;
+  margin-left: 2px;
+  transition: transform 0.25s ease;
+  display: inline-block;
+}
+
+.filter-chevron-open {
+  transform: rotate(180deg);
 }
 
 /* ---- Match modal ---- */
@@ -503,7 +541,7 @@
   .swipe-stack-wrap, .stack-card, .info-card, .premium-card, .filters-panel, .match-overlay,
   .match-modal, .match-photo, .match-badge, .premium-icon, .stack-btn,
   .match-row, .match-action-btn, .dashboard-toolbar h1, .btn-toolbar-action,
-  .skeleton-shimmer, .skeleton-line, .empty-deck {
+  .skeleton-shimmer, .skeleton-line, .empty-deck, .filter-chevron {
     animation: none !important;
     transition: none !important;
   }

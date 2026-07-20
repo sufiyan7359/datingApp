@@ -21,13 +21,14 @@
       </button>
       <button class="btn btn-toolbar-action btn-sm" [class.active]="filtersOpen()" (click)="toggleFilters()">
         <i class="bi bi-sliders"></i> {{ filtersOpen() ? 'Hide filters' : 'Filters' }}
+        <i class="bi bi-chevron-down filter-chevron" [class.filter-chevron-open]="filtersOpen()"></i>
       </button>
     </div>
   </div>
 
   <div *ngIf="swipeError()" class="alert alert-danger py-2">{{ swipeError() }}</div>
 
-  <div class="card filters-panel shadow-sm border-0 rounded-4 p-3 mb-4" *ngIf="filtersOpen()">
+  <div class="card filters-panel shadow-sm border-0 rounded-4 p-3 mb-4" [class.filters-panel-open]="filtersOpen()">
     <form [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
       <div class="row g-2">
         <div class="col-6 col-md-2">
