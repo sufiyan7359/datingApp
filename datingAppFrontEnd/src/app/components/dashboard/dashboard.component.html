@@ -1,30 +1,33 @@
-<app-dashboard-header></app-dashboard-header>
-<div class="container mt-5">
-  <div class="row d-flex justify-content-between align-items-center mb-3">
-    <div class="col-auto">
-      <h4 class="mb-0"><b>Discover</b></h4>
-      <p class="text-muted mb-0" style="font-size: 0.8rem;" *ngIf="limits() as l">
-        {{ l.likesUnlimited ? 'Unlimited' : l.likesRemaining }} likes &middot;
-        {{ l.superLikesRemaining }} super likes &middot;
-        {{ l.undosUnlimited ? 'unlimited' : l.undosRemaining }} undos left today
+<div class="container dashboard-page py-4">
+
+  <div class="dashboard-toolbar d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+      <h1 class="h3 mb-1"><b>Discover</b></h1>
+      <p class="text-muted mb-0 small" *ngIf="limits() as l">
+        <i class="bi bi-heart-fill text-danger me-1"></i>{{ l.likesUnlimited ? 'Unlimited' : l.likesRemaining }} likes
+        <span class="mx-1">&middot;</span>
+        <i class="bi bi-star-fill text-primary me-1"></i>{{ l.superLikesRemaining }} super likes
+        <span class="mx-1">&middot;</span>
+        <i class="bi bi-arrow-counterclockwise me-1"></i>{{ l.undosUnlimited ? 'unlimited' : l.undosRemaining }} undos left today
       </p>
     </div>
-    <div class="col-auto d-flex gap-2">
-      <a routerLink="/likes" class="btn btn-outline-danger btn-sm">
+    <div class="d-flex gap-2">
+      <a routerLink="/likes" class="btn btn-toolbar-action btn-sm">
         <i class="bi bi-heart-fill"></i> Likes
       </a>
-      <button class="btn btn-outline-danger btn-sm" (click)="activateBoost()" [disabled]="limits() && limits()!.boostsRemaining <= 0">
+      <button class="btn btn-toolbar-action btn-sm" (click)="activateBoost()"
+        [disabled]="limits() && limits()!.boostsRemaining <= 0">
         <i class="bi bi-rocket-takeoff"></i> Boost{{ limits() ? ' (' + limits()!.boostsRemaining + ')' : '' }}
       </button>
-      <button class="btn btn-outline-danger btn-sm" (click)="toggleFilters()">
-        {{ filtersOpen() ? 'Hide filters' : 'Filters' }}
+      <button class="btn btn-toolbar-action btn-sm" [class.active]="filtersOpen()" (click)="toggleFilters()">
+        <i class="bi bi-sliders"></i> {{ filtersOpen() ? 'Hide filters' : 'Filters' }}
       </button>
     </div>
   </div>
 
-  <div *ngIf="swipeError()" class="textdanger mb-3">{{ swipeError() }}</div>
+  <div *ngIf="swipeError()" class="alert alert-danger py-2">{{ swipeError() }}</div>
 
-  <div class="card filters-panel shadow border-0 rounded-4 p-3 mb-4" *ngIf="filtersOpen()">
+  <div class="card filters-panel shadow-sm border-0 rounded-4 p-3 mb-4" *ngIf="filtersOpen()">
     <form [formGroup]="filtersForm" (ngSubmit)="applyFilters()">
       <div class="row g-2">
         <div class="col-6 col-md-2">
@@ -103,140 +106,167 @@
     </form>
   </div>
 
-  <div *ngIf="isLoading()" class="text-muted mb-3">Loading profiles…</div>
-  <div *ngIf="loadError()" class="textdanger mb-3">{{ loadError() }}</div>
-  <div *ngIf="!isLoading() && !loadError() && discoveryResults().length === 0" class="text-muted mb-3">
-    No profiles match your filters right now.
+  <div *ngIf="loadError()" class="alert alert-danger py-2">{{ loadError() }}</div>
+
+  <div class="swipe-stack-wrap mb-4" *ngIf="!loadError()">
+    <div class="swipe-stack">
+      <div class="stack-card skeleton-card" *ngIf="isLoading()">
+        <div class="skeleton-shimmer"></div>
+        <div class="skeleton-scrim">
+          <div class="skeleton-line skeleton-line-title"></div>
+          <div class="skeleton-line skeleton-line-sub"></div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!isLoading()">
+        <div class="stack-card" *ngFor="let p of stackCards(); let i = index"
+          [style.zIndex]="stackCards().length - i"
+          [style.transform]="cardTransform(p.userId, i)"
+          [class.top-card]="i === 0"
+          [class.dragging]="i === 0 && dragCardId() === p.userId"
+          [class.exit-left]="exitingCardId() === p.userId && exitDirection() === 'left'"
+          [class.exit-right]="exitingCardId() === p.userId && exitDirection() === 'right'"
+          [class.exit-up]="exitingCardId() === p.userId && exitDirection() === 'up'"
+          (pointerdown)="i === 0 && onPointerDown($event, p.userId)"
+          (pointermove)="i === 0 && onPointerMove($event)"
+          (pointerup)="i === 0 && onPointerUp()"
+          (pointercancel)="i === 0 && onPointerUp()">
+
+          <img
+            [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'"
+            loading="lazy"
+            draggable="false"
+          />
+
+          <span class="match-badge" *ngIf="p.compatibilityScore > 0"
+            title="Compatibility estimate from shared interests, goals, and lifestyle">
+            {{ p.compatibilityScore }}% match
+          </span>
+
+          <div class="stamp stamp-like" *ngIf="i === 0" [style.opacity]="likeStampOpacity()">Like</div>
+          <div class="stamp stamp-nope" *ngIf="i === 0" [style.opacity]="nopeStampOpacity()">Nope</div>
+
+          <div class="stack-card-scrim">
+            <h4 class="mb-0">
+              {{ p.firstName }}<span *ngIf="p.age">, {{ p.age }}</span>
+              <i class="bi bi-patch-check-fill ms-1" title="Verified" *ngIf="p.isVerified"></i>
+            </h4>
+            <p class="mb-0 stack-card-location" *ngIf="p.city">
+              <i class="bi bi-geo-alt-fill me-1"></i>{{ p.city }}<span *ngIf="p.distanceKm !== null"> &middot; {{ p.distanceKm }} km</span>
+            </p>
+            <p class="mb-0 stack-card-bio" *ngIf="p.bio">{{ p.bio }}</p>
+          </div>
+        </div>
+
+        <div class="stack-card empty-deck" *ngIf="discoveryResults().length === 0">
+          <i class="bi bi-emoji-smile"></i>
+          <h5 class="mb-1">You're all caught up!</h5>
+          <p class="mb-3">
+            {{ filtersOpen() ? 'No profiles match these filters right now.' : 'No new profiles right now - check back soon.' }}
+          </p>
+          <button type="button" class="btn btn-outline-danger btn-sm" (click)="clearFilters()" *ngIf="filtersOpen()">
+            Clear filters
+          </button>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="stack-actions" *ngIf="!isLoading() && topCard() as tc">
+      <button class="stack-btn stack-btn-pass" title="Pass"
+        [disabled]="!!swipingUserId() || !!exitingCardId()" (click)="triggerSwipe(tc.userId, 'PASS')">
+        <i class="bi bi-x-lg"></i>
+      </button>
+      <button class="stack-btn stack-btn-super" title="Super Like"
+        [disabled]="!!swipingUserId() || !!exitingCardId()" (click)="triggerSwipe(tc.userId, 'SUPER_LIKE')">
+        <i class="bi bi-star-fill"></i>
+      </button>
+      <button class="stack-btn stack-btn-like" title="Like"
+        [disabled]="!!swipingUserId() || !!exitingCardId()" (click)="triggerSwipe(tc.userId, 'LIKE')">
+        <i class="bi bi-heart-fill"></i>
+      </button>
+    </div>
   </div>
 
-  <div class="row mb-4" *ngIf="discoveryResults().length > 0">
-    <div class="col-6 col-md-4 col-lg-3 mb-4" *ngFor="let p of discoveryResults(); let i = index">
-      <div class="card discovery-card shadow border-0 rounded-4 h-100" style="position: relative;" [style.animation-delay.ms]="i * 60">
-        <span class="badge bg-danger match-badge" style="position: absolute; top: 8px; left: 8px; z-index: 1;"
-          *ngIf="p.compatibilityScore > 0" title="Compatibility estimate from shared interests, goals, and lifestyle">
-          {{ p.compatibilityScore }}% match
-        </span>
-        <img
-          [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'"
-          class="card-img-top rounded-top-4"
-          style="height: 180px; object-fit: cover;"
-        />
-        <div class="card-body">
-          <h6 class="mb-0">
-            <b>{{ p.firstName }}</b><span *ngIf="p.age">, {{ p.age }}</span>
-            <i class="bi bi-patch-check-fill text-primary ms-1" title="Verified" *ngIf="p.isVerified"></i>
-          </h6>
-          <p class="text-muted mb-1" style="font-size: 0.85rem;" *ngIf="p.city">
-            {{ p.city }}<span *ngIf="p.distanceKm !== null"> &middot; {{ p.distanceKm }} km away</span>
-          </p>
-          <p class="mb-0" style="font-size: 0.85rem;" *ngIf="p.bio">{{ p.bio }}</p>
+  <div class="dashboard-section-title mb-3">
+    <span class="text-danger fw-semibold text-uppercase small">Keep exploring</span>
+    <h2 class="h5 mb-0"><b>For You</b></h2>
+  </div>
 
-          <div class="d-flex justify-content-around mt-3">
-            <button class="btn btn-outline-secondary btn-sm rounded-circle swipe-btn swipe-btn-pass" title="Pass"
-              [disabled]="swipingUserId() === p.userId" (click)="swipe(p.userId, 'PASS')">
-              <i class="bi bi-x-lg"></i>
-            </button>
-            <button class="btn btn-outline-primary btn-sm rounded-circle swipe-btn swipe-btn-super" title="Super Like"
-              [disabled]="swipingUserId() === p.userId" (click)="swipe(p.userId, 'SUPER_LIKE')">
-              <i class="bi bi-star-fill"></i>
-            </button>
-            <button class="btn btn-danger btn-sm rounded-circle swipe-btn swipe-btn-like" title="Like"
-              [disabled]="swipingUserId() === p.userId" (click)="swipe(p.userId, 'LIKE')">
+  <div class="row g-4 mb-4">
+
+    <!-- You may like -->
+    <div class="col-12 col-sm-6 col-md-4">
+      <div class="card info-card shadow-sm border-0 rounded-4 h-100">
+        <div class="card-header panel-header">
+          <h6 class="mb-0"><i class="bi bi-stars me-1"></i> You may like</h6>
+        </div>
+        <ul class="match-list">
+          <li class="match-row" *ngFor="let p of discoveryResults().slice(0, 5); let i = index" [style.animation-delay.ms]="i * 60">
+            <div class="match-avatar">
+              <img [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'" />
+            </div>
+
+            <div class="match-info">
+              <p class="match-name">{{ p.firstName }}</p>
+              <span class="match-meta">{{ p.profession || 'Member' }}<span *ngIf="p.age">, {{ p.age }}</span></span>
+            </div>
+
+            <button
+              class="match-action-btn"
+              type="button"
+              title="Like"
+              [disabled]="swipingUserId() === p.userId"
+              [style.opacity]="swipingUserId() === p.userId ? 0.5 : 1"
+              (click)="swipe(p.userId, 'LIKE')">
               <i class="bi bi-heart-fill"></i>
             </button>
-          </div>
-        </div>
+          </li>
+          <li class="match-empty" *ngIf="discoveryResults().length === 0">
+            <i class="bi bi-stars"></i>
+            No suggestions yet.
+          </li>
+        </ul>
       </div>
     </div>
-  </div>
 
-  <hr class="mb-4" />
-
-  <div class="row d-flex justify-content-center">
-
-      <!-- You may like -->
-      <div class="col-12 col-sm-6 col-md-4 mt-2 mb-4">
-
-        <div class="card info-card shadow border-0 rounded-4" style="overflow: auto !important; max-height: 80%;">
-          <div class="card-header sticky-top panel-header">
-            <h6 class="mb-0"><i class="bi bi-stars me-1"></i> You may like</h6>
-          </div>
-          <div class="">
-            <ul class="CARD match-list">
-              <li class="match-row" *ngFor="let p of discoveryResults().slice(0, 5); let i = index" [style.animation-delay.ms]="i * 60">
-                <div class="match-avatar">
-                  <img [src]="p.photos.length ? apiUrl + p.photos[0].url : '../../../assets/images/FiveSection.png'" />
-                </div>
-
-                <div class="match-info">
-                  <p class="match-name">{{ p.firstName }}</p>
-                  <span class="match-meta">{{ p.profession || 'Member' }}<span *ngIf="p.age">, {{ p.age }}</span></span>
-                </div>
-
-                <button
-                  class="match-action-btn"
-                  type="button"
-                  title="Like"
-                  [disabled]="swipingUserId() === p.userId"
-                  [style.opacity]="swipingUserId() === p.userId ? 0.5 : 1"
-                  (click)="swipe(p.userId, 'LIKE')">
-                  <i class="bi bi-heart-fill"></i>
-                </button>
-              </li>
-              <li class="match-empty" *ngIf="discoveryResults().length === 0">
-                <i class="bi bi-stars"></i>
-                No suggestions yet.
-              </li>
-            </ul>
-          </div>
+    <!-- Your Matches -->
+    <div class="col-12 col-sm-6 col-md-4">
+      <div class="card info-card shadow-sm border-0 rounded-4 h-100">
+        <div class="card-header panel-header">
+          <h6 class="mb-0"><i class="bi bi-heart-fill me-1"></i> Your Matches</h6>
         </div>
+        <ul class="match-list">
+          <li class="match-row" *ngFor="let m of matches(); let i = index" [style.animation-delay.ms]="i * 60">
+            <div class="match-avatar">
+              <img [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'" />
+            </div>
+
+            <div class="match-info">
+              <p class="match-name">{{ m.firstName }}</p>
+              <span class="match-meta">It's a match!</span>
+            </div>
+
+            <button class="match-action-btn" type="button" title="Message" (click)="goToChat(m.userId)">
+              <i class="bi bi-chat-heart-fill"></i>
+            </button>
+          </li>
+          <li class="match-empty" *ngIf="matches().length === 0">
+            <i class="bi bi-heart"></i>
+            No matches yet - keep swiping!
+          </li>
+        </ul>
       </div>
-
-      <!-- Your Matches -->
-      <div class="col-12 col-sm-6 col-md-4 mt-2 mb-4">
-
-        <div class="card info-card shadow border-0 rounded-4" style="overflow: auto !important; max-height: 80%;">
-          <div class="card-header sticky-top panel-header">
-            <h6 class="mb-0"><i class="bi bi-heart-fill me-1"></i> Your Matches</h6>
-          </div>
-          <div class="">
-            <ul class="CARD match-list">
-              <li class="match-row" *ngFor="let m of matches(); let i = index" [style.animation-delay.ms]="i * 60">
-                <div class="match-avatar">
-                  <img [src]="m.photos.length ? apiUrl + m.photos[0].url : '../../../assets/images/FiveSection.png'" />
-                </div>
-
-                <div class="match-info">
-                  <p class="match-name">{{ m.firstName }}</p>
-                  <span class="match-meta">It's a match!</span>
-                </div>
-
-                <button class="match-action-btn" type="button" title="Message" (click)="goToChat(m.userId)">
-                  <i class="bi bi-chat-heart-fill"></i>
-                </button>
-              </li>
-              <li class="match-empty" *ngIf="matches().length === 0">
-                <i class="bi bi-heart"></i>
-                No matches yet - keep swiping!
-              </li>
-            </ul>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- Go Premium upsell (real, only for free-tier users) -->
-      <div class="col-12 col-sm-6 col-md-4 mt-2 mb-4" *ngIf="subscriptionStatus() && !subscriptionStatus()!.isPremium">
-        <div class="card premium-card shadow border-0 rounded-4 h-100 text-center p-4" routerLink="/premium" style="cursor: pointer;">
-          <i class="bi bi-gem premium-icon"></i>
-          <h5 class="mt-3 mb-1"><b>Go Premium</b></h5>
-          <p class="mb-3" style="font-size: 0.9rem;">Unlimited likes, see who liked you, and more.</p>
-          <button class="btn btn-light fw-bold">Upgrade Now</button>
-        </div>
-      </div>
-
     </div>
 
+    <!-- Go Premium upsell (real, only for free-tier users) -->
+    <div class="col-12 col-sm-6 col-md-4" *ngIf="subscriptionStatus() && !subscriptionStatus()!.isPremium">
+      <div class="card premium-card shadow-sm border-0 rounded-4 h-100 text-center p-4" routerLink="/premium" style="cursor: pointer;">
+        <i class="bi bi-gem premium-icon"></i>
+        <h5 class="mt-3 mb-1"><b>Go Premium</b></h5>
+        <p class="mb-3" style="font-size: 0.9rem;">Unlimited likes, see who liked you, and more.</p>
+        <button class="btn btn-light fw-bold">Upgrade Now</button>
+      </div>
+    </div>
 
   </div>
 
@@ -253,3 +283,4 @@
       </div>
     </div>
   </div>
+</div>

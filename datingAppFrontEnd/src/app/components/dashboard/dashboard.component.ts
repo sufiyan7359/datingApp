@@ -1,6 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { DashboardHeaderComponent } from '../dashboard-header/dashboard-header.component';
 import { NgFor, NgIf } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DiscoveryService } from '../../core/discovery/discovery.service';
@@ -14,7 +13,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  imports: [DashboardHeaderComponent, NgFor, NgIf, ReactiveFormsModule, RouterLink],
+  imports: [NgFor, NgIf, ReactiveFormsModule, RouterLink],
 })
 export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
@@ -34,6 +33,19 @@ export class DashboardComponent implements OnInit {
   readonly limits = this.matchingService.limits;
   readonly matches = this.matchingService.matches;
   readonly subscriptionStatus = this.subscriptionsService.status;
+
+  // ---- Swipeable card stack (top card only is draggable) ----
+  readonly stackCards = computed(() => this.discoveryResults().slice(0, 3));
+  readonly topCard = computed(() => this.discoveryResults()[0] ?? null);
+
+  readonly dragCardId = signal<string | null>(null);
+  readonly dragX = signal(0);
+  readonly dragY = signal(0);
+  readonly exitingCardId = signal<string | null>(null);
+  readonly exitDirection = signal<'left' | 'right' | 'up' | null>(null);
+
+  private dragStartX = 0;
+  private dragStartY = 0;
 
   filtersForm = new FormGroup({
     minAge: new FormControl<number | null>(null),
@@ -59,6 +71,7 @@ export class DashboardComponent implements OnInit {
   loadFeed(): void {
     this.isLoading.set(true);
     this.loadError.set(null);
+    const startedAt = Date.now();
 
     const raw = this.filtersForm.value;
     this.discoveryService
@@ -78,15 +91,29 @@ export class DashboardComponent implements OnInit {
       })
       .subscribe({
         next: (feed) => {
-          this.discoveryResults.set(feed.results);
-          this.discoveryTotal.set(feed.total);
-          this.isLoading.set(false);
+          this.finishLoading(startedAt, () => {
+            this.discoveryResults.set(feed.results);
+            this.discoveryTotal.set(feed.total);
+          });
         },
         error: () => {
-          this.loadError.set('Could not load profiles right now. Please try again.');
-          this.isLoading.set(false);
+          this.finishLoading(startedAt, () => {
+            this.loadError.set('Could not load profiles right now. Please try again.');
+          });
         },
       });
+  }
+
+  // Keeps the skeleton on screen for at least a second even when the API
+  // responds almost instantly, so it reads as a deliberate loading state
+  // instead of a flash.
+  private finishLoading(startedAt: number, apply: () => void): void {
+    const MIN_VISIBLE_MS = 1000;
+    const remaining = MIN_VISIBLE_MS - (Date.now() - startedAt);
+    setTimeout(() => {
+      apply();
+      this.isLoading.set(false);
+    }, Math.max(0, remaining));
   }
 
   applyFilters(): void {
@@ -100,6 +127,85 @@ export class DashboardComponent implements OnInit {
 
   toggleFilters(): void {
     this.filtersOpen.set(!this.filtersOpen());
+  }
+
+  // ---- Card stack transform + drag-to-swipe ----
+
+  cardTransform(userId: string, index: number): string | null {
+    if (index !== 0) {
+      // transform-origin is bottom-center (see .stack-card), so scaling alone tucks
+      // the card's top edge further under the front card - pulling it up with a
+      // translateY beyond that inset is what makes a sliver peek out above, the
+      // classic "next card in the deck" cue.
+      const scale = 1 - index * 0.045;
+      return `scale(${scale}) translateY(-${index * 5.5}%)`;
+    }
+    if (this.dragCardId() === userId) {
+      const x = this.dragX();
+      const y = this.dragY();
+      return `translate(${x}px, ${y}px) rotate(${x / 18}deg)`;
+    }
+    return null;
+  }
+
+  likeStampOpacity(): number {
+    const x = this.dragX();
+    return x > 0 ? Math.min(x / 100, 1) : 0;
+  }
+
+  nopeStampOpacity(): number {
+    const x = this.dragX();
+    return x < 0 ? Math.min(-x / 100, 1) : 0;
+  }
+
+  onPointerDown(event: PointerEvent, userId: string): void {
+    if (this.swipingUserId() || this.exitingCardId()) return;
+    this.dragCardId.set(userId);
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+    (event.target as HTMLElement).setPointerCapture(event.pointerId);
+  }
+
+  onPointerMove(event: PointerEvent): void {
+    if (!this.dragCardId()) return;
+    this.dragX.set(event.clientX - this.dragStartX);
+    this.dragY.set(event.clientY - this.dragStartY);
+  }
+
+  onPointerUp(): void {
+    const userId = this.dragCardId();
+    if (!userId) return;
+
+    const x = this.dragX();
+    const threshold = 110;
+
+    if (Math.abs(x) > threshold) {
+      this.finishSwipe(userId, x > 0 ? 'LIKE' : 'PASS', x > 0 ? 'right' : 'left');
+    } else {
+      this.dragCardId.set(null);
+      this.dragX.set(0);
+      this.dragY.set(0);
+    }
+  }
+
+  triggerSwipe(userId: string, action: SwipeAction): void {
+    if (this.swipingUserId() || this.exitingCardId()) return;
+    this.finishSwipe(userId, action, action === 'PASS' ? 'left' : action === 'SUPER_LIKE' ? 'up' : 'right');
+  }
+
+  private finishSwipe(userId: string, action: SwipeAction, direction: 'left' | 'right' | 'up'): void {
+    this.dragCardId.set(null);
+    this.exitingCardId.set(userId);
+    this.exitDirection.set(direction);
+
+    // Let the fly-off transition play before the card actually leaves discoveryResults().
+    setTimeout(() => {
+      this.swipe(userId, action);
+      this.exitingCardId.set(null);
+      this.exitDirection.set(null);
+      this.dragX.set(0);
+      this.dragY.set(0);
+    }, 260);
   }
 
   swipe(targetUserId: string, action: SwipeAction): void {

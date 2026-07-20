@@ -4,6 +4,7 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/ro
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionsService } from '../../core/subscriptions/subscriptions.service';
+import { ChatService } from '../../core/chat/chat.service';
 
 @Component({
   selector: 'app-header',
@@ -14,6 +15,7 @@ import { SubscriptionsService } from '../../core/subscriptions/subscriptions.ser
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
   private readonly subscriptionsService = inject(SubscriptionsService);
+  private readonly chatService = inject(ChatService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -21,6 +23,9 @@ export class HeaderComponent {
   readonly currentUser = this.authService.currentUser;
   readonly isPremium = computed(() => this.subscriptionsService.status()?.isPremium ?? false);
   readonly subscriptionTier = computed(() => this.subscriptionsService.status()?.tier ?? 'FREE');
+  readonly unreadCount = computed(() =>
+    this.chatService.conversations().reduce((sum, c) => sum + c.unreadCount, 0),
+  );
 
   readonly isOpen = signal(false);
 
@@ -28,6 +33,7 @@ export class HeaderComponent {
     effect(() => {
       if (this.isAuthenticated()) {
         this.subscriptionsService.loadStatus().subscribe();
+        this.chatService.loadConversations().subscribe();
       }
     });
 

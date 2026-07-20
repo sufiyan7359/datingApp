@@ -21,6 +21,10 @@
     <a class="sidebar-link" routerLink="/dashboard" routerLinkActive="active" *ngIf="isAuthenticated()">
       <i class="bi bi-grid-fill"></i><span>Dashboard</span>
     </a>
+    <a class="sidebar-link" routerLink="/messages" routerLinkActive="active" *ngIf="isAuthenticated()">
+      <i class="bi bi-chat-heart-fill"></i><span>Messages</span>
+      <span class="badge bg-danger rounded-pill ms-auto" *ngIf="unreadCount() > 0">{{ unreadCount() }}</span>
+    </a>
     <a class="sidebar-link" routerLink="/service" routerLinkActive="active">
       <i class="bi bi-stars"></i><span>Services</span>
     </a>
@@ -37,6 +41,9 @@
     <ng-container *ngIf="isAuthenticated()">
       <div class="sidebar-divider"></div>
 
+      <a class="sidebar-link" routerLink="/profile" routerLinkActive="active">
+        <i class="bi bi-person-circle"></i><span>My Profile</span>
+      </a>
       <a class="sidebar-link" routerLink="/likes" routerLinkActive="active">
         <i class="bi bi-heart-fill"></i><span>Who Liked Me</span>
       </a>
