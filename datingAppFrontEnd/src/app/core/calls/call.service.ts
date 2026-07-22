@@ -1,5 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ChatService } from '../chat/chat.service';
@@ -17,13 +18,31 @@ const ICE_SERVERS: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }, {
 export class CallService {
   private readonly http = inject(HttpClient);
   private readonly chatService = inject(ChatService);
+  private readonly router = inject(Router);
 
   private peerConnection: RTCPeerConnection | null = null;
   private listenersBound = false;
 
+  private ringtoneAudioContext: AudioContext | null = null;
+  private ringtoneIntervalId: ReturnType<typeof setInterval> | null = null;
+
   readonly incomingCall = signal<IncomingCallEvent | null>(null);
   readonly activeCall = signal<ActiveCall | null>(null);
   readonly errorMessage = signal<string | null>(null);
+
+  constructor() {
+    // Runs regardless of which page/component is mounted - CallOverlayComponent
+    // is global (see app.component.html), but the ringtone has to follow the
+    // signal directly rather than a component's lifecycle so it starts/stops
+    // correctly even if no page happens to be listening to it.
+    effect(() => {
+      if (this.incomingCall()) {
+        this.startRingtone();
+      } else {
+        this.stopRingtone();
+      }
+    });
+  }
 
   /** Wires up the call-signaling listeners on the shared chat socket. Call once, after ChatService.connect(). */
   bindSignaling(): void {
@@ -96,6 +115,12 @@ export class CallService {
     const incoming = this.incomingCall();
     if (!incoming) return;
     this.incomingCall.set(null);
+    // The call overlay itself is global (shown from app.component.html
+    // regardless of route), but the page underneath it should land on that
+    // caller's conversation - otherwise accepting a call from, say, the
+    // dashboard leaves you back on the dashboard once the call ends, with no
+    // path back to the chat it came from.
+    void this.router.navigate(['/chating', incoming.callerId]);
     void this.doAccept(incoming);
   }
 
@@ -212,5 +237,53 @@ export class CallService {
     this.peerConnection = null;
     this.activeCall.set(null);
     this.incomingCall.set(null);
+  }
+
+  /**
+   * There's no ringtone audio asset in this project, and adding one would be
+   * an opaque binary nobody here could review or re-generate - so the ring
+   * is synthesized with the Web Audio API instead: two tones (a classic
+   * dual-frequency ring, like a phone bell) pulsing on a 1s-on/2s-off
+   * cadence, repeating until the call is accepted/declined/cancelled.
+   */
+  private startRingtone(): void {
+    if (this.ringtoneIntervalId !== null) return;
+
+    const AudioContextCtor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextCtor) return;
+    this.ringtoneAudioContext = new AudioContextCtor();
+
+    const ringOnce = () => {
+      const ctx = this.ringtoneAudioContext;
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.25, now + 0.05);
+      gain.gain.setValueAtTime(0.25, now + 0.95);
+      gain.gain.linearRampToValueAtTime(0, now + 1);
+      gain.connect(ctx.destination);
+
+      for (const frequency of [480, 620]) {
+        const oscillator = ctx.createOscillator();
+        oscillator.type = 'sine';
+        oscillator.frequency.value = frequency;
+        oscillator.connect(gain);
+        oscillator.start(now);
+        oscillator.stop(now + 1);
+      }
+    };
+
+    ringOnce();
+    this.ringtoneIntervalId = setInterval(ringOnce, 3000);
+  }
+
+  private stopRingtone(): void {
+    if (this.ringtoneIntervalId !== null) {
+      clearInterval(this.ringtoneIntervalId);
+      this.ringtoneIntervalId = null;
+    }
+    void this.ringtoneAudioContext?.close();
+    this.ringtoneAudioContext = null;
   }
 }
