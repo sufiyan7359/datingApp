@@ -19,6 +19,7 @@ export class MessagesComponent implements OnInit {
   readonly apiUrl = environment.apiUrl;
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
+  readonly skeletonPlaceholders = Array.from({ length: 6 });
 
   readonly conversations = computed(() =>
     [...this.chatService.conversations()].sort((a, b) => {

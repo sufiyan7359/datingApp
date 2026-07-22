@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProfileService } from '../../core/profile/profile.service';
 import { AuthService } from '../../core/auth/auth.service';
@@ -31,7 +31,7 @@ function minimumAgeValidator(minAge: number): ValidatorFn {
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
-  imports: [NgClass, NgIf, NgFor, ReactiveFormsModule, RouterLink, UserAvatarComponent],
+  imports: [NgClass, NgIf, NgFor, ReactiveFormsModule, RouterLink, UserAvatarComponent, DatePipe],
 })
 export class ProfileComponent implements OnInit {
   private readonly profileService = inject(ProfileService);

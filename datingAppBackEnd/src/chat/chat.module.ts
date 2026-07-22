@@ -26,5 +26,6 @@ import { AnalyticsModule } from '../analytics/analytics.module';
     CallsService,
     ChatGateway,
   ],
+  exports: [ChatGateway],
 })
 export class ChatModule {}

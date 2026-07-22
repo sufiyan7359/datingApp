@@ -74,12 +74,26 @@ const FEMALES: SeedProfile[] = [
   { firstName: 'Divya', lastName: 'Pillai', gender: Gender.FEMALE, interestedIn: [Gender.MALE], age: 32, city: 'Chennai', country: 'India', lat: 13.0827, lng: 80.2707, bio: 'Nurse with a big heart and a bigger sweet tooth. Weekends are for temple runs and Netflix.', profession: 'Nurse', education: 'B.Sc Nursing', religion: 'Hindu', languages: ['English', 'Tamil'], relationshipGoal: G.LONG_TERM, smoking: L.NEVER, drinking: L.NEVER, workout: L.SOMETIMES, interests: ['Movies', 'Cooking', 'Family', 'Travel'], hasKids: true, wantsKids: true, hasPets: false, colors: ['#10b981', '#047857'] },
 ];
 
-async function makePhotoBuffer(color: string, initials: string): Promise<Buffer> {
+// Deliberately does NOT look like UserAvatarComponent's own no-photo fallback
+// (a flat-colored circle with big centered initials) - an earlier version of
+// this used exactly that pattern, which made every seeded test photo visually
+// indistinguishable from "this person has no photo", and got mistaken for a
+// broken-avatar bug more than once. A gradient background + silhouette icon +
+// small name caption reads unambiguously as a placeholder *photo* instead.
+async function makePhotoBuffer(colorA: string, colorB: string, firstName: string): Promise<Buffer> {
+  const gradientId = `g-${Math.random().toString(36).slice(2, 8)}`;
   const svg = `
     <svg width="640" height="800" xmlns="http://www.w3.org/2000/svg">
-      <rect width="640" height="800" fill="${color}"/>
-      <circle cx="320" cy="330" r="150" fill="rgba(255,255,255,0.18)"/>
-      <text x="320" y="378" font-family="Arial, Helvetica, sans-serif" font-size="150" fill="#ffffff" text-anchor="middle" font-weight="bold">${initials}</text>
+      <defs>
+        <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${colorA}"/>
+          <stop offset="100%" stop-color="${colorB}"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="800" fill="url(#${gradientId})"/>
+      <circle cx="320" cy="280" r="105" fill="rgba(255,255,255,0.3)"/>
+      <path d="M320 400c-150 0-235 95-235 230v170h470v-170c0-135-85-230-235-230z" fill="rgba(255,255,255,0.3)"/>
+      <text x="36" y="750" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="rgba(255,255,255,0.92)" font-weight="600">${firstName}</text>
     </svg>`;
   return sharp(Buffer.from(svg)).jpeg({ quality: 82 }).toBuffer();
 }
@@ -136,11 +150,11 @@ async function createTestUser(p: SeedProfile, index: number): Promise<string> {
 
   const dir = join(PHOTOS_ROOT, user.id);
   mkdirSync(dir, { recursive: true });
-  const initials = `${p.firstName[0]}${p.lastName[0]}`.toUpperCase();
 
   for (let i = 0; i < p.colors.length; i++) {
     const filename = `${randomUUID()}.jpg`;
-    const buffer = await makePhotoBuffer(p.colors[i], initials);
+    const other = p.colors[(i + 1) % p.colors.length];
+    const buffer = await makePhotoBuffer(p.colors[i], other, p.firstName);
     writeFileSync(join(dir, filename), buffer);
     await prisma.photo.create({
       data: {

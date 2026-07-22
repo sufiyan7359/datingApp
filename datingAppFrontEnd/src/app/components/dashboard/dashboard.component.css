@@ -324,14 +324,12 @@
   border-radius: 50%;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.25);
-}
-
-.match-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background-color: #f1f1f1;
+  /* A solid white ring reads crisp against every initials-avatar color;
+     the old rgba(255,0,0,0.25) glow picked up a tint from whatever was
+     behind/under it depending on the avatar's own color, so the same "red"
+     ring looked like a different shade on every row. */
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .match-info {

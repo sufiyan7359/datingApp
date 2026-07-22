@@ -32,4 +32,8 @@ export class PresenceService {
   isOnline(userId: string): boolean {
     return (this.socketsByUser.get(userId)?.size ?? 0) > 0;
   }
+
+  getSocketIds(userId: string): string[] {
+    return Array.from(this.socketsByUser.get(userId) ?? []);
+  }
 }

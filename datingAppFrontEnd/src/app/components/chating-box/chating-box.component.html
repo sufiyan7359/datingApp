@@ -1,29 +1,35 @@
-<div class="container mt-3 mb-5">
+<div class="container chat-page-container mt-3 mb-5">
   <div class="row d-flex justify-content-center">
     <div class="col-12 col-lg-8">
 
-      <div *ngIf="errorMessage()" class="textdanger mb-3">{{ errorMessage() }}</div>
+      <div *ngIf="errorMessage()" class="alert alert-danger">{{ errorMessage() }}</div>
 
-      <div class="userName" *ngIf="!errorMessage()">
+      <div class="chat-card" *ngIf="!errorMessage()">
         <div class="chat-header-row">
           <div class="chat-header-identity">
-            <h3 class="mb-0"><b>{{ otherFirstName() }}</b></h3>
-            <span class="textsuccess" *ngIf="isOtherOnline()">online</span>
-            <span class="text-muted" *ngIf="!isOtherOnline()">offline</span>
-            <span class="typing-indicator" *ngIf="isOtherTyping()">
-              <i>typing</i>
-              <span class="typing-dots"><span></span><span></span><span></span></span>
-            </span>
+            <div class="chat-header-avatar">
+              <app-user-avatar [photoUrl]="otherPhotoUrl()" [firstName]="otherFirstName()"></app-user-avatar>
+              <span class="presence-dot" [class.online]="isOtherOnline()"></span>
+            </div>
+            <div class="chat-header-text">
+              <h3 class="mb-0">{{ otherFirstName() }}</h3>
+              <span class="chat-status online" *ngIf="isOtherOnline()">Online</span>
+              <span class="chat-status" *ngIf="!isOtherOnline()">Offline</span>
+              <span class="typing-indicator" *ngIf="isOtherTyping()">
+                <i>typing</i>
+                <span class="typing-dots"><span></span><span></span><span></span></span>
+              </span>
+            </div>
           </div>
           <div class="chat-header-actions">
-            <button class="btn btn-sm btn-outline-danger" title="Voice call" (click)="startVoiceCall()"><i class="bi bi-telephone-fill"></i></button>
-            <button class="btn btn-sm btn-outline-danger" title="Video call" (click)="startVideoCall()"><i class="bi bi-camera-video-fill"></i></button>
+            <button class="icon-btn" title="Voice call" (click)="startVoiceCall()"><i class="bi bi-telephone-fill"></i></button>
+            <button class="icon-btn" title="Video call" (click)="startVideoCall()"><i class="bi bi-camera-video-fill"></i></button>
             <input type="text" class="form-control form-control-sm chat-header-search" placeholder="Search messages"
               [(ngModel)]="searchQuery" (ngModelChange)="runSearch()" />
-            <button class="btn btn-sm btn-outline-secondary" *ngIf="searchResults()" (click)="clearSearch()">&times;</button>
+            <button class="icon-btn" *ngIf="searchResults()" (click)="clearSearch()"><i class="bi bi-x-lg"></i></button>
 
             <div class="dropdown">
-              <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" title="More options">
+              <button class="icon-btn" data-bs-toggle="dropdown" title="More options">
                 <i class="bi bi-three-dots-vertical"></i>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
@@ -34,10 +40,9 @@
             </div>
           </div>
         </div>
-        <hr class="textdanger">
 
-        <div class="reply-bar" *ngIf="reportModalOpen()">
-          <div class="mb-2"><b>Report {{ otherFirstName() }}</b></div>
+        <div class="report-panel" *ngIf="reportModalOpen()">
+          <div class="mb-2 fw-bold">Report {{ otherFirstName() }}</div>
           <select class="form-select form-select-sm mb-2" [(ngModel)]="reportReason">
             <option value="HARASSMENT">Harassment</option>
             <option value="INAPPROPRIATE_PHOTOS">Inappropriate photos</option>
@@ -48,7 +53,7 @@
             <option value="OTHER">Other</option>
           </select>
           <textarea class="form-control form-control-sm mb-2" rows="2" placeholder="Details (optional)" [(ngModel)]="reportDescription"></textarea>
-          <div class="form-check mb-2">
+          <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="alsoBlockCheck" [(ngModel)]="reportAlsoBlock" />
             <label class="form-check-label" for="alsoBlockCheck">Also block this person</label>
           </div>
@@ -57,19 +62,23 @@
         </div>
 
         <!-- Search results -->
-        <div *ngIf="searchResults() as results">
-          <p class="text-muted">{{ results.length }} result(s)</p>
+        <div class="search-results" *ngIf="searchResults() as results">
+          <p class="text-muted mb-2">{{ results.length }} result(s)</p>
           <div class="message from" *ngFor="let m of results">{{ m.content }}</div>
-          <hr>
         </div>
 
         <!-- Message list -->
-        <div class="message-list" #messageList (scroll)="onMessagesScroll($event)" *ngIf="!searchResults()">
+        <div class="message-list-wrap" *ngIf="!searchResults()">
+        <div class="message-list" #messageList (scroll)="onMessagesScroll($event)">
           <div class="load-more-indicator" *ngIf="isLoadingOlder()">
             <span class="spinner-border spinner-border-sm text-danger"></span> Loading older messages…
           </div>
           <div class="conversation-start" *ngIf="!hasMoreMessages() && messages().length > 0">
             You've reached the start of the conversation
+          </div>
+          <div class="empty-conversation" *ngIf="!hasMoreMessages() && messages().length === 0">
+            <i class="bi bi-chat-heart"></i>
+            <p class="mb-0">Say hi to {{ otherFirstName() }}!</p>
           </div>
 
           <ng-container *ngFor="let message of messages(); trackBy: trackByMessageId">
@@ -84,7 +93,7 @@
                 <audio *ngIf="message.type === 'VOICE'" [src]="apiUrl + message.mediaUrl" controls style="max-width: 220px;"></audio>
               </ng-container>
               <ng-template #deletedTpl>
-                <i class="text-muted">Message deleted</i>
+                <i class="deleted-note">Message deleted</i>
               </ng-template>
 
               <div class="reactions" *ngIf="message.reactions.length > 0">
@@ -113,37 +122,41 @@
           <div #scrollAnchor></div>
         </div>
 
+        <button type="button" class="new-messages-pill" *ngIf="newMessageCount() > 0" (click)="jumpToNewMessages()">
+          <i class="bi bi-arrow-down-circle-fill"></i>
+          {{ newMessageCount() }} new message{{ newMessageCount() > 1 ? 's' : '' }}
+        </button>
+        </div>
+
         <!-- Reply preview -->
         <div class="reply-bar" *ngIf="replyTo() as r">
-          Replying to: {{ r.content || '[attachment]' }}
-          <button class="btn btn-sm btn-outline-secondary ms-2" (click)="cancelReply()">Cancel</button>
+          <i class="bi bi-reply-fill me-1"></i>Replying to: {{ r.content || '[attachment]' }}
+          <button class="btn-close-reply" (click)="cancelReply()"><i class="bi bi-x-lg"></i></button>
         </div>
 
         <!-- Emoji palette -->
-        <div class="emoji-palette mt-2">
+        <div class="emoji-palette">
           <span *ngFor="let emoji of quickReactions" (click)="insertEmoji(emoji)">{{ emoji }}</span>
         </div>
 
-        <div class="row d-flex mt-2 align-items-center">
-          <div class="col-2 col-md-1 d-flex gap-2">
-            <label class="btn btn-outline-danger btn-sm mb-0" title="Send image">
+        <div class="composer-row">
+          <div class="composer-attachments">
+            <label class="icon-btn" title="Send image">
               <i class="bi bi-image"></i>
               <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onFileSelected($event)" />
             </label>
-            <label class="btn btn-outline-danger btn-sm mb-0" title="Send voice note">
+            <label class="icon-btn" title="Send voice note">
               <i class="bi bi-mic"></i>
               <input type="file" accept="audio/*" hidden (change)="onFileSelected($event)" />
             </label>
           </div>
 
-          <div class="col-7 col-md-9">
-            <input #messageInput class="form-control" [class.is-composing]="value.length > 0" [(ngModel)]="value" (ngModelChange)="onInputChange()"
-              (keyup.enter)="sendMessage()" type="text" placeholder="Type a message…">
-          </div>
+          <input #messageInput class="form-control composer-input" [class.is-composing]="value.length > 0" [(ngModel)]="value" (ngModelChange)="onInputChange()"
+            (keyup.enter)="sendMessage()" type="text" placeholder="Type a message…">
 
-          <div class="col-3 col-md-2">
-            <button class="btn btn-danger w-100 send-btn" [class.armed]="value.trim().length > 0" (click)="sendMessage()">Send</button>
-          </div>
+          <button class="send-btn" [class.armed]="value.trim().length > 0" (click)="sendMessage()" title="Send">
+            <i class="bi bi-send-fill"></i>
+          </button>
         </div>
 
       </div>

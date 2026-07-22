@@ -9,6 +9,7 @@ import { SafetyService } from '../../core/safety/safety.service';
 import { ChatMessage } from '../../core/chat/chat.models';
 import { ReportReason } from '../../core/safety/safety.models';
 import { environment } from '../../../environments/environment';
+import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 
 const QUICK_REACTIONS = ['❤️', '😂', '😮', '😢', '👍'];
 const TYPING_STOP_DELAY_MS = 2000;
@@ -22,7 +23,7 @@ const LOAD_MORE_SCROLL_THRESHOLD = 80;
   selector: 'app-chating-box',
   templateUrl: './chating-box.component.html',
   styleUrls: ['./chating-box.component.css'],
-  imports: [NgFor, NgIf, NgClass, FormsModule],
+  imports: [NgFor, NgIf, NgClass, FormsModule, UserAvatarComponent],
 })
 export class ChatingBoxComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
@@ -44,6 +45,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   readonly currentUserId = this.authService.currentUser()?.id ?? '';
 
   readonly otherFirstName = signal('');
+  readonly otherPhotoUrl = signal<string | null>(null);
   readonly otherUserId = signal('');
   readonly conversationId = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
@@ -55,6 +57,12 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   readonly reportModalOpen = signal(false);
   readonly isLoadingOlder = signal(false);
   readonly hasMoreMessages = signal(true);
+  // Count for the "N new messages" pill - incoming messages that arrived
+  // while the user was scrolled away from the bottom (reading history), so
+  // they weren't auto-scrolled into view. Mirrors the Instagram/WhatsApp
+  // "jump to new messages" affordance instead of leaving them to notice a
+  // new message on their own or losing their place in the scrollback.
+  readonly newMessageCount = signal(0);
 
   value = '';
   reportReason: ReportReason = 'HARASSMENT';
@@ -79,6 +87,8 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
       this.lastSeenMessageId = latest.id;
       if (this.isMine(latest) || this.isNearBottom) {
         this.scrollToBottom();
+      } else {
+        this.newMessageCount.update((count) => count + 1);
       }
     });
   }
@@ -98,6 +108,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
           return;
         }
         this.otherFirstName.set(conversation.otherFirstName);
+        this.otherPhotoUrl.set(conversation.otherPhotos.length ? this.apiUrl + conversation.otherPhotos[0].url : null);
         this.otherUserId.set(conversation.otherUserId);
         this.conversationId.set(conversation.conversationId);
         this.isMuted.set(conversation.isMuted);
@@ -139,6 +150,14 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
     }
     const distanceFromBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
     this.isNearBottom = distanceFromBottom < 150;
+    if (this.isNearBottom) {
+      this.newMessageCount.set(0);
+    }
+  }
+
+  jumpToNewMessages(): void {
+    this.newMessageCount.set(0);
+    this.scrollToBottom();
   }
 
   private loadOlderMessages(): void {

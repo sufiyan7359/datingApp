@@ -7,6 +7,7 @@ import { SubscriptionsModule } from '../subscriptions/subscriptions.module';
 import { SafetyModule } from '../safety/safety.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
+import { ChatModule } from '../chat/chat.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
     SafetyModule,
     NotificationsModule,
     AnalyticsModule,
+    ChatModule,
   ],
   controllers: [SwipesController, MatchesController],
   providers: [SwipesService, MatchesService],

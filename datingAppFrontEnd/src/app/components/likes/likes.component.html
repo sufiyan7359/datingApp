@@ -1,40 +1,67 @@
-<div class="container mt-4 mb-5">
-  <h3><b>Who Liked You</b></h3>
+<div class="container likes-page mt-4 mb-5">
+
+  <div class="likes-hero mb-4">
+    <span class="text-danger fw-semibold text-uppercase small">Admirers</span>
+    <h1 class="h3 mb-1"><b>Who Liked <span class="textdanger">You</span></b></h1>
+    <p class="text-muted mb-0">People who swiped right on you - like them back to match instantly.</p>
+  </div>
 
   <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
 
+  <div class="row g-3" *ngIf="isLoading()">
+    <div class="col-6 col-md-4 col-lg-3" *ngFor="let n of skeletonPlaceholders">
+      <div class="like-card-skeleton"></div>
+    </div>
+  </div>
+
   <div *ngIf="!isLoading() && likesReceived() as data">
-    <p class="text-muted" *ngIf="data.count === 0">Nobody has liked you yet. Keep swiping!</p>
+
+    <div class="likes-empty text-center py-5" *ngIf="data.count === 0">
+      <i class="bi bi-heart"></i>
+      <h5 class="mt-3 mb-1">No likes yet</h5>
+      <p class="text-muted mb-0">Keep swiping - when someone likes you, they'll show up here.</p>
+    </div>
 
     <!-- Free tier: blurred teaser -->
-    <div *ngIf="data.count > 0 && !data.isPremium" class="card shadow border-0 rounded-4 p-4 text-center">
-      <div class="d-flex justify-content-center gap-2 mb-3">
-        <div class="likes-blur-avatar" *ngFor="let n of [1, 2, 3]"></div>
+    <div class="likes-teaser-card text-center p-4 p-md-5" *ngIf="data.count > 0 && !data.isPremium">
+      <div class="teaser-avatar-stack mb-3">
+        <div class="teaser-avatar" *ngFor="let n of [1, 2, 3]"></div>
       </div>
-      <h5>{{ data.count }} {{ data.count === 1 ? 'person has' : 'people have' }} liked you</h5>
-      <p class="text-muted">Upgrade to Gold or Platinum to see who they are.</p>
-      <button class="btn btn-danger" (click)="goToPremium()">See who liked you</button>
+      <h4 class="mb-1"><b>{{ data.count }} {{ data.count === 1 ? 'person' : 'people' }} liked you</b></h4>
+      <p class="mb-3">Upgrade to Gold or Platinum to see who they are and match instantly.</p>
+      <button class="btn btn-light fw-bold px-4" (click)="goToPremium()">
+        <i class="bi bi-gem me-1"></i>See who liked you
+      </button>
     </div>
 
     <!-- Premium: full list -->
-    <div class="row g-3" *ngIf="data.isPremium">
-      <div class="col-6 col-md-4 col-lg-3" *ngFor="let like of data.likes">
-        <div class="card shadow border-0 rounded-4 overflow-hidden h-100">
-          <div style="height: 180px;">
-            <app-user-avatar
-              [photoUrl]="like.photos[0] ? apiUrl + like.photos[0].url : null"
-              [firstName]="like.firstName"
-            ></app-user-avatar>
+    <div class="row g-3" *ngIf="data.isPremium && data.count > 0">
+      <div class="col-6 col-md-4 col-lg-3" *ngFor="let like of data.likes; let i = index">
+        <div class="like-card" [style.animation-delay.ms]="i * 60">
+          <app-user-avatar
+            [photoUrl]="like.photos[0] ? apiUrl + like.photos[0].url : null"
+            [firstName]="like.firstName"
+          ></app-user-avatar>
+
+          <span class="like-badge" [class.super]="like.action === 'SUPER_LIKE'">
+            <i class="bi" [class.bi-star-fill]="like.action === 'SUPER_LIKE'" [class.bi-heart-fill]="like.action !== 'SUPER_LIKE'"></i>
+            {{ like.action === 'SUPER_LIKE' ? 'Super Liked' : 'Liked you' }}
+          </span>
+
+          <div class="like-card-scrim">
+            <h6 class="mb-0">{{ like.firstName }}</h6>
+            <span class="like-time">{{ timeAgo(like.likedAt) }}</span>
           </div>
-          <div class="p-2">
-            <b>{{ like.firstName }}</b>
-            <span class="badge bg-danger ms-1" *ngIf="like.action === 'SUPER_LIKE'">Super Like</span>
-            <div class="d-flex gap-2 mt-2">
-              <button class="btn btn-outline-secondary btn-sm w-50" [disabled]="swipingUserId() === like.userId"
-                (click)="swipeBack(like.userId, 'PASS')">Pass</button>
-              <button class="btn btn-danger btn-sm w-50" [disabled]="swipingUserId() === like.userId"
-                (click)="swipeBack(like.userId, 'LIKE')">Like</button>
-            </div>
+
+          <div class="like-card-actions">
+            <button class="like-btn like-btn-pass" title="Pass"
+              [disabled]="swipingUserId() === like.userId" (click)="swipeBack(like.userId, 'PASS')">
+              <i class="bi bi-x-lg"></i>
+            </button>
+            <button class="like-btn like-btn-like" title="Like back"
+              [disabled]="swipingUserId() === like.userId" (click)="swipeBack(like.userId, 'LIKE')">
+              <i class="bi bi-heart-fill"></i>
+            </button>
           </div>
         </div>
       </div>

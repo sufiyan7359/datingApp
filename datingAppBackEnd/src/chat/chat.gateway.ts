@@ -134,6 +134,26 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  /**
+   * handleConnection only joins a socket to the conversation rooms that
+   * existed *at connect time* - a brand new match created afterwards (the
+   * common case: you're already logged in with the app open, then you
+   * match with someone) never gets its room joined for either side's
+   * already-open socket, so `server.to(conversation:id).emit(...)` silently
+   * reaches nobody and messages only show up after a reload reconnects the
+   * socket and re-runs handleConnection. Called right after a match +
+   * conversation is created so both sides' live sockets (if any - either
+   * user may not be online right now) start receiving it immediately.
+   */
+  joinConversationRoom(conversationId: string, userIds: string[]): void {
+    const room = `conversation:${conversationId}`;
+    for (const userId of userIds) {
+      for (const socketId of this.presence.getSocketIds(userId)) {
+        void this.server.in(socketId).socketsJoin(room);
+      }
+    }
+  }
+
   /** Profile.hideOnlineStatus opts a user out of the visible green-dot broadcast (presence is still tracked internally for delivery receipts). */
   private async hidesOnlineStatus(userId: string): Promise<boolean> {
     const profile = await this.prisma.profile.findUnique({

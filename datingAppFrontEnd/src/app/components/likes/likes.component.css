@@ -1,7 +1,196 @@
-.likes-blur-avatar {
+.likes-page {
+  max-width: 1100px;
+}
+
+.likes-hero span {
+  display: block;
+  letter-spacing: 1px;
+}
+
+.likes-hero h1 {
+  animation: fadeInDown 0.35s ease both;
+}
+
+/* ---- Empty state ---- */
+.likes-empty {
+  animation: fadeIn 0.3s ease both;
+}
+
+.likes-empty i {
+  font-size: 2.8rem;
+  color: #ff0000;
+  opacity: 0.5;
+}
+
+/* ---- Free tier teaser ---- */
+.likes-teaser-card {
+  background: linear-gradient(135deg, #ff512f, #dd2476);
+  color: #fff;
+  border-radius: 1.5rem;
+  box-shadow: 0 16px 32px rgba(221, 36, 118, 0.25);
+  animation: fadeInUp 0.4s ease both;
+}
+
+.likes-teaser-card p {
+  opacity: 0.9;
+}
+
+.teaser-avatar-stack {
+  display: flex;
+  justify-content: center;
+}
+
+.teaser-avatar {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #f8a5a5, #e05353);
-  filter: blur(4px);
+  background: rgba(255, 255, 255, 0.35);
+  filter: blur(3px);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  margin-left: -16px;
+}
+
+.teaser-avatar:first-child {
+  margin-left: 0;
+}
+
+/* ---- Premium grid cards ---- */
+.like-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  background: #f1f1f1;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.4s ease both;
+}
+
+.like-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 30px rgba(255, 0, 0, 0.2);
+}
+
+.like-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ff0000, #b30000);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.35);
+}
+
+.like-badge.super {
+  background: linear-gradient(135deg, #0d6efd, #0a4fc4);
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.35);
+}
+
+.like-card-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1.6rem 0.75rem 2.2rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0) 100%);
+  color: #fff;
+}
+
+.like-card-scrim h6 {
+  font-weight: 700;
+}
+
+.like-time {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.like-card-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 0.6rem;
+  z-index: 2;
+}
+
+.like-btn {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #495057;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+}
+
+.like-btn:hover:not(:disabled) {
+  transform: scale(1.15);
+}
+
+.like-btn:disabled {
+  opacity: 0.5;
+}
+
+.like-btn-like {
+  background: linear-gradient(135deg, #ff0000, #b30000);
+  color: #fff;
+}
+
+.like-btn-like:hover:not(:disabled) {
+  box-shadow: 0 8px 18px rgba(255, 0, 0, 0.4);
+}
+
+.like-btn-pass:hover:not(:disabled) {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+/* ---- Loading skeleton ---- */
+.like-card-skeleton {
+  aspect-ratio: 3 / 4;
+  border-radius: 1.25rem;
+  background: linear-gradient(90deg, #e4e4e4 25%, #f2f2f2 37%, #e4e4e4 63%);
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.4s ease infinite;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .likes-hero h1, .likes-empty, .likes-teaser-card, .like-card, .like-card-skeleton {
+    animation: none !important;
+    transition: none !important;
+  }
 }

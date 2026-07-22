@@ -167,6 +167,474 @@ margin-top: 1.5% !important;
     background-color: #ff0000;
 }
 
+/* ---- Tab panel cards (Photos / About / Edit Profile / Setting) ----
+   Used to be a bare `row d-flex mx-5 justify-content-center` - mx-5 is 3rem
+   (48px) of margin on *each* side unconditionally, so on a 390px phone that
+   alone ate ~96px (about a quarter of the viewport) before any content even
+   started, on top of the row's own negative gutter margins. That's what
+   crushed the Photos grid down to barely enough room for 3 cramped columns
+   and wrapped "Set as profile picture" across three lines. A plain padded
+   card with normal Bootstrap row gutters replaces it. */
+.tab-panel-card {
+    background: #fff;
+    color: #212529;
+    border-radius: 1.25rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 0.3s ease both;
+}
+
+/* This card is always white regardless of site theme, but its text wasn't
+   pinned to match - in dark mode every heading/paragraph in here picked up
+   data-bs-theme's light body text color (rgb(222,226,230)) meant to read
+   against a *dark* page background, which is nearly invisible against this
+   card's white one. Bootstrap's .text-muted sets its own color via
+   `!important`, so overriding it needs matching specificity, not just an
+   inherited color from .tab-panel-card above. */
+.tab-panel-card .tab-panel-title,
+.tab-panel-card h4,
+.tab-panel-card h6,
+.tab-panel-card label,
+.tab-panel-card .form-label,
+.tab-panel-card .form-check-label {
+    color: #212529;
+}
+
+.tab-panel-card p,
+.tab-panel-card .text-muted {
+    color: #6c757d !important;
+}
+
+.tab-panel-card .form-control,
+.tab-panel-card .form-select {
+    background-color: #fff;
+    color: #212529;
+    border-color: #ced4da;
+}
+
+.tab-panel-card .form-control:focus,
+.tab-panel-card .form-select:focus {
+    background-color: #fff;
+    color: #212529;
+    border-color: #ff0000;
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.12);
+}
+
+.tab-panel-card .form-control,
+.tab-panel-card .form-select {
+    border-radius: 0.65rem;
+    padding: 0.55rem 0.85rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ---- Edit Profile: grouped sections ---- */
+.edit-section {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px dashed rgba(0, 0, 0, 0.09);
+}
+
+.edit-section-last {
+    border-bottom: none;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0;
+}
+
+.edit-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #ff0000;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-bottom: 1rem;
+}
+
+.edit-section-title i {
+    font-size: 1rem;
+}
+
+/* ---- "Interested in" pill toggles ----
+   Native checkboxes here look inconsistent with the rest of the redesigned
+   form - visually hiding the input but keeping it in the DOM (not
+   display:none) preserves the ReactiveForms binding, focus, and label
+   click-to-toggle semantics while the label does the actual pill styling. */
+.interest-check-group {
+    display: inline-block;
+    margin: 0 0.4rem 0.4rem 0;
+}
+
+.interest-check-group .form-check-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.interest-check-group .form-check-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.95rem;
+    border-radius: 999px;
+    border: 1.5px solid #ced4da;
+    color: #495057;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.interest-check-group .form-check-input:checked + .form-check-label {
+    background: linear-gradient(135deg, #ff0000, #b30000);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.interest-check-group .form-check-input:focus-visible + .form-check-label {
+    outline: 2px solid #ff0000;
+    outline-offset: 2px;
+}
+
+/* ---- Save button ---- */
+.btn-save-profile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #ff0000, #b30000);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.65rem 2rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-save-profile:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(255, 0, 0, 0.4);
+    color: #fff;
+}
+
+.btn-save-profile:disabled {
+    opacity: 0.75;
+}
+
+.btn-save-profile .bi-arrow-repeat {
+    animation: coverUploadSpin 0.8s linear infinite;
+}
+
+@media (max-width: 575px) {
+    .form-group.text-end {
+        text-align: center !important;
+    }
+
+    .btn-save-profile {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ---- Photos tab ---- */
+.photos-count-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ff0000;
+    background: rgba(255, 0, 0, 0.08);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+}
+
+.photo-card {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    background: #f1f1f1;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.photo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.16);
+}
+
+.photo-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-primary-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #ff0000, #b30000);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.35);
+}
+
+.photo-delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.photo-delete-btn:hover {
+    background: rgba(255, 0, 0, 0.85);
+    transform: scale(1.08);
+}
+
+.photo-card-scrim {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 1.6rem 0.5rem 0.5rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 65%, rgba(0, 0, 0, 0) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+}
+
+.photo-blur-btn,
+.photo-primary-btn {
+    border: none;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.32rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+    transition: transform 0.2s ease;
+}
+
+.photo-blur-btn {
+    background: rgba(255, 255, 255, 0.92);
+    color: #495057;
+}
+
+.photo-primary-btn {
+    background: linear-gradient(135deg, #ff0000, #b30000);
+    color: #fff;
+}
+
+.photo-blur-btn:hover,
+.photo-primary-btn:hover {
+    transform: scale(1.06);
+}
+
+.photo-upload-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    aspect-ratio: 3 / 4;
+    width: 100%;
+    border-radius: 1.25rem;
+    border: 2px dashed #ced4da;
+    color: #adb5bd;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.photo-upload-slot i {
+    font-size: 1.6rem;
+}
+
+.photo-upload-slot span {
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.photo-upload-slot:hover {
+    border-color: #ff0000;
+    color: #ff0000;
+    background: rgba(255, 0, 0, 0.03);
+}
+
+/* ---- Settings tab ---- */
+.settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    width: 100%;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 1rem;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+    font: inherit;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+    border-color: rgba(255, 0, 0, 0.15);
+    color: inherit;
+}
+
+.settings-row-icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 0, 0, 0.08);
+    color: #ff0000;
+    font-size: 1.05rem;
+}
+
+.settings-row-icon.premium {
+    background: linear-gradient(135deg, #ffd76a, #ff9800);
+    color: #fff;
+}
+
+.settings-row-icon.logout {
+    background: rgba(255, 0, 0, 0.12);
+    color: #ff0000;
+}
+
+.settings-row-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.settings-row-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #212529;
+}
+
+.settings-row-sub {
+    font-size: 0.78rem;
+    color: #6c757d;
+}
+
+.settings-row-arrow {
+    color: #ced4da;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.settings-row.danger .settings-row-title {
+    color: #ff0000;
+}
+
+.settings-toggle {
+    flex-shrink: 0;
+    width: 44px;
+    height: 26px;
+    border-radius: 999px;
+    background: #ced4da;
+    position: relative;
+    transition: background-color 0.25s ease;
+}
+
+.settings-toggle.on {
+    background: linear-gradient(135deg, #ff0000, #b30000);
+}
+
+.settings-toggle-knob {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    transition: transform 0.25s ease;
+}
+
+.settings-toggle.on .settings-toggle-knob {
+    transform: translateX(18px);
+}
+
+@media (max-width: 575px) {
+    .settings-row {
+        padding: 0.7rem 0.85rem;
+    }
+
+    .settings-row-icon {
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
+    }
+}
+
+.tab-panel-title {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 575px) {
+    .tab-panel-card {
+        padding: 1rem 0.85rem;
+        border-radius: 1rem;
+    }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tab-panel-card {
+        animation: none;
+    }
+}
+
 .box {
     /* Small decorative squiggle under each About Profile heading. Its
        height used to be 100px (with the paragraph below it pulled back up
@@ -192,10 +660,54 @@ margin-top: 1.5% !important;
   }
 
   @media (max-width: 767px) {
+    /* rounded-pill's 50rem border-radius looks fine on the short, wide
+       desktop layout (avatar left, name+tabs right, one row tall) - but at
+       mobile widths the same box grows tall (name row, then a 2x2 button
+       grid) and that huge radius turns it into an egg-shaped blob that also
+       clips the name text on its curved edge. Stacking avatar/name/tabs
+       vertically and shrinking the radius keeps it a normal rounded card. */
     .profilFrame {
       margin-top: -50px !important;
       height: auto !important;
       width: 95%;
+      border-radius: 1.75rem !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      padding: 1.5rem 1.25rem;
+    }
+
+    .profilFrame .profilePicture {
+      align-self: center !important;
+      width: 120px !important;
+      flex: 0 0 auto !important;
+      margin: 0 0 0.75rem !important;
+    }
+
+    /* The name+tabs wrapper was col-7/col-sm-8 (~58% width) for the
+       side-by-side desktop layout; under the column stack above it needs
+       the full card width or it stays squeezed into that same narrow
+       column, which is what forced "Edit Profile" onto two lines. */
+    .profilFrame > div:nth-child(2) {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+    }
+
+    .profilFrame .profileName {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      text-align: center !important;
+    }
+
+    .profilFrame .profileName h2 {
+      font-size: 1.5rem;
+    }
+
+    .profilFrame .btnHover {
+      margin-top: 1rem !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      text-align: center !important;
     }
 
     .profilePictureIcon {

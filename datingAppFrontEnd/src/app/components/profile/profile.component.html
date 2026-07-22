@@ -55,238 +55,265 @@
 </div>
 
 <div class="container mt-3 mb-4">
-    <div class="row">
 
         <div *ngIf="isLoading()" class="text-muted text-center my-4">Loading your profile…</div>
         <div *ngIf="errorMessage()" class="textdanger">{{ errorMessage() }}</div>
         <div *ngIf="successMessage()" class="alert alert-success py-2">{{ successMessage() }}</div>
 
         <!-- Photos -->
-        <div class="row d-flex mx-5 justify-content-center mt-3" *ngIf="tab() === 'photos' && !isLoading()">
-            <div class="col-12"><h4>Photos</h4></div>
-            <hr>
+        <div class="tab-panel-card" *ngIf="tab() === 'photos' && !isLoading()">
+            <h4 class="tab-panel-title d-flex justify-content-between align-items-center">
+                Photos
+                <span class="photos-count-badge">{{ profile()?.photos?.length ?? 0 }}/6</span>
+            </h4>
             <div *ngIf="uploadError()" class="textdanger mb-2">{{ uploadError() }}</div>
 
-            <div class="col-4 col-md-3 mb-3" *ngFor="let photo of profile()?.photos">
-                <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
-                    <img [src]="apiUrl + photo.url" class="w-100" style="height: 150px; object-fit: cover;" />
-                    <div class="p-2">
-                        <span class="badge bg-danger" *ngIf="photo.isPrimary">Primary</span>
-                        <button class="btn btn-sm btn-outline-danger w-100 mt-1" *ngIf="!photo.isPrimary" (click)="makePrimary(photo.id)">
-                            <i class="bi bi-star-fill me-1"></i>Set as profile picture
+            <div class="row g-3">
+                <div class="col-6 col-sm-4 col-md-3" *ngFor="let photo of profile()?.photos">
+                    <div class="photo-card">
+                        <img [src]="apiUrl + photo.url" class="photo-card-img" />
+
+                        <span class="photo-primary-badge" *ngIf="photo.isPrimary">
+                            <i class="bi bi-star-fill"></i> Primary
+                        </span>
+
+                        <button class="photo-delete-btn" (click)="removePhoto(photo.id)" title="Delete photo">
+                            <i class="bi bi-trash"></i>
                         </button>
-                        <div class="d-flex justify-content-between align-items-center mt-1">
-                            <button class="btn btn-sm btn-outline-secondary" (click)="togglePhotoBlur(photo.id, photo.isBlurred)">
+
+                        <div class="photo-card-scrim">
+                            <button class="photo-blur-btn" (click)="togglePhotoBlur(photo.id, photo.isBlurred)">
+                                <i class="bi" [class.bi-eye-slash-fill]="photo.isBlurred" [class.bi-droplet-half]="!photo.isBlurred"></i>
                                 {{ photo.isBlurred ? 'Unblur' : 'Blur' }}
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" (click)="removePhoto(photo.id)">
-                                <i class="bi bi-trash"></i>
+                            <button class="photo-primary-btn" *ngIf="!photo.isPrimary" (click)="makePrimary(photo.id)">
+                                <i class="bi bi-star-fill"></i> Set primary
                             </button>
                         </div>
                     </div>
                 </div>
+
+                <div class="col-6 col-sm-4 col-md-3" *ngIf="(profile()?.photos?.length ?? 0) < 6">
+                    <label class="photo-upload-slot">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Add photo</span>
+                        <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onPhotoSelected($event)" />
+                    </label>
+                </div>
             </div>
 
-            <div class="col-4 col-md-3 mb-3" *ngIf="(profile()?.photos?.length ?? 0) < 6">
-                <label class="d-flex align-items-center justify-content-center rounded-4 border border-dashed"
-                    style="height: 150px; cursor: pointer;">
-                    <i class="bi bi-plus-lg fs-2 text-muted"></i>
-                    <input type="file" accept="image/jpeg,image/png,image/webp" hidden (change)="onPhotoSelected($event)" />
-                </label>
-            </div>
-
-            <p class="text-muted" *ngIf="(profile()?.photos?.length ?? 0) === 0">Add a photo so people can see you.</p>
+            <p class="text-muted mb-0 mt-2" *ngIf="(profile()?.photos?.length ?? 0) === 0">Add a photo so people can see you.</p>
         </div>
 
         <!-- About -->
-        <div class="row d-flex mx-5 justify-content-center d-flex mt-3" *ngIf="tab() === 'about' && !isLoading()">
-            <h4>About Profile</h4>
-            <hr>
+        <div class="tab-panel-card" *ngIf="tab() === 'about' && !isLoading()">
+            <h4 class="tab-panel-title">About Profile</h4>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>About</b><div class="box"></div></h6>
-                <p class="text-muted">{{ profile()?.bio || 'No bio yet.' }}</p>
-            </div>
+            <div class="row g-3">
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>About</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ profile()?.bio || 'No bio yet.' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Date of birth</b><div class="box"></div></h6>
-                <p class="text-muted">
-                    <ng-container *ngIf="profile()?.dateOfBirth">{{ profile()!.dateOfBirth }} ({{ age(profile()!.dateOfBirth) }} yrs)</ng-container>
-                    <ng-container *ngIf="!profile()?.dateOfBirth">Not set</ng-container>
-                </p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Date of birth</b><div class="box"></div></h6>
+                    <p class="text-muted">
+                        <ng-container *ngIf="profile()?.dateOfBirth">{{ profile()!.dateOfBirth | date:'mediumDate' }} ({{ age(profile()!.dateOfBirth) }} yrs)</ng-container>
+                        <ng-container *ngIf="!profile()?.dateOfBirth">Not set</ng-container>
+                    </p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Gender</b><div class="box"></div></h6>
-                <p class="text-muted">{{ profile()?.gender || 'Not set' }}</p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Gender</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ profile()?.gender || 'Not set' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Interests</b><div class="box"></div></h6>
-                <p class="text-muted">{{ (profile()?.interests ?? []).join(', ') || 'None added' }}</p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Interests</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ (profile()?.interests ?? []).join(', ') || 'None added' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Occupation</b><div class="box"></div></h6>
-                <p class="text-muted">{{ profile()?.profession || 'Not set' }}</p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Occupation</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ profile()?.profession || 'Not set' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Education</b><div class="box"></div></h6>
-                <p class="text-muted">{{ profile()?.education || 'Not set' }}</p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Education</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ profile()?.education || 'Not set' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Relationship Preferences</b><div class="box"></div></h6>
-                <p class="text-muted">{{ profile()?.relationshipGoal || 'Not set' }}</p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Relationship Preferences</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ profile()?.relationshipGoal || 'Not set' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Languages</b><div class="box"></div></h6>
-                <p class="text-muted">{{ (profile()?.languages ?? []).join(', ') || 'Not set' }}</p>
-            </div>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Languages</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ (profile()?.languages ?? []).join(', ') || 'Not set' }}</p>
+                </div>
 
-            <div class="col-12 col-sm-6 AboutSection">
-                <h6><b>Location</b><div class="box"></div></h6>
-                <p class="text-muted">{{ profile()?.city }}<span *ngIf="profile()?.city && profile()?.country">, </span>{{ profile()?.country }}<span *ngIf="!profile()?.city && !profile()?.country">Not set</span></p>
+                <div class="col-12 col-sm-6 AboutSection">
+                    <h6><b>Location</b><div class="box"></div></h6>
+                    <p class="text-muted">{{ profile()?.city }}<span *ngIf="profile()?.city && profile()?.country">, </span>{{ profile()?.country }}<span *ngIf="!profile()?.city && !profile()?.country">Not set</span></p>
+                </div>
             </div>
         </div>
 
         <!-- Edit Profile -->
-        <div class="col-12" *ngIf="tab() === 'edit' && !isLoading()">
-            <h4>Edit Profile</h4>
-            <hr>
+        <div class="tab-panel-card" *ngIf="tab() === 'edit' && !isLoading()">
+            <h4 class="tab-panel-title">Edit Profile</h4>
 
             <form [formGroup]="form" (ngSubmit)="saveProfile()">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Gender</label>
-                        <select class="form-select" formControlName="gender">
-                            <option value="" disabled>Select gender</option>
-                            <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
-                        </select>
-                    </div>
 
-                    <div class="col-md-6" formGroupName="interestedIn">
-                        <label class="form-label d-block">Interested in</label>
-                        <div class="form-check form-check-inline" *ngFor="let g of genders">
-                            <input class="form-check-input" type="checkbox" [formControlName]="g" [id]="'edit-interested-' + g" />
-                            <label class="form-check-label" [for]="'edit-interested-' + g">{{ g }}</label>
+                <div class="edit-section">
+                    <h6 class="edit-section-title"><i class="bi bi-person-vcard"></i> Basic Details</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Gender</label>
+                            <select class="form-select" formControlName="gender">
+                                <option value="" disabled>Select gender</option>
+                                <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+                            </select>
                         </div>
-                    </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">Date of birth</label>
-                        <input type="date" class="form-control" formControlName="dateOfBirth" />
-                    </div>
+                        <div class="col-md-6" formGroupName="interestedIn">
+                            <label class="form-label d-block">Interested in</label>
+                            <div class="interest-check-group" *ngFor="let g of genders">
+                                <input class="form-check-input" type="checkbox" [formControlName]="g" [id]="'edit-interested-' + g" />
+                                <label class="form-check-label" [for]="'edit-interested-' + g">{{ g }}</label>
+                            </div>
+                        </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">Height (cm)</label>
-                        <input type="number" class="form-control" formControlName="heightCm" />
-                    </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Date of birth</label>
+                            <input type="date" class="form-control" formControlName="dateOfBirth" />
+                        </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label">Religion</label>
-                        <input type="text" class="form-control" formControlName="religion" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Languages (comma-separated)</label>
-                        <input type="text" class="form-control" formControlName="languages" placeholder="English, Hindi" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Profession</label>
-                        <input type="text" class="form-control" formControlName="profession" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Education</label>
-                        <input type="text" class="form-control" formControlName="education" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">City</label>
-                        <input type="text" class="form-control" formControlName="city" />
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Country</label>
-                        <input type="text" class="form-control" formControlName="country" />
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label">Bio</label>
-                        <textarea class="form-control" rows="4" formControlName="bio" maxlength="500"></textarea>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="form-label">Interests (comma-separated)</label>
-                        <input type="text" class="form-control" formControlName="interests" placeholder="Hiking, Coffee, Travel" />
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Smoking</label>
-                        <select class="form-select" formControlName="smoking">
-                            <option value="">Prefer not to say</option>
-                            <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Drinking</label>
-                        <select class="form-select" formControlName="drinking">
-                            <option value="">Prefer not to say</option>
-                            <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Workout</label>
-                        <select class="form-select" formControlName="workout">
-                            <option value="">Prefer not to say</option>
-                            <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Relationship goal</label>
-                        <select class="form-select" formControlName="relationshipGoal">
-                            <option value="">Prefer not to say</option>
-                            <option *ngFor="let g of relationshipGoals" [value]="g">{{ g }}</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Has kids</label>
-                        <select class="form-select" formControlName="hasKids">
-                            <option value="">Prefer not to say</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Wants kids</label>
-                        <select class="form-select" formControlName="wantsKids">
-                            <option value="">Prefer not to say</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Has pets</label>
-                        <select class="form-select" formControlName="hasPets">
-                            <option value="">Prefer not to say</option>
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                        </select>
+                        <div class="col-md-6">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" class="form-control" formControlName="heightCm" />
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group mb-2 mt-4 text-end">
-                    <button type="submit" class="btn btn-danger" [disabled]="isSubmitting()">
+                <div class="edit-section">
+                    <h6 class="edit-section-title"><i class="bi bi-geo-alt"></i> Background</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Religion</label>
+                            <input type="text" class="form-control" formControlName="religion" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Languages (comma-separated)</label>
+                            <input type="text" class="form-control" formControlName="languages" placeholder="English, Hindi" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Profession</label>
+                            <input type="text" class="form-control" formControlName="profession" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Education</label>
+                            <input type="text" class="form-control" formControlName="education" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" formControlName="city" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Country</label>
+                            <input type="text" class="form-control" formControlName="country" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-section">
+                    <h6 class="edit-section-title"><i class="bi bi-chat-square-text"></i> About You</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Bio</label>
+                            <textarea class="form-control" rows="4" formControlName="bio" maxlength="500"></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Interests (comma-separated)</label>
+                            <input type="text" class="form-control" formControlName="interests" placeholder="Hiking, Coffee, Travel" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-section edit-section-last">
+                    <h6 class="edit-section-title"><i class="bi bi-heart-pulse"></i> Lifestyle &amp; Goals</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Smoking</label>
+                            <select class="form-select" formControlName="smoking">
+                                <option value="">Prefer not to say</option>
+                                <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Drinking</label>
+                            <select class="form-select" formControlName="drinking">
+                                <option value="">Prefer not to say</option>
+                                <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Workout</label>
+                            <select class="form-select" formControlName="workout">
+                                <option value="">Prefer not to say</option>
+                                <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Relationship goal</label>
+                            <select class="form-select" formControlName="relationshipGoal">
+                                <option value="">Prefer not to say</option>
+                                <option *ngFor="let g of relationshipGoals" [value]="g">{{ g }}</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Has kids</label>
+                            <select class="form-select" formControlName="hasKids">
+                                <option value="">Prefer not to say</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Wants kids</label>
+                            <select class="form-select" formControlName="wantsKids">
+                                <option value="">Prefer not to say</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Has pets</label>
+                            <select class="form-select" formControlName="hasPets">
+                                <option value="">Prefer not to say</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-2 mt-3 text-end">
+                    <button type="submit" class="btn btn-save-profile" [disabled]="isSubmitting()">
+                        <i class="bi" [class.bi-check2-circle]="!isSubmitting()" [class.bi-arrow-repeat]="isSubmitting()"></i>
                         {{ isSubmitting() ? 'Saving…' : 'Update Profile' }}
                     </button>
                 </div>
@@ -294,31 +321,50 @@
         </div>
 
         <!-- Settings -->
-        <div class="col-12" *ngIf="tab() === 'settings' && !isLoading()">
-            <h4>Setting</h4>
-            <hr>
-            <div class="d-flex flex-wrap">
-                <div class="settingGroup m-2">
-                    <button class="btn btn-outline-danger" (click)="toggleTheme()">
+        <div class="tab-panel-card" *ngIf="tab() === 'settings' && !isLoading()">
+            <h4 class="tab-panel-title">Setting</h4>
+
+            <div class="settings-list">
+                <button class="settings-row" type="button" (click)="toggleTheme()">
+                    <span class="settings-row-icon">
                         <i class="bi" [class.bi-moon-stars-fill]="!isDarkTheme()" [class.bi-sun-fill]="isDarkTheme()"></i>
-                        {{ isDarkTheme() ? 'Light Theme' : 'Dark Theme' }}
-                    </button>
-                </div>
+                    </span>
+                    <span class="settings-row-text">
+                        <span class="settings-row-title">Appearance</span>
+                        <span class="settings-row-sub">{{ isDarkTheme() ? 'Dark theme is on' : 'Light theme is on' }}</span>
+                    </span>
+                    <span class="settings-toggle" [class.on]="isDarkTheme()">
+                        <span class="settings-toggle-knob"></span>
+                    </span>
+                </button>
 
-                <div class="settingGroup m-2">
-                    <a class="btn btn-outline-danger" routerLink="/safety">Privacy &amp; Safety</a>
-                </div>
+                <a class="settings-row" routerLink="/safety">
+                    <span class="settings-row-icon"><i class="bi bi-shield-lock-fill"></i></span>
+                    <span class="settings-row-text">
+                        <span class="settings-row-title">Privacy &amp; Safety</span>
+                        <span class="settings-row-sub">Blocking, reporting, and account safety</span>
+                    </span>
+                    <i class="bi bi-chevron-right settings-row-arrow"></i>
+                </a>
 
-                <div class="settingGroup m-2">
-                    <a class="btn btn-outline-danger" routerLink="/premium">Premium</a>
-                </div>
+                <a class="settings-row" routerLink="/premium">
+                    <span class="settings-row-icon premium"><i class="bi bi-gem"></i></span>
+                    <span class="settings-row-text">
+                        <span class="settings-row-title">Premium</span>
+                        <span class="settings-row-sub">Unlock unlimited likes and more</span>
+                    </span>
+                    <i class="bi bi-chevron-right settings-row-arrow"></i>
+                </a>
 
-                <div class="settingGroup m-2">
-                    <button class="btn btn-outline-danger" (click)="logout()">Log out</button>
-                </div>
+                <button class="settings-row danger" type="button" (click)="logout()">
+                    <span class="settings-row-icon logout"><i class="bi bi-box-arrow-right"></i></span>
+                    <span class="settings-row-text">
+                        <span class="settings-row-title">Log out</span>
+                        <span class="settings-row-sub">Sign out of this account</span>
+                    </span>
+                </button>
             </div>
         </div>
-    </div>
 </div>
 
 </div>

@@ -16,6 +16,7 @@ import { SubscriptionsService } from '../subscriptions/subscriptions.service';
 import { BlocksService } from '../safety/blocks.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { AnalyticsService } from '../analytics/analytics.service';
+import { ChatGateway } from '../chat/chat.gateway';
 
 @Injectable()
 export class SwipesService {
@@ -25,6 +26,7 @@ export class SwipesService {
     private readonly blocks: BlocksService,
     private readonly notifications: NotificationsService,
     private readonly analytics: AnalyticsService,
+    private readonly chatGateway: ChatGateway,
   ) {}
 
   async swipe(swiperId: string, dto: CreateSwipeDto): Promise<SwipeResultDto> {
@@ -270,11 +272,17 @@ export class SwipesService {
       create: { userAId, userBId },
     });
 
-    await this.prisma.conversation.upsert({
+    const conversation = await this.prisma.conversation.upsert({
       where: { matchId: match.id },
       update: {},
       create: { matchId: match.id },
     });
+    // Neither side's already-open socket (if any) auto-joins this room -
+    // see the comment on joinConversationRoom for why.
+    this.chatGateway.joinConversationRoom(conversation.id, [
+      userAId,
+      userBId,
+    ]);
 
     const otherProfile = await this.prisma.profile.findUnique({
       where: { userId: targetId },
