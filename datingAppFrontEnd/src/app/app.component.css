@@ -8,13 +8,16 @@
   display: flex;
   flex-direction: column;
   /* 100vh on mobile is the *largest* possible viewport (address bar
-     hidden), taller than what's actually visible when the bar is shown -
-     so the page shell reserved more height than the screen, and the
-     footer shifted/jumped as the address bar collapsed and expanded while
-     scrolling. 100dvh tracks the real visible viewport; the plain 100vh
-     above is a fallback for browsers that don't support dvh. */
+     hidden). 100dvh was tried instead, but it's *dynamic* - it recalculates
+     continuously as the address bar collapses/expands mid-scroll, and since
+     .app-main is flex:1 0 auto (grows/shrinks to fill this height), that
+     live recalculation is exactly what made the footer visibly shift while
+     scrolling. 100svh ("small" viewport height) is pinned to the
+     toolbar-visible size and never changes during a scroll gesture, so nothing
+     reflows underneath the user's thumb. Plain 100vh is a fallback for
+     browsers without svh support. */
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 /* HeaderComponent renders a fixed-position sidebar (out of normal flow) plus
