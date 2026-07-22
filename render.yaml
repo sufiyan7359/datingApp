@@ -1,0 +1,77 @@
+# Render Blueprint - https://render.com/docs/blueprint-spec
+#
+# Deploys the backend (Docker web service + Postgres) and the frontend
+# (static site). After the first deploy, set the "sync: false" env vars
+# below in the Render dashboard - they're secrets/deployment-specific
+# values that shouldn't live in this file.
+
+databases:
+  - name: datingapp-db
+    plan: free
+    databaseName: datingapp
+    user: datingapp
+
+services:
+  - type: web
+    name: datingapp-backend
+    runtime: docker
+    dockerfilePath: ./datingAppBackEnd/Dockerfile
+    dockerContext: ./datingAppBackEnd
+    plan: free
+    healthCheckPath: /
+    # Uploaded profile/chat photos are written to ./uploads on the container
+    # filesystem, which Render otherwise wipes on every deploy/restart - a
+    # persistent disk keeps them across deploys.
+    disk:
+      name: uploads
+      mountPath: /app/uploads
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: datingapp-db
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      # Generate with `npx web-push generate-vapid-keys` and paste in the
+      # Render dashboard - also served to the frontend from
+      # GET /notifications/vapid-public-key.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        value: mailto:admin@example.com
+      # The deployed frontend's origin (e.g. https://datingapp-frontend.onrender.com).
+      # Used both for CORS (see main.ts) and for links in emails.
+      - key: FRONTEND_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+
+  - type: web
+    name: datingapp-frontend
+    runtime: static
+    rootDir: datingAppFrontEnd
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist/dating-app-front/browser
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

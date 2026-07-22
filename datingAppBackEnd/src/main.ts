@@ -11,12 +11,15 @@ async function bootstrap() {
 
   app.use(compression());
 
-  // Reflects any origin on port 4200 (localhost or a LAN IP) so the same
-  // backend works for local dev in a browser and for a phone on the same
-  // network hitting the dev server's LAN address. Dev-only - a deployed
-  // build should pin this back down to a fixed list of real origins.
+  // In production, pin CORS to the deployed frontend's origin (same var
+  // used to build links in emails). In dev, reflect any origin on port 4200
+  // (localhost or a LAN IP) so the same backend works for a browser on this
+  // machine or a phone on the same network hitting the dev server's LAN address.
   app.enableCors({
-    origin: /^http:\/\/(localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):4200$/,
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL
+        : /^http:\/\/(localhost|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):4200$/,
     credentials: true,
   });
 
