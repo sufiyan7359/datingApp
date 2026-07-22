@@ -20,6 +20,15 @@
   font-weight: 500;
 }
 
+/* This card is always a light/white surface regardless of the site-wide
+   dark/light toggle (see ThemeService, which sets data-bs-theme on <html>).
+   Bootstrap's .text-muted resolves to a light gray in dark mode via
+   --bs-secondary-color, which is invisible on this always-white card -
+   pin it back to the light-mode gray. */
+.auth-card .text-muted {
+  color: #6c757d !important;
+}
+
 .auth-icon {
   width: 64px;
   height: 64px;
