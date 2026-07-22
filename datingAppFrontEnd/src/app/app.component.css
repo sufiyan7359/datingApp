@@ -7,7 +7,14 @@
 :host {
   display: flex;
   flex-direction: column;
+  /* 100vh on mobile is the *largest* possible viewport (address bar
+     hidden), taller than what's actually visible when the bar is shown -
+     so the page shell reserved more height than the screen, and the
+     footer shifted/jumped as the address bar collapsed and expanded while
+     scrolling. 100dvh tracks the real visible viewport; the plain 100vh
+     above is a fallback for browsers that don't support dvh. */
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* HeaderComponent renders a fixed-position sidebar (out of normal flow) plus
