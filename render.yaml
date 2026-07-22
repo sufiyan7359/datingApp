@@ -19,13 +19,15 @@ services:
     dockerContext: ./datingAppBackEnd
     plan: free
     healthCheckPath: /
-    # Uploaded profile/chat photos are written to ./uploads on the container
-    # filesystem, which Render otherwise wipes on every deploy/restart - a
-    # persistent disk keeps them across deploys.
-    disk:
-      name: uploads
-      mountPath: /app/uploads
-      sizeGB: 1
+    # NOTE: uploaded profile/chat photos are written to ./uploads on the
+    # container filesystem. Render's free plan doesn't support persistent
+    # disks, so every deploy/restart wipes them. If that matters before
+    # you're off the free tier, either move uploads to object storage
+    # (e.g. S3-compatible) or bump `plan` above to a paid tier and add:
+    #   disk:
+    #     name: uploads
+    #     mountPath: /app/uploads
+    #     sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
