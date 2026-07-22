@@ -341,7 +341,11 @@
   margin: 0;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #212529;
+  /* .info-card is a plain Bootstrap .card, which already flips background
+     + text color correctly with the dark/light theme (--bs-card-bg /
+     --bs-body-color). Forcing a fixed dark color here fought that, so
+     names went dark-on-dark and disappeared in dark theme. */
+  color: var(--bs-body-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
