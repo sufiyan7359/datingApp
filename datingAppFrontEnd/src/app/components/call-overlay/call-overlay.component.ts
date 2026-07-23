@@ -13,6 +13,7 @@ export class CallOverlayComponent implements AfterViewChecked {
 
   @ViewChild('localVideo') localVideoRef?: ElementRef<HTMLVideoElement>;
   @ViewChild('remoteVideo') remoteVideoRef?: ElementRef<HTMLVideoElement>;
+  @ViewChild('remoteAudio') remoteAudioRef?: ElementRef<HTMLAudioElement>;
 
   ngAfterViewChecked(): void {
     const call = this.callService.activeCall();
@@ -23,7 +24,10 @@ export class CallOverlayComponent implements AfterViewChecked {
       localEl.srcObject = call.localStream;
     }
 
-    const remoteEl = this.remoteVideoRef?.nativeElement;
+    // VIDEO calls play the remote stream (audio + video) through the video
+    // element; VOICE calls have no video element at all, so the audio
+    // element is the only place the remote stream can be attached.
+    const remoteEl = this.remoteVideoRef?.nativeElement ?? this.remoteAudioRef?.nativeElement;
     if (remoteEl && call.remoteStream && remoteEl.srcObject !== call.remoteStream) {
       remoteEl.srcObject = call.remoteStream;
     }

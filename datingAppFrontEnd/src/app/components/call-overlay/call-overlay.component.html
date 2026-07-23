@@ -22,6 +22,11 @@
       <video #localVideo autoplay playsinline muted class="local-video"></video>
     </div>
 
+    <!-- Voice calls have no <video> element to play the remote MediaStream
+         through, so without this the other person's audio never has
+         anywhere to go - the call connects but is completely silent. -->
+    <audio #remoteAudio autoplay *ngIf="call.type === 'VOICE'"></audio>
+
     <div class="d-flex justify-content-center gap-3 mt-3">
       <button class="btn btn-outline-secondary rounded-circle call-btn" (click)="toggleMute()" [title]="call.isMuted ? 'Unmute' : 'Mute'">
         <i class="bi" [class.bi-mic-mute-fill]="call.isMuted" [class.bi-mic-fill]="!call.isMuted"></i>
