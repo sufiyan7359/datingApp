@@ -125,11 +125,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!userId) return;
 
     const nowOffline = this.presence.removeConnection(userId, client.id);
-    if (nowOffline && !(await this.hidesOnlineStatus(userId))) {
-      for (const conversationId of conversationIds) {
+    if (nowOffline) {
+      if (!(await this.hidesOnlineStatus(userId))) {
+        for (const conversationId of conversationIds) {
+          this.server
+            .to(`conversation:${conversationId}`)
+            .emit('presence', { userId, online: false });
+        }
+      }
+
+      // Closing the tab / losing network mid-ring or mid-call otherwise left
+      // the call stuck RINGING/ACTIVE forever with nothing to ever end it -
+      // see the comment on CallsService.endCallsForDisconnectedUser.
+      const endedCalls =
+        await this.callsService.endCallsForDisconnectedUser(userId);
+      for (const { callId, otherUserId, status } of endedCalls) {
         this.server
-          .to(`conversation:${conversationId}`)
-          .emit('presence', { userId, online: false });
+          .to(`user:${otherUserId}`)
+          .emit('callEnded', { callId, status });
       }
     }
   }

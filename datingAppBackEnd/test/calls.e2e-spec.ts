@@ -308,6 +308,95 @@ describe('Calls (e2e)', () => {
     });
   });
 
+  it('ends a ringing call and notifies the callee when the caller disconnects mid-ring', async () => {
+    const aliceSocket = connect(tokens.alice);
+    const bobSocket = connect(tokens.bob);
+    await Promise.all([
+      waitFor(aliceSocket, 'connect'),
+      waitFor(bobSocket, 'connect'),
+    ]);
+
+    const bobIncoming = waitFor<{ callId: string }>(bobSocket, 'incomingCall');
+    const invite = await new Promise<{ callId: string }>((resolve) =>
+      aliceSocket.emit(
+        'callInvite',
+        { conversationId, type: 'VOICE' },
+        resolve,
+      ),
+    );
+    await bobIncoming;
+
+    // The caller closing the tab / losing network mid-ring, with no
+    // explicit callEnd - previously this left the call stuck RINGING
+    // forever and silently blocked every future call in the conversation.
+    const bobGetsEnd = waitFor<{ callId: string; status: string }>(
+      bobSocket,
+      'callEnded',
+    );
+    aliceSocket.disconnect();
+    const ended = await bobGetsEnd;
+    expect(ended.callId).toBe(invite.callId);
+    // Never got past RINGING, so this is a missed call, not an ended one -
+    // same convention as endCall() elsewhere.
+    expect(ended.status).toBe('MISSED');
+
+    // And the conversation isn't left blocked for a subsequent call.
+    const secondAliceSocket = connect(tokens.alice);
+    await waitFor(secondAliceSocket, 'connect');
+    const secondInvite = await new Promise<{ callId: string }>((resolve) =>
+      secondAliceSocket.emit(
+        'callInvite',
+        { conversationId, type: 'VOICE' },
+        resolve,
+      ),
+    );
+    expect(secondInvite.callId).toBeDefined();
+
+    await new Promise((resolve) =>
+      secondAliceSocket.emit(
+        'callEnd',
+        { callId: secondInvite.callId },
+        resolve,
+      ),
+    );
+    secondAliceSocket.disconnect();
+    bobSocket.disconnect();
+  });
+
+  it('ends an already-accepted call as ENDED (not MISSED) when a participant disconnects', async () => {
+    const aliceSocket = connect(tokens.alice);
+    const bobSocket = connect(tokens.bob);
+    await Promise.all([
+      waitFor(aliceSocket, 'connect'),
+      waitFor(bobSocket, 'connect'),
+    ]);
+
+    const bobIncoming = waitFor<{ callId: string }>(bobSocket, 'incomingCall');
+    const invite = await new Promise<{ callId: string }>((resolve) =>
+      aliceSocket.emit(
+        'callInvite',
+        { conversationId, type: 'VOICE' },
+        resolve,
+      ),
+    );
+    await bobIncoming;
+
+    const aliceAccepted = waitFor(aliceSocket, 'callAccepted');
+    bobSocket.emit('callAccept', { callId: invite.callId });
+    await aliceAccepted;
+
+    const bobGetsEnd = waitFor<{ callId: string; status: string }>(
+      bobSocket,
+      'callEnded',
+    );
+    aliceSocket.disconnect();
+    const ended = await bobGetsEnd;
+    expect(ended.callId).toBe(invite.callId);
+    expect(ended.status).toBe('ENDED');
+
+    bobSocket.disconnect();
+  });
+
   it('reflects calls in REST history with duration tracking', async () => {
     const history = await request(app.getHttpServer())
       .get('/calls')

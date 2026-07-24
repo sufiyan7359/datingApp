@@ -81,6 +81,21 @@ export class CallService {
     this.chatService.on<{ callId: string; candidate: RTCIceCandidateInit; from: string }>('webrtcIceCandidate', (event) => {
       void this.peerConnection?.addIceCandidate(new RTCIceCandidate(event.candidate)).catch(() => undefined);
     });
+
+    // Nest's WS exception filter (ws-http-exception.filter.ts) doesn't say
+    // which command it was rejecting, so this is scoped to the one stuck
+    // state it can actually explain: an outgoing call still has no callId
+    // because its callInvite ack never arrived (the handler threw instead of
+    // returning normally - e.g. the callee blocked this user, or there was
+    // already an ongoing call). Without this, that call sits showing
+    // "Ringing…" forever with no error and no way out except hanging up.
+    this.chatService.on<{ status: number; message: string }>('exception', (event) => {
+      const call = this.activeCall();
+      if (call && call.phase === 'RINGING_OUTGOING' && !call.callId) {
+        this.errorMessage.set(event.message || 'Could not start the call.');
+        this.teardown();
+      }
+    });
   }
 
   async startCall(conversationId: string, otherUserId: string, otherFirstName: string, type: CallMediaType): Promise<void> {
