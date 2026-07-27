@@ -3,11 +3,11 @@ h1 {
 }
 
 h1 span .text-danger {
-  color: #ff0000 !important;
+  color: var(--accent) !important;
 }
 
 .paragraph .text-danger {
-  color: #ff0000 !important;
+  color: var(--accent) !important;
 }
 
 .slide {
@@ -32,11 +32,11 @@ h1 span .text-danger {
 }
 
 .instant {
-  text-shadow: 2px 9px 20px #ff0000;
+  text-shadow: 2px 9px 20px var(--accent);
 }
 
 #lineCurve {
-  text-decoration: wavy underline #ff0000;
+  text-decoration: wavy underline var(--accent);
   /* Curved lines ke liye text-decoration property ka istemal kiya gaya hai */
   text-underline-position: under;
   /* Underline ko word ke nichle position par laane ke liye text-underline-position property ka istemal kiya gaya hai */
@@ -66,7 +66,7 @@ h1 span .text-danger {
   border-radius: 10px;
   padding: auto;
   margin: 35px;
-  box-shadow: 16px 15px 55px #ff000052 !important;
+  box-shadow: 16px 15px 55px rgba(var(--accent-rgb), 0.32) !important;
 
 }
 
@@ -182,7 +182,7 @@ font-weight: bolder;
 
 .highlight-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 16px 28px rgba(255, 0, 0, 0.18) !important;
+  box-shadow: 0 16px 28px rgba(var(--accent-rgb), 0.18) !important;
 }
 
 .highlight-icon {
@@ -193,7 +193,7 @@ font-weight: bolder;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   font-size: 1.6rem;
 }

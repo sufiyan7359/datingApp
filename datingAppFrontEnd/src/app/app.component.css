@@ -75,8 +75,8 @@ app-footer {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(420px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), rgba(255, 0, 0, 0.10), transparent 60%),
-    radial-gradient(800px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), rgba(255, 0, 0, 0.045), transparent 70%);
+    radial-gradient(420px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), rgba(var(--accent-rgb), 0.10), transparent 60%),
+    radial-gradient(800px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), rgba(var(--accent-rgb), 0.045), transparent 70%);
   transition: --mouse-x 0.15s ease-out, --mouse-y 0.15s ease-out, background 0.15s ease-out;
   animation: glowPulse 6s ease-in-out infinite;
 }

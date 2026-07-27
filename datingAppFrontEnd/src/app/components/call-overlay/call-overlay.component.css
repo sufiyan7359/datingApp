@@ -58,7 +58,7 @@
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff0000;
+  background: var(--accent);
   color: white;
   padding: 10px 20px;
   border-radius: 10px;

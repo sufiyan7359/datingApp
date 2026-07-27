@@ -30,7 +30,7 @@
 
 .service-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 16px 28px rgba(255, 0, 0, 0.18) !important;
+  box-shadow: 0 16px 28px rgba(var(--accent-rgb), 0.18) !important;
 }
 
 .service-icon {
@@ -40,13 +40,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   font-size: 1.6rem;
 }
 
 .service-cta {
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   animation: fadeIn 0.5s ease both;
 }
 

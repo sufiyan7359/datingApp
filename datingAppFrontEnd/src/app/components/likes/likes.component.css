@@ -18,16 +18,16 @@
 
 .likes-empty i {
   font-size: 2.8rem;
-  color: #ff0000;
+  color: var(--accent);
   opacity: 0.5;
 }
 
 /* ---- Free tier teaser ---- */
 .likes-teaser-card {
-  background: linear-gradient(135deg, #ff512f, #dd2476);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   border-radius: 1.5rem;
-  box-shadow: 0 16px 32px rgba(221, 36, 118, 0.25);
+  box-shadow: 0 16px 32px rgba(var(--accent-rgb), 0.25);
   animation: fadeInUp 0.4s ease both;
 }
 
@@ -68,7 +68,7 @@
 
 .like-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 16px 30px rgba(255, 0, 0, 0.2);
+  box-shadow: 0 16px 30px rgba(var(--accent-rgb), 0.2);
 }
 
 .like-badge {
@@ -79,13 +79,13 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   font-size: 0.68rem;
   font-weight: 600;
   padding: 0.3rem 0.55rem;
   border-radius: 999px;
-  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.35);
+  box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.35);
 }
 
 .like-badge.super {
@@ -147,12 +147,12 @@
 }
 
 .like-btn-like {
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
 }
 
 .like-btn-like:hover:not(:disabled) {
-  box-shadow: 0 8px 18px rgba(255, 0, 0, 0.4);
+  box-shadow: 0 8px 18px rgba(var(--accent-rgb), 0.4);
 }
 
 .like-btn-pass:hover:not(:disabled) {

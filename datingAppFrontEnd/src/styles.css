@@ -8,6 +8,16 @@
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" layer(utilities);
 
+/* Overridden at runtime by AccentThemeService via inline custom properties
+   on :root - these are just the fallback/first-paint values (red, matching
+   the app's original hardcoded color) before that service applies the
+   user's saved choice. */
+:root {
+  --accent: #ff0000;
+  --accent-strong: #b30000;
+  --accent-rgb: 255, 0, 0;
+}
+
 html, body {
   overflow-x: hidden;
   max-width: 100%;
@@ -27,25 +37,65 @@ img {
 }
 
 .btn-danger{
-    background-color:#ff0000 !important;
+    background-color: var(--accent) !important;
     color : white;
 }
 
-.navbar .text-danger{
-    color: #ff0000 !important;
+.btn-danger, .btn-outline-danger {
+  --bs-btn-color: var(--accent);
+  --bs-btn-bg: var(--accent);
+  --bs-btn-border-color: var(--accent);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--accent-strong);
+  --bs-btn-hover-border-color: var(--accent-strong);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--accent-strong);
+  --bs-btn-active-border-color: var(--accent-strong);
+  --bs-btn-disabled-color: var(--accent);
+  --bs-btn-disabled-bg: var(--accent);
+  --bs-btn-disabled-border-color: var(--accent);
+}
+
+.btn-outline-danger {
+  --bs-btn-color: var(--accent);
+  --bs-btn-bg: transparent;
+  --bs-btn-disabled-bg: transparent;
+}
+
+.text-danger, .navbar .text-danger{
+    color: var(--accent) !important;
+}
+
+.bg-danger {
+  background-color: var(--accent) !important;
+}
+
+.border-danger {
+  border-color: var(--accent) !important;
+}
+
+/* Bootstrap's .alert-danger reads its colors from --bs-danger-text-emphasis/
+   -bg-subtle/-border-subtle, not --bs-danger itself, so it needs its own
+   override - otherwise every alert-danger in the app (used in ~15 templates)
+   would stay Bootstrap's stock red regardless of the chosen accent color. */
+.alert-danger {
+  --bs-alert-color: var(--accent-strong);
+  --bs-alert-bg: rgba(var(--accent-rgb), 0.12);
+  --bs-alert-border-color: rgba(var(--accent-rgb), 0.35);
+  --bs-alert-link-color: var(--accent-strong);
 }
 
 button {
-    box-shadow: 10px 10px 15px #ff00006c;
+    box-shadow: 10px 10px 15px rgba(var(--accent-rgb), 0.42);
   }
 
   .bgdanger{
-    background-color:#ff0000 !important;
+    background-color: var(--accent) !important;
     color : white;
   }
 
   .textdanger{
-    color: #ff0000 !important;
+    color: var(--accent) !important;
 
   }
 

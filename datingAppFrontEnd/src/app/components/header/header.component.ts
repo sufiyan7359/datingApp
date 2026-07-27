@@ -1,16 +1,17 @@
 import { Component, DestroyRef, HostListener, computed, effect, inject, signal } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { SubscriptionsService } from '../../core/subscriptions/subscriptions.service';
 import { ChatService } from '../../core/chat/chat.service';
+import { AccentThemeService } from '../../core/theme/accent-theme.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  imports: [NgIf, RouterLink, RouterLinkActive],
+  imports: [NgIf, NgFor, RouterLink, RouterLinkActive],
 })
 export class HeaderComponent {
   private readonly authService = inject(AuthService);
@@ -18,9 +19,12 @@ export class HeaderComponent {
   private readonly chatService = inject(ChatService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly accentThemeService = inject(AccentThemeService);
 
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
+  readonly accentPalettes = this.accentThemeService.palettes;
+  readonly currentAccentId = this.accentThemeService.accentId;
   readonly isPremium = computed(() => this.subscriptionsService.status()?.isPremium ?? false);
   readonly subscriptionTier = computed(() => this.subscriptionsService.status()?.tier ?? 'FREE');
   readonly unreadCount = computed(() =>
@@ -67,5 +71,9 @@ export class HeaderComponent {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  setAccent(accentId: string): void {
+    this.accentThemeService.set(accentId);
   }
 }

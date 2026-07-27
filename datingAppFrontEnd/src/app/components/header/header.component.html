@@ -41,6 +41,33 @@
     <ng-container *ngIf="isAuthenticated()">
       <div class="sidebar-divider"></div>
 
+      <div class="dropdown theme-picker">
+        <button class="sidebar-link theme-picker-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-palette-fill"></i><span>Theme Color</span>
+          <span class="theme-swatch-current ms-auto"></span>
+          <i class="bi bi-chevron-down theme-picker-caret"></i>
+        </button>
+        <div class="dropdown-menu theme-swatch-menu p-3">
+          <p class="theme-swatch-heading">Choose a theme color</p>
+          <div class="theme-swatch-grid">
+            <button
+              *ngFor="let palette of accentPalettes"
+              type="button"
+              class="theme-swatch-option"
+              [class.selected]="palette.id === currentAccentId()"
+              [style.--swatch-color]="palette.accent"
+              [title]="palette.label"
+              (click)="setAccent(palette.id)"
+            >
+              <span class="theme-swatch-circle">
+                <i class="bi bi-check-lg" *ngIf="palette.id === currentAccentId()"></i>
+              </span>
+              <span class="theme-swatch-label">{{ palette.label }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <a class="sidebar-link" routerLink="/profile" routerLinkActive="active">
         <i class="bi bi-person-circle"></i><span>My Profile</span>
       </a>

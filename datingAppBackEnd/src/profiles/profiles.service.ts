@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { existsSync } from 'fs';
 import { basename, join } from 'path';
 import sharp from 'sharp';
 import { PrismaService } from '../prisma/prisma.service';
@@ -199,6 +200,12 @@ export class ProfilesService {
     const inputPath = join(PHOTOS_ROOT, userId, filename);
     const blurredFilename = `blurred-${filename}`;
     const outputPath = join(PHOTOS_ROOT, userId, blurredFilename);
+
+    if (!existsSync(inputPath)) {
+      throw new NotFoundException(
+        'Original photo file is missing on the server. Please delete this photo and re-upload it.',
+      );
+    }
 
     await sharp(inputPath).blur(BLUR_SIGMA).toFile(outputPath);
 

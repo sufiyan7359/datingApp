@@ -13,7 +13,7 @@
 
 .messages-empty i {
   font-size: 2.8rem;
-  color: #ff0000;
+  color: var(--accent);
   opacity: 0.5;
 }
 
@@ -44,8 +44,8 @@
 }
 
 .message-row.unread {
-  border-color: rgba(255, 0, 0, 0.18);
-  background: linear-gradient(0deg, rgba(255, 0, 0, 0.03), rgba(255, 0, 0, 0.03)), #fff;
+  border-color: rgba(var(--accent-rgb), 0.18);
+  background: linear-gradient(0deg, rgba(var(--accent-rgb), 0.03), rgba(var(--accent-rgb), 0.03)), #fff;
 }
 
 .message-avatar-wrap {
@@ -105,14 +105,14 @@
   height: 20px;
   padding: 0 6px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 3px 8px rgba(255, 0, 0, 0.35);
+  box-shadow: 0 3px 8px rgba(var(--accent-rgb), 0.35);
 }
 
 .mute-btn {
@@ -130,13 +130,13 @@
 }
 
 .mute-btn:hover {
-  background: #ffe5e5;
-  color: #ff0000;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
   transform: scale(1.08);
 }
 
 .mute-btn.muted {
-  color: #ff0000;
+  color: var(--accent);
 }
 
 /* ---- Loading skeleton ---- */

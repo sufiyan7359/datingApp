@@ -25,7 +25,7 @@
 
       <div class="message-avatar-wrap">
         <app-user-avatar
-          [photoUrl]="c.otherPhotos.length ? apiUrl + c.otherPhotos[0].url : null"
+          [photoUrl]="null"
           [firstName]="c.otherFirstName"
         ></app-user-avatar>
         <span class="presence-dot" *ngIf="c.otherIsOnline"></span>

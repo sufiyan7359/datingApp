@@ -23,7 +23,7 @@
                 <div class="profile-avatar-skeleton" *ngIf="isLoading()"></div>
                 <app-user-avatar
                     *ngIf="!isLoading()"
-                    [photoUrl]="profile()?.photos?.length ? apiUrl + profile()!.photos[0].url : null"
+                    [photoUrl]="null"
                     [firstName]="currentUser()?.firstName || ''"
                     [lastName]="currentUser()?.lastName || ''"
                 ></app-user-avatar>

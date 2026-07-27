@@ -60,7 +60,7 @@ margin-top: 1.5% !important;
 
 .profilePictureIcon{
    background-color: rgba(240, 255, 255, 0.792);
-    color: #ff0000;
+    color: var(--accent);
     font-size: 1.2rem !important;
     margin-left: 70%;
     margin-top: 90%;
@@ -78,7 +78,7 @@ margin-top: 1.5% !important;
 
 .coverPictureIcon{
     background-color: rgba(240, 255, 255, 0.792);
-     color: #ff0000;
+     color: var(--accent);
      font-size: 1.2rem !important;
      margin-left: 95%;
      /* margin-top: 9%; */
@@ -100,8 +100,8 @@ margin-top: 1.5% !important;
 
 
 .active{
-    background-color: #ff0000;
-    box-shadow:  10px 10px 10px 2px #ff00003b;
+    background-color: var(--accent);
+    box-shadow:  10px 10px 10px 2px rgba(var(--accent-rgb), 0.23);
 }
 
 .coverPhoto{
@@ -137,7 +137,7 @@ margin-top: 1.5% !important;
 }
 
 .cover-photo-edit-btn:hover {
-    background: rgba(255, 0, 0, 0.85);
+    background: rgba(var(--accent-rgb), 0.85);
     transform: translateY(-2px);
 }
 
@@ -159,12 +159,12 @@ margin-top: 1.5% !important;
 .profilFrame .btn{
     
     width: 100%;
-    border: 2px solid #ff0000;
+    border: 2px solid var(--accent);
     font-weight: 600;
 }
 
 .btn-outline-danger:hover{
-    background-color: #ff0000;
+    background-color: var(--accent);
 }
 
 /* ---- Tab panel cards (Photos / About / Edit Profile / Setting) ----
@@ -217,8 +217,8 @@ margin-top: 1.5% !important;
 .tab-panel-card .form-select:focus {
     background-color: #fff;
     color: #212529;
-    border-color: #ff0000;
-    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.12);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
 }
 
 .tab-panel-card .form-control,
@@ -245,7 +245,7 @@ margin-top: 1.5% !important;
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: #ff0000;
+    color: var(--accent);
     font-weight: 700;
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -290,14 +290,14 @@ margin-top: 1.5% !important;
 }
 
 .interest-check-group .form-check-input:checked + .form-check-label {
-    background: linear-gradient(135deg, #ff0000, #b30000);
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     border-color: transparent;
     color: #fff;
-    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.3);
 }
 
 .interest-check-group .form-check-input:focus-visible + .form-check-label {
-    outline: 2px solid #ff0000;
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
 }
 
@@ -306,19 +306,19 @@ margin-top: 1.5% !important;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #ff0000, #b30000);
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     border: none;
     color: #fff;
     font-weight: 700;
     padding: 0.65rem 2rem;
     border-radius: 999px;
-    box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.3);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-save-profile:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 12px 26px rgba(255, 0, 0, 0.4);
+    box-shadow: 0 12px 26px rgba(var(--accent-rgb), 0.4);
     color: #fff;
 }
 
@@ -345,8 +345,8 @@ margin-top: 1.5% !important;
 .photos-count-badge {
     font-size: 0.75rem;
     font-weight: 700;
-    color: #ff0000;
-    background: rgba(255, 0, 0, 0.08);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
     padding: 0.2rem 0.65rem;
     border-radius: 999px;
 }
@@ -381,13 +381,13 @@ margin-top: 1.5% !important;
     display: flex;
     align-items: center;
     gap: 4px;
-    background: linear-gradient(135deg, #ff0000, #b30000);
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     color: #fff;
     font-size: 0.65rem;
     font-weight: 700;
     padding: 0.28rem 0.55rem;
     border-radius: 999px;
-    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.35);
+    box-shadow: 0 4px 10px rgba(var(--accent-rgb), 0.35);
 }
 
 .photo-delete-btn {
@@ -409,7 +409,7 @@ margin-top: 1.5% !important;
 }
 
 .photo-delete-btn:hover {
-    background: rgba(255, 0, 0, 0.85);
+    background: rgba(var(--accent-rgb), 0.85);
     transform: scale(1.08);
 }
 
@@ -446,7 +446,7 @@ margin-top: 1.5% !important;
 }
 
 .photo-primary-btn {
-    background: linear-gradient(135deg, #ff0000, #b30000);
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
     color: #fff;
 }
 
@@ -480,9 +480,9 @@ margin-top: 1.5% !important;
 }
 
 .photo-upload-slot:hover {
-    border-color: #ff0000;
-    color: #ff0000;
-    background: rgba(255, 0, 0, 0.03);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.03);
 }
 
 /* ---- Settings tab ---- */
@@ -514,7 +514,7 @@ margin-top: 1.5% !important;
 .settings-row:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
-    border-color: rgba(255, 0, 0, 0.15);
+    border-color: rgba(var(--accent-rgb), 0.15);
     color: inherit;
 }
 
@@ -526,8 +526,8 @@ margin-top: 1.5% !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 0, 0, 0.08);
-    color: #ff0000;
+    background: rgba(var(--accent-rgb), 0.08);
+    color: var(--accent);
     font-size: 1.05rem;
 }
 
@@ -537,8 +537,8 @@ margin-top: 1.5% !important;
 }
 
 .settings-row-icon.logout {
-    background: rgba(255, 0, 0, 0.12);
-    color: #ff0000;
+    background: rgba(var(--accent-rgb), 0.12);
+    color: var(--accent);
 }
 
 .settings-row-text {
@@ -566,7 +566,7 @@ margin-top: 1.5% !important;
 }
 
 .settings-row.danger .settings-row-title {
-    color: #ff0000;
+    color: var(--accent);
 }
 
 .settings-toggle {
@@ -580,7 +580,7 @@ margin-top: 1.5% !important;
 }
 
 .settings-toggle.on {
-    background: linear-gradient(135deg, #ff0000, #b30000);
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
 }
 
 .settings-toggle-knob {
@@ -646,8 +646,8 @@ margin-top: 1.5% !important;
     margin-top: 2px;
     width: 50px;
     height: 12px;
-    border: solid 3px #ff0000;
-    border-color: #ff0000 transparent transparent transparent;
+    border: solid 3px var(--accent);
+    border-color: var(--accent) transparent transparent transparent;
     border-radius: 60%/8px 2px 0 0;
   }
 

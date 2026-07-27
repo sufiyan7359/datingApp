@@ -35,7 +35,7 @@
 
 .blog-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 16px 28px rgba(255, 0, 0, 0.18) !important;
+  box-shadow: 0 16px 28px rgba(var(--accent-rgb), 0.18) !important;
 }
 
 .blog-card-header {
@@ -43,14 +43,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ff0000, #b30000);
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #fff;
   font-size: 2.4rem;
 }
 
 .blog-tag {
-  background: rgba(255, 0, 0, 0.1);
-  color: #ff0000;
+  background: rgba(var(--accent-rgb), 0.1);
+  color: var(--accent);
   font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.5px;

@@ -256,7 +256,10 @@ export class ProfileComponent implements OnInit {
   }
 
   togglePhotoBlur(photoId: string, currentlyBlurred: boolean): void {
-    this.profileService.setPhotoBlur(photoId, !currentlyBlurred).subscribe();
+    this.uploadError.set(null);
+    this.profileService.setPhotoBlur(photoId, !currentlyBlurred).subscribe({
+      error: (err) => this.uploadError.set(err?.error?.message ?? 'Could not update that photo.'),
+    });
   }
 
   logout(): void {

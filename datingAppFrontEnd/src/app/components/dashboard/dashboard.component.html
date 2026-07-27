@@ -134,7 +134,7 @@
           (pointercancel)="i === 0 && onPointerUp()">
 
           <app-user-avatar
-            [photoUrl]="p.photos.length ? apiUrl + p.photos[0].url : null"
+            [photoUrl]="null"
             [firstName]="p.firstName"
           ></app-user-avatar>
 
@@ -204,7 +204,7 @@
           <li class="match-row" *ngFor="let p of discoveryResults().slice(0, 5); let i = index" [style.animation-delay.ms]="i * 60">
             <div class="match-avatar">
               <app-user-avatar
-                [photoUrl]="p.photos.length ? apiUrl + p.photos[0].url : null"
+                [photoUrl]="null"
                 [firstName]="p.firstName"
               ></app-user-avatar>
             </div>
@@ -242,7 +242,7 @@
           <li class="match-row" *ngFor="let m of matches(); let i = index" [style.animation-delay.ms]="i * 60">
             <div class="match-avatar">
               <app-user-avatar
-                [photoUrl]="m.photos.length ? apiUrl + m.photos[0].url : null"
+                [photoUrl]="null"
                 [firstName]="m.firstName"
               ></app-user-avatar>
             </div>
@@ -281,7 +281,7 @@
     <div class="card match-modal shadow border-0 rounded-4 p-4 text-center" style="max-width: 360px;">
       <div class="rounded-circle mx-auto mb-3 match-photo overflow-hidden" style="width: 120px; height: 120px;">
         <app-user-avatar
-          [photoUrl]="m.photos.length ? apiUrl + m.photos[0].url : null"
+          [photoUrl]="null"
           [firstName]="m.firstName"
         ></app-user-avatar>
       </div>

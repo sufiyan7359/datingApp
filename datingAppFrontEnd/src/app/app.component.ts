@@ -10,6 +10,7 @@ import { AuthService } from './core/auth/auth.service';
 import { ChatService } from './core/chat/chat.service';
 import { CallService } from './core/calls/call.service';
 import { ThemeService } from './core/theme/theme.service';
+import { AccentThemeService } from './core/theme/accent-theme.service';
 import { SwUpdate } from '@angular/service-worker';
 
 // Route prefixes where the marketing footer just adds dead space below an
@@ -45,6 +46,9 @@ export class AppComponent {
   // component is created, so every page loads with the right theme already
   // set instead of only after a user happens to visit Profile > Settings.
   private readonly themeService = inject(ThemeService);
+  // Same early-instantiation reasoning as themeService above, but for the
+  // chosen accent color palette.
+  private readonly accentThemeService = inject(AccentThemeService);
 
   constructor() {
     this.bindMouseGlow();
