@@ -18,6 +18,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ExperimentsModule } from './experiments/experiments.module';
 import { ContactModule } from './contact/contact.module';
+import { SupportModule } from './support/support.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ContactModule } from './contact/contact.module';
     AnalyticsModule,
     ExperimentsModule,
     ContactModule,
+    SupportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

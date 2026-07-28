@@ -1,0 +1,50 @@
+<h2 class="admin-page-title">Verifications</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+<div *ngIf="successMessage()" class="admin-alert admin-alert-success">{{ successMessage() }}</div>
+
+<div class="admin-toolbar">
+  <select class="admin-select admin-select-filter" [(ngModel)]="verificationStatusFilter" (ngModelChange)="loadVerifications(1)">
+    <option value="PENDING">Pending</option>
+    <option value="APPROVED">Approved</option>
+    <option value="REJECTED">Rejected</option>
+  </select>
+</div>
+
+<div class="admin-card" *ngFor="let v of verifications()">
+  <div class="admin-row-top">
+    <div>
+      <b>{{ v.firstName }} {{ v.lastName }}</b>
+      <span class="admin-muted" style="margin-left:8px;">{{ v.email }}</span>
+    </div>
+    <span class="admin-muted">{{ v.submittedAt | date: 'short' }}</span>
+  </div>
+
+  <div class="admin-photo-grid" style="margin: var(--admin-space-md) 0;">
+    <div style="text-align:center;">
+      <img [src]="apiUrl + v.selfieUrl" class="admin-verification-photo" />
+      <div class="admin-muted" style="font-size: 0.72rem;">Selfie submitted</div>
+    </div>
+    <div style="text-align:center;" *ngIf="v.primaryPhotoUrl">
+      <img [src]="apiUrl + v.primaryPhotoUrl" class="admin-verification-photo" />
+      <div class="admin-muted" style="font-size: 0.72rem;">Primary profile photo</div>
+    </div>
+  </div>
+
+  <p class="admin-muted mb-1" *ngIf="v.note"><i>Note: {{ v.note }}</i></p>
+
+  <div class="admin-btn-row" *ngIf="reviewingVerificationUserId() !== v.userId">
+    <button class="admin-btn admin-btn-outline admin-btn-sm" *ngIf="v.status === 'PENDING'" (click)="startVerificationReview(v)">Review</button>
+  </div>
+  <div *ngIf="reviewingVerificationUserId() === v.userId">
+    <textarea class="admin-textarea" rows="2" placeholder="Note (required if rejecting)" [(ngModel)]="verificationReviewNote"></textarea>
+    <div class="admin-btn-row">
+      <button class="admin-btn admin-btn-success admin-btn-sm" (click)="submitVerificationReview('APPROVED')">Approve</button>
+      <button class="admin-btn admin-btn-danger admin-btn-sm" (click)="submitVerificationReview('REJECTED')">Reject</button>
+      <button class="admin-btn admin-btn-link admin-btn-sm" (click)="cancelVerificationReview()">Cancel</button>
+    </div>
+  </div>
+</div>
+<p class="admin-muted" *ngIf="verifications().length === 0">No verification requests here.</p>
+
+<app-admin-pagination [page]="verificationsPage()" [limit]="verificationsLimit()" [total]="verificationsTotal()" (pageChange)="loadVerifications($event)"></app-admin-pagination>

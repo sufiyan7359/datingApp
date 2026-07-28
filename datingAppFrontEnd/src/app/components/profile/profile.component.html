@@ -23,7 +23,7 @@
                 <div class="profile-avatar-skeleton" *ngIf="isLoading()"></div>
                 <app-user-avatar
                     *ngIf="!isLoading()"
-                    [photoUrl]="null"
+                    [photoUrl]="profile()?.photos?.length ? apiUrl + profile()!.photos[0].url : null"
                     [firstName]="currentUser()?.firstName || ''"
                     [lastName]="currentUser()?.lastName || ''"
                 ></app-user-avatar>
@@ -31,7 +31,7 @@
 
             <div class="col-7 col-sm-8 col-md-9 mt-2 mb-2 m-1">
                 <div class="col-12 profileName text-start mx-5 mt-2 mb-2">
-                    <h2><b>{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</b></h2>
+                    <h2><b>{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</b><i class="bi bi-patch-check-fill verified-badge ms-2" title="Verified" *ngIf="profile()?.isVerified"></i></h2>
                     <p class="textdanger">{{ profile()?.profession || 'Add your profession' }}</p>
                 </div>
 

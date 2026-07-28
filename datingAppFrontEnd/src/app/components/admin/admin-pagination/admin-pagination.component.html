@@ -1,0 +1,12 @@
+<div class="admin-pagination" *ngIf="total > 0">
+  <span class="admin-muted">{{ rangeStart }}–{{ rangeEnd }} of {{ total }}</span>
+  <div class="admin-pagination-controls">
+    <button class="admin-btn admin-btn-outline admin-btn-sm" [disabled]="page <= 1" (click)="prev()">
+      <i class="bi bi-chevron-left"></i> Previous
+    </button>
+    <span class="admin-muted">Page {{ page }} of {{ totalPages }}</span>
+    <button class="admin-btn admin-btn-outline admin-btn-sm" [disabled]="page >= totalPages" (click)="next()">
+      Next <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+</div>

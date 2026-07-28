@@ -15,5 +15,8 @@ export class MatchDto {
   photos: PhotoResponseDto[];
 
   @ApiProperty()
+  isVerified: boolean;
+
+  @ApiProperty()
   matchedAt: Date;
 }

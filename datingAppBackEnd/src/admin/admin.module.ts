@@ -15,9 +15,10 @@ import { AdminAnalyticsController } from './admin-analytics.controller';
 import { ExperimentsModule } from '../experiments/experiments.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { AiModule } from '../ai/ai.module';
+import { ProfilesModule } from '../profiles/profiles.module';
 
 @Module({
-  imports: [ExperimentsModule, AnalyticsModule, AiModule],
+  imports: [ExperimentsModule, AnalyticsModule, AiModule, ProfilesModule],
   controllers: [
     AdminDashboardController,
     AdminUsersController,

@@ -253,6 +253,7 @@ export class SwipesService {
           photos: (profile?.photos ?? [])
             .sort((a, b) => a.order - b.order)
             .map((p) => PhotoResponseDto.fromEntity(p, false)),
+          isVerified: profile?.verificationStatus === 'APPROVED',
           action: l.action,
           likedAt: l.createdAt,
         };
@@ -296,6 +297,7 @@ export class SwipesService {
       photos: (otherProfile?.photos ?? [])
         .sort((a, b) => a.order - b.order)
         .map((p) => PhotoResponseDto.fromEntity(p)),
+      isVerified: otherProfile?.verificationStatus === 'APPROVED',
       matchedAt: match.createdAt,
     };
   }

@@ -1,0 +1,61 @@
+<div class="trend-card">
+  <div class="trend-header">
+    <span class="trend-title">{{ title }}</span>
+    <span class="trend-total">{{ total }} total</span>
+  </div>
+
+  <div class="trend-plot">
+    <svg
+      class="trend-svg"
+      [attr.viewBox]="'0 0 ' + width + ' ' + height"
+      preserveAspectRatio="none"
+      role="img"
+      [attr.aria-label]="title + ' trend, latest value ' + latest"
+      (mousemove)="onMouseMove($event)"
+      (mouseleave)="onMouseLeave()"
+    >
+      <defs>
+        <linearGradient [attr.id]="gradientId" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" [attr.stop-color]="color" stop-opacity="0.32"></stop>
+          <stop offset="100%" [attr.stop-color]="color" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+
+      <line class="trend-baseline" x1="0" [attr.y1]="baselineY" [attr.x2]="width" [attr.y2]="baselineY"></line>
+
+      <path class="trend-area" [attr.d]="areaPath" [attr.fill]="'url(#' + gradientId + ')'"></path>
+      <path class="trend-line" [attr.d]="linePath" [style.stroke]="color" fill="none"></path>
+
+      <circle
+        *ngIf="coords.length > 0"
+        class="trend-end-dot"
+        [attr.cx]="coords[coords.length - 1].x"
+        [attr.cy]="coords[coords.length - 1].y"
+        r="3.5"
+        [style.fill]="color"
+      ></circle>
+
+      <ng-container *ngIf="hoverPoint as hp">
+        <line class="trend-crosshair" [attr.x1]="hp.x" y1="0" [attr.x2]="hp.x" [attr.y2]="height"></line>
+        <circle class="trend-hover-dot" [attr.cx]="hp.x" [attr.cy]="hp.y" r="4.5" [style.fill]="color"></circle>
+      </ng-container>
+    </svg>
+
+    <div class="trend-tooltip" *ngIf="hoverPoint as hp" [style.left.%]="(hp.x / width) * 100">
+      <div class="trend-tooltip-date">{{ formatDate(hp.date) }}</div>
+      <div class="trend-tooltip-value">{{ hp.value }}</div>
+    </div>
+  </div>
+
+  <p class="trend-latest">Latest day: <b>{{ latest }}</b></p>
+
+  <table class="visually-hidden">
+    <caption>{{ title }} — daily counts</caption>
+    <thead>
+      <tr><th scope="col">Date</th><th scope="col">Value</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of points"><td>{{ p.date }}</td><td>{{ p.value }}</td></tr>
+    </tbody>
+  </table>
+</div>

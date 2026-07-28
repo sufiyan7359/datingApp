@@ -134,7 +134,7 @@
           (pointercancel)="i === 0 && onPointerUp()">
 
           <app-user-avatar
-            [photoUrl]="null"
+            [photoUrl]="p.photos.length ? apiUrl + p.photos[0].url : null"
             [firstName]="p.firstName"
           ></app-user-avatar>
 
@@ -149,7 +149,7 @@
           <div class="stack-card-scrim">
             <h4 class="mb-0">
               {{ p.firstName }}<span *ngIf="p.age">, {{ p.age }}</span>
-              <i class="bi bi-patch-check-fill ms-1" title="Verified" *ngIf="p.isVerified"></i>
+              <i class="bi bi-patch-check-fill verified-badge ms-1" title="Verified" *ngIf="p.isVerified"></i>
             </h4>
             <p class="mb-0 stack-card-location" *ngIf="p.city">
               <i class="bi bi-geo-alt-fill me-1"></i>{{ p.city }}<span *ngIf="p.distanceKm !== null"> &middot; {{ p.distanceKm }} km</span>
@@ -204,13 +204,13 @@
           <li class="match-row" *ngFor="let p of discoveryResults().slice(0, 5); let i = index" [style.animation-delay.ms]="i * 60">
             <div class="match-avatar">
               <app-user-avatar
-                [photoUrl]="null"
+                [photoUrl]="p.photos.length ? apiUrl + p.photos[0].url : null"
                 [firstName]="p.firstName"
               ></app-user-avatar>
             </div>
 
             <div class="match-info">
-              <p class="match-name">{{ p.firstName }}</p>
+              <p class="match-name">{{ p.firstName }}<i class="bi bi-patch-check-fill verified-badge ms-1" title="Verified" *ngIf="p.isVerified"></i></p>
               <span class="match-meta">{{ p.profession || 'Member' }}<span *ngIf="p.age">, {{ p.age }}</span></span>
             </div>
 
@@ -242,13 +242,13 @@
           <li class="match-row" *ngFor="let m of matches(); let i = index" [style.animation-delay.ms]="i * 60">
             <div class="match-avatar">
               <app-user-avatar
-                [photoUrl]="null"
+                [photoUrl]="m.photos.length ? apiUrl + m.photos[0].url : null"
                 [firstName]="m.firstName"
               ></app-user-avatar>
             </div>
 
             <div class="match-info">
-              <p class="match-name">{{ m.firstName }}</p>
+              <p class="match-name">{{ m.firstName }}<i class="bi bi-patch-check-fill verified-badge ms-1" title="Verified" *ngIf="m.isVerified"></i></p>
               <span class="match-meta">It's a match!</span>
             </div>
 
@@ -281,12 +281,12 @@
     <div class="card match-modal shadow border-0 rounded-4 p-4 text-center" style="max-width: 360px;">
       <div class="rounded-circle mx-auto mb-3 match-photo overflow-hidden" style="width: 120px; height: 120px;">
         <app-user-avatar
-          [photoUrl]="null"
+          [photoUrl]="m.photos.length ? apiUrl + m.photos[0].url : null"
           [firstName]="m.firstName"
         ></app-user-avatar>
       </div>
       <h3 class="textdanger"><b>It's a Match!</b></h3>
-      <p>You and {{ m.firstName }} liked each other.</p>
+      <p>You and {{ m.firstName }}<i class="bi bi-patch-check-fill verified-badge ms-1" title="Verified" *ngIf="m.isVerified"></i> liked each other.</p>
       <div class="d-flex justify-content-center gap-2 mt-2">
         <button class="btn btn-outline-secondary" (click)="dismissMatch()">Keep Swiping</button>
         <button class="btn btn-danger" (click)="goToChat(m.userId)">Send a Message</button>

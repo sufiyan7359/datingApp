@@ -6,6 +6,7 @@ import {
   AdminPromoCode,
   AdminReport,
   AdminReportsPage,
+  AdminUpdateProfilePayload,
   AdminUserDetail,
   AdminUsersPage,
   AdminVerification,
@@ -15,10 +16,12 @@ import {
   DashboardStats,
   Experiment,
   ExperimentResults,
+  Growth,
   ReportStatus,
   RiskAssessment,
   VerificationStatus,
 } from './admin.models';
+import { Profile } from '../profile/profile.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -26,6 +29,11 @@ export class AdminService {
 
   getStats(): Observable<DashboardStats> {
     return this.http.get<DashboardStats>(`${environment.apiUrl}/admin/dashboard/stats`);
+  }
+
+  getGrowth(days: number): Observable<Growth> {
+    const params = new HttpParams().set('days', days);
+    return this.http.get<Growth>(`${environment.apiUrl}/admin/dashboard/growth`, { params });
   }
 
   listUsers(search: string, page: number, limit = 20): Observable<AdminUsersPage> {
@@ -50,6 +58,18 @@ export class AdminService {
 
   reactivateUser(id: string): Observable<void> {
     return this.http.post<void>(`${environment.apiUrl}/admin/users/${id}/reactivate`, {});
+  }
+
+  getUserProfile(id: string): Observable<Profile> {
+    return this.http.get<Profile>(`${environment.apiUrl}/admin/users/${id}/profile`);
+  }
+
+  updateUserProfile(id: string, payload: AdminUpdateProfilePayload): Observable<Profile> {
+    return this.http.patch<Profile>(`${environment.apiUrl}/admin/users/${id}/profile`, payload);
+  }
+
+  deleteUserPhoto(id: string, photoId: string): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/admin/users/${id}/photos/${photoId}`);
   }
 
   listReports(status: ReportStatus | '', page: number, limit = 20): Observable<AdminReportsPage> {

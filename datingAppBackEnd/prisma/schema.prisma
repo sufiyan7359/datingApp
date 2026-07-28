@@ -54,6 +54,8 @@ model User {
   analyticsEvents       AnalyticsEvent[]
   experimentAssignments ExperimentAssignment[]
   passwordResetTokens   PasswordResetToken[]
+  supportThread         SupportThread?
+  supportMessagesSent   SupportMessage[]
 
   @@map("users")
 }
@@ -230,6 +232,53 @@ model Swipe {
   @@index([targetId])
   @@index([swiperId, createdAt])
   @@map("swipes")
+}
+
+enum SupportThreadStatus {
+  OPEN
+  CLOSED
+}
+
+/// One thread per user (not per-conversation like Match/Conversation) - a
+/// single ongoing "contact support" channel between a user and the admin
+/// team, entirely independent of matching/swiping. Created lazily on first
+/// message - see support.service.ts.
+model SupportThread {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status         SupportThreadStatus @default(OPEN)
+  lastMessageAt  DateTime            @default(now())
+  // Independent per-side unread counters, since the user's Messages tab and
+  // the admin's Support inbox are read at different times.
+  unreadForUser  Int                 @default(0)
+  unreadForAdmin Int                 @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages SupportMessage[]
+
+  @@index([lastMessageAt])
+  @@map("support_threads")
+}
+
+model SupportMessage {
+  id       String        @id @default(uuid())
+  threadId String
+  thread   SupportThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  senderId    String
+  sender      User    @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  isFromAdmin Boolean
+
+  content   String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([threadId, createdAt])
+  @@map("support_messages")
 }
 
 model Match {

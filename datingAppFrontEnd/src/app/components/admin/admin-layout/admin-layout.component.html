@@ -1,0 +1,52 @@
+<div class="admin-shell">
+  <aside class="admin-sidenav">
+    <div class="admin-brand">
+      <i class="bi bi-shield-lock-fill"></i>
+      <span>Admin Console</span>
+    </div>
+
+    <nav class="admin-nav">
+      <a routerLink="/admin/dashboard" routerLinkActive="active">
+        <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+      </a>
+      <a routerLink="/admin/users" routerLinkActive="active">
+        <i class="bi bi-people-fill"></i><span>Users</span>
+      </a>
+      <a routerLink="/admin/messages" routerLinkActive="active">
+        <i class="bi bi-headset"></i><span>Messages</span>
+      </a>
+      <a routerLink="/admin/reports" routerLinkActive="active">
+        <i class="bi bi-flag-fill"></i><span>Reports</span>
+      </a>
+      <a routerLink="/admin/verifications" routerLinkActive="active">
+        <i class="bi bi-patch-check-fill"></i><span>Verifications</span>
+      </a>
+      <a routerLink="/admin/analytics" routerLinkActive="active">
+        <i class="bi bi-bar-chart-fill"></i><span>Analytics</span>
+      </a>
+      <a routerLink="/admin/promo-codes" routerLinkActive="active">
+        <i class="bi bi-ticket-perforated-fill"></i><span>Promo Codes</span>
+      </a>
+    </nav>
+
+    <a class="admin-sidenav-back-link" routerLink="/dashboard">
+      <i class="bi bi-box-arrow-left"></i><span>Back to app</span>
+    </a>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-title">Admin Console</div>
+      <div class="admin-topbar-user">
+        <span class="admin-topbar-name">{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</span>
+        <button type="button" class="admin-logout-btn" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

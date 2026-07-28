@@ -5,6 +5,7 @@ import { ChatService } from '../../core/chat/chat.service';
 import { Conversation } from '../../core/chat/chat.models';
 import { environment } from '../../../environments/environment';
 import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
+import { SupportService } from '../../core/support/support.service';
 
 @Component({
   selector: 'app-messages',
@@ -14,9 +15,11 @@ import { UserAvatarComponent } from '../user-avatar/user-avatar.component';
 })
 export class MessagesComponent implements OnInit {
   private readonly chatService = inject(ChatService);
+  private readonly supportService = inject(SupportService);
   private readonly router = inject(Router);
 
   readonly apiUrl = environment.apiUrl;
+  readonly supportThread = this.supportService.thread;
   readonly isLoading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly skeletonPlaceholders = Array.from({ length: 6 });
@@ -37,10 +40,21 @@ export class MessagesComponent implements OnInit {
         this.errorMessage.set('Could not load your conversations.');
       },
     });
+    this.supportService.getMyThread().subscribe();
   }
 
   openChat(otherUserId: string): void {
     void this.router.navigate(['/chating', otherUserId]);
+  }
+
+  openSupport(): void {
+    void this.router.navigate(['/support']);
+  }
+
+  supportPreviewText(): string {
+    const messages = this.supportThread()?.messages ?? [];
+    if (messages.length === 0) return "Questions or feedback? We're here to help.";
+    return messages[messages.length - 1].content;
   }
 
   toggleMute(event: Event, conversationId: string, currentlyMuted: boolean): void {

@@ -99,8 +99,71 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
-    loadComponent: () => import('./components/admin/admin.component').then((m) => m.AdminComponent),
+    loadComponent: () =>
+      import('./components/admin/admin-layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
     canActivate: [adminGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./components/admin/admin-dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./components/admin/admin-users/admin-users.component').then((m) => m.AdminUsersComponent),
+      },
+      {
+        path: 'users/:id',
+        loadComponent: () =>
+          import('./components/admin/admin-user-detail/admin-user-detail.component').then(
+            (m) => m.AdminUserDetailComponent,
+          ),
+      },
+      {
+        path: 'messages',
+        loadComponent: () =>
+          import('./components/admin/admin-support/admin-support.component').then((m) => m.AdminSupportComponent),
+      },
+      {
+        path: 'messages/:userId',
+        loadComponent: () =>
+          import('./components/admin/admin-support-thread/admin-support-thread.component').then(
+            (m) => m.AdminSupportThreadComponent,
+          ),
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./components/admin/admin-reports/admin-reports.component').then((m) => m.AdminReportsComponent),
+      },
+      {
+        path: 'verifications',
+        loadComponent: () =>
+          import('./components/admin/admin-verifications/admin-verifications.component').then(
+            (m) => m.AdminVerificationsComponent,
+          ),
+      },
+      {
+        path: 'analytics',
+        loadComponent: () =>
+          import('./components/admin/admin-analytics/admin-analytics.component').then((m) => m.AdminAnalyticsComponent),
+      },
+      {
+        path: 'promo-codes',
+        loadComponent: () =>
+          import('./components/admin/admin-promo-codes/admin-promo-codes.component').then(
+            (m) => m.AdminPromoCodesComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'support',
+    loadComponent: () =>
+      import('./components/support-chat/support-chat.component').then((m) => m.SupportChatComponent),
+    canActivate: [authGuard],
   },
   {
     path: 'chating/:id',

@@ -8,11 +8,11 @@
         <div class="chat-header-row">
           <div class="chat-header-identity">
             <div class="chat-header-avatar">
-              <app-user-avatar [photoUrl]="null" [firstName]="otherFirstName()"></app-user-avatar>
+              <app-user-avatar [photoUrl]="otherPhotoUrl()" [firstName]="otherFirstName()"></app-user-avatar>
               <span class="presence-dot" [class.online]="isOtherOnline()"></span>
             </div>
             <div class="chat-header-text">
-              <h3 class="mb-0">{{ otherFirstName() }}</h3>
+              <h3 class="mb-0">{{ otherFirstName() }}<i class="bi bi-patch-check-fill verified-badge ms-1" title="Verified" *ngIf="otherIsVerified()"></i></h3>
               <span class="chat-status online" *ngIf="isOtherOnline()">Online</span>
               <span class="chat-status" *ngIf="!isOtherOnline()">Offline</span>
               <span class="typing-indicator" *ngIf="isOtherTyping()">

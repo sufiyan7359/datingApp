@@ -15,6 +15,9 @@ export class ConversationResponseDto {
   @ApiProperty({ type: [PhotoResponseDto] })
   otherPhotos: PhotoResponseDto[];
 
+  @ApiProperty()
+  otherIsVerified: boolean;
+
   @ApiProperty({ nullable: true })
   otherIsOnline: boolean;
 

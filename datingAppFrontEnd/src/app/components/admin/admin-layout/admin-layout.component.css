@@ -1,0 +1,229 @@
+/* Fixed professional dark-slate palette, scoped entirely to this component -
+   never written to :root, so the consumer app's AccentThemeService (which
+   only ever touches document.documentElement / :root) has no effect here. */
+.admin-shell {
+  --admin-bg: #0f172a;
+  --admin-surface: #1e293b;
+  --admin-surface-2: #152033;
+  --admin-border: #334155;
+  --admin-text: #e2e8f0;
+  --admin-text-dim: #94a3b8;
+  --admin-accent: #6366f1;
+  --admin-accent-strong: #4f46e5;
+  --admin-danger: #ef4444;
+  --admin-danger-strong: #dc2626;
+  --admin-success: #22c55e;
+  --admin-success-strong: #16a34a;
+  --admin-warning: #f59e0b;
+  --admin-content-bg: #f8fafc;
+  --admin-content-text: #0f172a;
+  --admin-content-muted: #64748b;
+  --admin-content-border: #e2e8f0;
+  --admin-content-surface: #ffffff;
+  --admin-radius: 12px;
+  --admin-radius-sm: 8px;
+  --admin-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --admin-space-xs: 4px;
+  --admin-space-sm: 8px;
+  --admin-space-md: 14px;
+  --admin-space-lg: 20px;
+
+  min-height: 100vh;
+  color: var(--admin-text);
+  font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ---- Left nav ----
+   position: fixed (not sticky) - a sticky element only stays pinned while
+   its containing block is taller than the element itself; once a page's
+   content (e.g. the long user-detail profile form) pushes .admin-shell's
+   height past sidenav-height + scrollY, sticky "runs out of room" and the
+   nav scrolls away with the page, hiding Dashboard/Users/etc above the
+   viewport. Fixed positioning removes it from the flow entirely, so
+   .admin-main below reserves the space with margin-left instead (same
+   pattern the consumer app's own sidebar uses - see header.component.css /
+   app.component.css). */
+.admin-sidenav {
+  width: 240px;
+  background: var(--admin-bg);
+  border-right: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 0 10px;
+  margin-bottom: 24px;
+  color: #fff;
+}
+
+.admin-brand i {
+  color: var(--admin-accent);
+  font-size: 1.3rem;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 auto;
+}
+
+.admin-nav a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--admin-text-dim);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.admin-nav a i {
+  width: 18px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.admin-nav a:hover {
+  background: var(--admin-surface);
+  color: #fff;
+}
+
+.admin-nav a.active {
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.admin-sidenav-back-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--admin-border);
+  margin-top: 12px;
+  padding-top: 16px;
+  color: var(--admin-text-dim);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.admin-sidenav-back-link:hover {
+  color: #fff;
+}
+
+/* ---- Main area ---- */
+.admin-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: 240px;
+  background: var(--admin-content-bg);
+  color: var(--admin-content-text);
+}
+
+.admin-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 24px;
+  background: var(--admin-surface);
+  border-bottom: 1px solid var(--admin-border);
+  color: #fff;
+  /* Fixed (not sticky) for the same reason as .admin-sidenav above - this
+     sits inside a flex column whose scrolling ancestor chain made sticky
+     unreliable here. Fixed is unambiguous: pinned to the viewport,
+     independent of .admin-main's actual height. */
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  z-index: 5;
+}
+
+.admin-topbar-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.admin-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.admin-topbar-name {
+  font-size: 0.9rem;
+  color: var(--admin-text-dim);
+}
+
+.admin-logout-btn {
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.admin-logout-btn:hover {
+  background: var(--admin-danger);
+  border-color: var(--admin-danger);
+}
+
+.admin-content {
+  flex: 1 1 auto;
+  padding: 28px;
+  margin-top: 64px;
+}
+
+@media (max-width: 900px) {
+  .admin-sidenav {
+    width: 72px;
+    padding: 16px 6px;
+  }
+
+  .admin-main {
+    margin-left: 72px;
+  }
+
+  .admin-topbar {
+    left: 72px;
+  }
+
+  .admin-brand span,
+  .admin-nav a span,
+  .admin-sidenav-back-link span {
+    display: none;
+  }
+
+  .admin-brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .admin-nav a,
+  .admin-sidenav-back-link {
+    justify-content: center;
+    padding: 12px;
+  }
+}

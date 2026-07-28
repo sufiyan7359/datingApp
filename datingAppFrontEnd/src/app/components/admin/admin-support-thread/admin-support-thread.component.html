@@ -1,0 +1,22 @@
+<a routerLink="/admin/messages" class="admin-back-link"><i class="bi bi-arrow-left"></i> Back to inbox</a>
+
+<h2 class="admin-page-title">{{ userName() || 'Conversation' }}</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+
+<div class="admin-card admin-thread-card">
+  <div class="admin-thread-messages">
+    <div *ngFor="let m of messages()" class="admin-thread-row" [class.admin-thread-row-mine]="m.isFromAdmin">
+      <div class="admin-thread-bubble" [class.admin-thread-bubble-mine]="m.isFromAdmin">
+        {{ m.content }}
+      </div>
+      <div class="admin-muted admin-thread-time">{{ m.createdAt | date: 'short' }}</div>
+    </div>
+    <p class="admin-muted" *ngIf="messages().length === 0">No messages yet - say hello.</p>
+  </div>
+
+  <div class="admin-thread-composer">
+    <input type="text" class="admin-input admin-thread-input" placeholder="Type a message…" [(ngModel)]="draft" (keyup.enter)="send()" />
+    <button class="admin-btn admin-btn-primary" [disabled]="isSending()" (click)="send()">Send</button>
+  </div>
+</div>

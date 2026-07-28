@@ -1,0 +1,86 @@
+<h2 class="admin-page-title">Analytics</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+
+<div class="admin-toolbar">
+  <label class="admin-muted" style="font-weight: 600;">Window:</label>
+  <select class="admin-select admin-input-md" [(ngModel)]="analyticsDays" (ngModelChange)="loadAnalytics()">
+    <option [value]="7">Last 7 days</option>
+    <option [value]="30">Last 30 days</option>
+    <option [value]="90">Last 90 days</option>
+  </select>
+</div>
+
+<div class="admin-stat-grid" style="margin-bottom: var(--admin-space-lg);" *ngIf="analyticsSummary()">
+  <div class="admin-stat-card" *ngFor="let type of eventTypes">
+    <div class="admin-stat-value">{{ eventCount(type) }}</div>
+    <div class="admin-stat-label">{{ type }}</div>
+  </div>
+</div>
+
+<h3 class="admin-section-title">A/B test experiments</h3>
+<div class="admin-card">
+  <div class="admin-row" style="align-items: flex-end;">
+    <div class="admin-field">
+      <label>Key</label>
+      <input type="text" class="admin-input" placeholder="premium_cta_copy" [(ngModel)]="newExperimentKey" />
+    </div>
+    <div class="admin-field">
+      <label>Name</label>
+      <input type="text" class="admin-input" [(ngModel)]="newExperimentName" />
+    </div>
+    <div class="admin-field">
+      <label>% in B</label>
+      <input type="number" class="admin-input admin-input-sm" min="0" max="100" [(ngModel)]="newExperimentSplit" />
+    </div>
+    <button class="admin-btn admin-btn-primary admin-btn-sm" (click)="createExperiment()">Create</button>
+  </div>
+</div>
+
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead><tr><th>Key</th><th>Name</th><th>% in B</th><th>Status</th><th>Assigned</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let e of experiments()">
+        <td><code>{{ e.key }}</code></td>
+        <td>{{ e.name }}</td>
+        <td>{{ e.variantBPercent }}%</td>
+        <td><span class="admin-badge" [class.admin-badge-success]="e.isActive" [class.admin-badge-secondary]="!e.isActive">{{ e.isActive ? 'Active' : 'Inactive' }}</span></td>
+        <td>{{ e.assignedCount }}</td>
+        <td>
+          <div class="admin-btn-row" style="margin-top: 0;">
+            <button class="admin-btn admin-btn-outline admin-btn-sm" (click)="toggleExperimentActive(e)">{{ e.isActive ? 'Deactivate' : 'Activate' }}</button>
+            <button class="admin-btn admin-btn-outline admin-btn-sm" (click)="viewResults(e.key)">Results</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p class="admin-muted" *ngIf="experiments().length === 0">No experiments yet.</p>
+
+<div class="admin-modal-backdrop" *ngIf="viewingResultsKey() as key">
+  <div class="admin-modal-card">
+    <div class="admin-row-between" style="margin-bottom: var(--admin-space-sm);">
+      <h5 style="margin:0;"><b>{{ key }}</b></h5>
+      <button class="admin-btn admin-btn-outline admin-btn-sm" (click)="closeResults()">&times;</button>
+    </div>
+    <div class="admin-field" style="margin-bottom: var(--admin-space-md);">
+      <label>Goal event</label>
+      <select class="admin-select" [(ngModel)]="resultsGoalEvent" (ngModelChange)="loadResults()">
+        <option *ngFor="let type of eventTypes" [value]="type">{{ type }}</option>
+      </select>
+    </div>
+    <table class="admin-table" *ngIf="experimentResults() as r">
+      <thead><tr><th>Variant</th><th>Assigned</th><th>Converted</th><th>Rate</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let v of r.results">
+          <td>{{ v.variant === 'B' ? 'B (treatment)' : 'A (control)' }}</td>
+          <td>{{ v.assignedCount }}</td>
+          <td>{{ v.convertedCount }}</td>
+          <td>{{ (v.conversionRate * 100).toFixed(1) }}%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

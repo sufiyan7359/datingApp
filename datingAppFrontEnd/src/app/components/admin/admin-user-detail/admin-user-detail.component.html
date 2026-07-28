@@ -1,0 +1,197 @@
+<a routerLink="/admin/users" class="admin-back-link"><i class="bi bi-arrow-left"></i> Back to users</a>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+<div *ngIf="successMessage()" class="admin-alert admin-alert-success">{{ successMessage() }}</div>
+
+<div *ngIf="userDetail() as u">
+  <div class="admin-row-top">
+    <div>
+      <h2 class="admin-page-title" style="margin-bottom: var(--admin-space-xs);">{{ u.firstName }} {{ u.lastName }}</h2>
+      <p class="admin-page-subtitle">{{ u.email }}</p>
+    </div>
+    <button class="admin-btn admin-btn-primary" (click)="messageUser()">
+      <i class="bi bi-headset"></i> Message this user
+    </button>
+  </div>
+
+  <div class="admin-card" style="margin-top: var(--admin-space-md);">
+    <p class="mb-1">Role: {{ u.role }} &middot; Tier: {{ u.subscriptionTier }}</p>
+    <p class="mb-1">Matches: {{ u.matchesCount }} &middot; Messages sent: {{ u.messagesSentCount }}</p>
+    <p class="mb-1">Reports received: {{ u.reportsReceivedCount }} &middot; Reports made: {{ u.reportsMadeCount }}</p>
+    <p class="mb-0">
+      Status:
+      <span class="admin-badge" [class.admin-badge-success]="u.isActive" [class.admin-badge-danger]="!u.isActive">
+        {{ u.isActive ? 'Active' : 'Suspended' }}
+      </span>
+      <span class="admin-badge admin-badge-success" style="margin-left: var(--admin-space-xs);" *ngIf="u.isVerified">
+        <i class="bi bi-patch-check-fill"></i> Verified
+      </span>
+    </p>
+
+    <div class="admin-btn-row">
+      <button class="admin-btn admin-btn-danger admin-btn-sm" *ngIf="u.isActive && u.role !== 'ADMIN'" (click)="suspendUser()">Suspend</button>
+      <button class="admin-btn admin-btn-success admin-btn-sm" *ngIf="!u.isActive" (click)="reactivateUser()">Reactivate</button>
+      <button class="admin-btn admin-btn-outline admin-btn-sm" *ngIf="u.isVerified" (click)="revokeVerification()">
+        <i class="bi bi-patch-exclamation"></i> Revoke verified badge
+      </button>
+    </div>
+
+    <hr class="admin-divider" />
+
+    <button class="admin-btn admin-btn-outline admin-btn-sm" [disabled]="riskLoading()" (click)="checkFakeProfileRisk()">
+      {{ riskLoading() ? 'Checking…' : 'Check fake-profile signals' }}
+    </button>
+    <div style="margin-top: var(--admin-space-sm);" *ngIf="riskAssessment() as risk">
+      <p class="mb-1" style="font-size: 0.85rem;">
+        Heuristic risk score:
+        <b class="risk-score" [class.risk-score-high]="risk.score >= 40" [class.risk-score-medium]="risk.score > 0 && risk.score < 40">{{ risk.score }}/100</b>
+        <span class="admin-muted"> (not a verdict - a triage aid)</span>
+      </p>
+      <ul class="mb-0" style="font-size: 0.8rem;" *ngIf="risk.factors.length > 0">
+        <li *ngFor="let f of risk.factors">{{ f.description }} (+{{ f.points }})</li>
+      </ul>
+      <p class="admin-muted mb-0" *ngIf="risk.factors.length === 0">No signals found.</p>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading() && profile() as p">
+    <h3 class="admin-section-title">Photos</h3>
+    <div class="admin-card admin-photo-grid">
+      <div *ngFor="let photo of p.photos" class="admin-photo-tile">
+        <img [src]="apiUrl + photo.url" class="admin-user-photo" />
+        <button class="admin-btn admin-btn-danger admin-btn-sm admin-photo-delete-btn" (click)="deletePhoto(photo.id)" title="Remove photo">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+      <p class="admin-muted" *ngIf="p.photos.length === 0">No photos uploaded.</p>
+    </div>
+
+    <h3 class="admin-section-title">Profile</h3>
+    <form class="admin-card" (ngSubmit)="saveProfile()">
+      <div class="admin-form-grid">
+        <div class="admin-field">
+          <label>Gender</label>
+          <select class="admin-select" [(ngModel)]="form.gender" name="gender">
+            <option value="">Not set</option>
+            <option *ngFor="let g of genders" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Date of birth</label>
+          <input type="date" class="admin-input" [(ngModel)]="form.dateOfBirth" name="dateOfBirth" />
+        </div>
+
+        <div class="admin-field">
+          <label>Height (cm)</label>
+          <input type="number" class="admin-input" [(ngModel)]="form.heightCm" name="heightCm" />
+        </div>
+
+        <div class="admin-field">
+          <label>Religion</label>
+          <input type="text" class="admin-input" [(ngModel)]="form.religion" name="religion" />
+        </div>
+
+        <div class="admin-field">
+          <label>Languages (comma-separated)</label>
+          <input type="text" class="admin-input" [(ngModel)]="form.languages" name="languages" />
+        </div>
+
+        <div class="admin-field">
+          <label>Profession</label>
+          <input type="text" class="admin-input" [(ngModel)]="form.profession" name="profession" />
+        </div>
+
+        <div class="admin-field">
+          <label>Education</label>
+          <input type="text" class="admin-input" [(ngModel)]="form.education" name="education" />
+        </div>
+
+        <div class="admin-field">
+          <label>City</label>
+          <input type="text" class="admin-input" [(ngModel)]="form.city" name="city" />
+        </div>
+
+        <div class="admin-field">
+          <label>Country</label>
+          <input type="text" class="admin-input" [(ngModel)]="form.country" name="country" />
+        </div>
+
+        <div class="admin-field">
+          <label>Smoking</label>
+          <select class="admin-select" [(ngModel)]="form.smoking" name="smoking">
+            <option value="">Not set</option>
+            <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Drinking</label>
+          <select class="admin-select" [(ngModel)]="form.drinking" name="drinking">
+            <option value="">Not set</option>
+            <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Workout</label>
+          <select class="admin-select" [(ngModel)]="form.workout" name="workout">
+            <option value="">Not set</option>
+            <option *ngFor="let o of lifestyleOptions" [value]="o">{{ o }}</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Relationship goal</label>
+          <select class="admin-select" [(ngModel)]="form.relationshipGoal" name="relationshipGoal">
+            <option value="">Not set</option>
+            <option *ngFor="let g of relationshipGoals" [value]="g">{{ g }}</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Has kids</label>
+          <select class="admin-select" [(ngModel)]="form.hasKids" name="hasKids">
+            <option value="">Not set</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Wants kids</label>
+          <select class="admin-select" [(ngModel)]="form.wantsKids" name="wantsKids">
+            <option value="">Not set</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <div class="admin-field">
+          <label>Has pets</label>
+          <select class="admin-select" [(ngModel)]="form.hasPets" name="hasPets">
+            <option value="">Not set</option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="admin-field" style="margin-top: var(--admin-space-md);">
+        <label>Bio</label>
+        <textarea class="admin-textarea" rows="3" maxlength="500" [(ngModel)]="form.bio" name="bio"></textarea>
+      </div>
+
+      <div class="admin-field" style="margin-top: var(--admin-space-sm);">
+        <label>Interests (comma-separated)</label>
+        <input type="text" class="admin-input" [(ngModel)]="form.interests" name="interests" />
+      </div>
+
+      <button type="submit" class="admin-btn admin-btn-primary" style="margin-top: var(--admin-space-md);" [disabled]="isSaving()">
+        {{ isSaving() ? 'Saving…' : 'Save profile' }}
+      </button>
+    </form>
+  </div>
+
+  <p class="admin-muted" *ngIf="isLoading()">Loading profile…</p>
+</div>

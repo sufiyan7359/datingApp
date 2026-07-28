@@ -110,6 +110,7 @@ export class ConversationsService {
         otherPhotos: (profile?.photos ?? [])
           .sort((a, b) => a.order - b.order)
           .map((p) => PhotoResponseDto.fromEntity(p)),
+        otherIsVerified: profile?.verificationStatus === 'APPROVED',
         otherIsOnline: profile?.hideOnlineStatus
           ? false
           : this.presence.isOnline(otherId),

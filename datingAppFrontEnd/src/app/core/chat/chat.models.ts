@@ -28,6 +28,7 @@ export interface Conversation {
   otherUserId: string;
   otherFirstName: string;
   otherPhotos: Photo[];
+  otherIsVerified: boolean;
   otherIsOnline: boolean;
   lastMessage: ChatMessage | null;
   unreadCount: number;

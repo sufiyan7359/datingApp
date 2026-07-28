@@ -1,0 +1,47 @@
+<h2 class="admin-page-title">Reports</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+<div *ngIf="successMessage()" class="admin-alert admin-alert-success">{{ successMessage() }}</div>
+
+<div class="admin-toolbar">
+  <select class="admin-select admin-select-filter" [(ngModel)]="reportStatusFilter" (ngModelChange)="loadReports(1)">
+    <option value="">All statuses</option>
+    <option value="PENDING">Pending</option>
+    <option value="REVIEWED">Reviewed</option>
+    <option value="ACTION_TAKEN">Action taken</option>
+    <option value="DISMISSED">Dismissed</option>
+  </select>
+</div>
+
+<div class="admin-card" *ngFor="let r of reports()">
+  <div class="admin-row-between">
+    <div>
+      <b>{{ r.reporterFirstName }}</b> reported <b>{{ r.reportedFirstName }}</b>
+      <span class="admin-badge admin-badge-secondary" style="margin-left:8px;">{{ r.reason }}</span>
+      <span class="admin-badge" style="margin-left:4px;" [class.admin-badge-warning]="r.status === 'PENDING'" [class.admin-badge-secondary]="r.status !== 'PENDING'">{{ r.status }}</span>
+    </div>
+    <span class="admin-muted">{{ r.createdAt | date: 'short' }}</span>
+  </div>
+  <p class="admin-muted mb-1" *ngIf="r.description">{{ r.description }}</p>
+  <p class="admin-muted mb-1" *ngIf="r.adminNote"><i>Admin note: {{ r.adminNote }}</i></p>
+
+  <div class="admin-btn-row" *ngIf="reviewingReportId() !== r.id">
+    <button class="admin-btn admin-btn-outline admin-btn-sm" *ngIf="r.status === 'PENDING'" (click)="startReview(r)">Review</button>
+  </div>
+  <div *ngIf="reviewingReportId() === r.id">
+    <textarea class="admin-textarea" rows="2" placeholder="Note (optional)" [(ngModel)]="reviewNote"></textarea>
+    <label class="admin-row" style="margin: var(--admin-space-sm) 0; font-size: 0.85rem; font-weight: 400;">
+      <input type="checkbox" [(ngModel)]="reviewSuspend" />
+      Suspend {{ r.reportedFirstName }}
+    </label>
+    <div class="admin-btn-row">
+      <button class="admin-btn admin-btn-danger admin-btn-sm" (click)="submitReview('ACTION_TAKEN')">Take action</button>
+      <button class="admin-btn admin-btn-outline admin-btn-sm" (click)="submitReview('DISMISSED')">Dismiss</button>
+      <button class="admin-btn admin-btn-outline admin-btn-sm" (click)="submitReview('REVIEWED')">Mark reviewed</button>
+      <button class="admin-btn admin-btn-link admin-btn-sm" (click)="cancelReview()">Cancel</button>
+    </div>
+  </div>
+</div>
+<p class="admin-muted" *ngIf="reports().length === 0">No reports here.</p>
+
+<app-admin-pagination [page]="reportsPage()" [limit]="reportsLimit()" [total]="reportsTotal()" (pageChange)="loadReports($event)"></app-admin-pagination>

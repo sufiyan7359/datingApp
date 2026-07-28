@@ -1,0 +1,30 @@
+<h2 class="admin-page-title">Users</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+
+<div class="admin-toolbar">
+  <input type="text" class="admin-input admin-input-search" placeholder="Search by name or email"
+    [(ngModel)]="userSearch" (ngModelChange)="onSearchInput()" />
+</div>
+
+<div class="admin-table-wrap admin-table-clickable">
+  <table class="admin-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Tier</th><th>Status</th><th>Reports</th><th>Joined</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let u of users()" (click)="viewUser(u.id)">
+        <td>{{ u.firstName }} {{ u.lastName }} <i class="bi bi-patch-check-fill admin-btn-icon-accent" title="Verified" *ngIf="u.isVerified"></i></td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.subscriptionTier }}</td>
+        <td><span class="admin-badge" [class.admin-badge-success]="u.isActive" [class.admin-badge-danger]="!u.isActive">{{ u.isActive ? 'Active' : 'Suspended' }}</span></td>
+        <td>{{ u.reportsReceivedCount }}</td>
+        <td>{{ u.createdAt | date: 'mediumDate' }}</td>
+        <td><button class="admin-btn admin-btn-outline admin-btn-sm" (click)="viewUser(u.id); $event.stopPropagation()">View</button></td>
+      </tr>
+      <tr *ngIf="users().length === 0">
+        <td colspan="7" class="admin-muted" style="text-align:center;">No users match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<app-admin-pagination [page]="usersPage()" [limit]="usersLimit()" [total]="usersTotal()" (pageChange)="loadUsers($event)"></app-admin-pagination>

@@ -1,0 +1,14 @@
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--admin-space-md);
+  flex-wrap: wrap;
+  gap: var(--admin-space-sm);
+}
+
+.admin-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+}

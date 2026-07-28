@@ -12,6 +12,9 @@ export class LikeReceivedItemDto {
   @ApiProperty({ type: [PhotoResponseDto] })
   photos: PhotoResponseDto[];
 
+  @ApiProperty()
+  isVerified: boolean;
+
   @ApiProperty({ enum: SwipeAction })
   action: SwipeAction;
 

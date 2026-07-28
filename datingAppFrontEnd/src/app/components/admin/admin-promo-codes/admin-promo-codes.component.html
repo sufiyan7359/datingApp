@@ -1,0 +1,37 @@
+<h2 class="admin-page-title">Promo Codes</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+
+<div class="admin-card">
+  <h3 class="admin-section-title" style="margin-top: 0;">New promo code</h3>
+  <div class="admin-row" style="align-items: flex-end;">
+    <div class="admin-field">
+      <label>Code</label>
+      <input type="text" class="admin-input" [(ngModel)]="newPromoCode" />
+    </div>
+    <div class="admin-field">
+      <label>Discount %</label>
+      <input type="number" class="admin-input admin-input-sm" [(ngModel)]="newPromoDiscount" min="1" max="100" />
+    </div>
+    <div class="admin-field">
+      <label>Max uses</label>
+      <input type="number" class="admin-input admin-input-md" [(ngModel)]="newPromoMaxRedemptions" min="1" />
+    </div>
+    <button class="admin-btn admin-btn-primary admin-btn-sm" (click)="createPromoCode()">Create</button>
+  </div>
+</div>
+
+<div class="admin-table-wrap">
+  <table class="admin-table">
+    <thead><tr><th>Code</th><th>Discount</th><th>Uses</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let p of promoCodes()">
+        <td><code>{{ p.code }}</code></td>
+        <td>{{ p.discountPercent }}%</td>
+        <td>{{ p.redemptionCount }}{{ p.maxRedemptions ? ' / ' + p.maxRedemptions : '' }}</td>
+        <td><span class="admin-badge" [class.admin-badge-success]="p.isActive" [class.admin-badge-secondary]="!p.isActive">{{ p.isActive ? 'Active' : 'Inactive' }}</span></td>
+        <td><button class="admin-btn admin-btn-outline admin-btn-sm" (click)="togglePromoActive(p)">{{ p.isActive ? 'Deactivate' : 'Activate' }}</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>

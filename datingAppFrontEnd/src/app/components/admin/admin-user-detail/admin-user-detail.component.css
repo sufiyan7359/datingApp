@@ -1,0 +1,22 @@
+.admin-photo-tile {
+  position: relative;
+}
+
+.admin-photo-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 3px 8px;
+}
+
+.risk-score {
+  color: var(--admin-content-text);
+}
+
+.risk-score-high {
+  color: var(--admin-danger-strong);
+}
+
+.risk-score-medium {
+  color: #d97706;
+}

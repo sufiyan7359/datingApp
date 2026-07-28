@@ -1,0 +1,24 @@
+.dashboard-trends-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: var(--admin-space-lg) 0 var(--admin-space-md);
+}
+
+.dashboard-trends-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--admin-content-text);
+  margin: 0;
+}
+
+.dashboard-trends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--admin-space-md);
+}
+
+.trend-skeleton-card {
+  min-height: 194px;
+  border-radius: var(--admin-radius);
+}

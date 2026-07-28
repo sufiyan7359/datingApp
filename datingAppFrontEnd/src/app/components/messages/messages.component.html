@@ -18,14 +18,33 @@
     <p class="text-muted mb-0">Once you match with someone, you can message them here.</p>
   </div>
 
-  <div class="message-list" *ngIf="!isLoading() && conversations().length > 0">
+  <div class="message-list" *ngIf="!isLoading()">
+    <div class="message-row support-row" *ngIf="supportThread() as s" (click)="openSupport()">
+      <div class="message-avatar-wrap">
+        <div class="support-avatar"><i class="bi bi-headset"></i></div>
+      </div>
+
+      <div class="message-body min-w-0">
+        <div class="d-flex justify-content-between align-items-center gap-2">
+          <b class="message-name text-truncate">Dating App Team</b>
+        </div>
+        <p class="message-preview mb-0 text-truncate" [class.fw-bold]="s.unreadCount > 0">
+          {{ supportPreviewText() }}
+        </p>
+      </div>
+
+      <div class="message-meta">
+        <span class="unread-badge" *ngIf="s.unreadCount > 0">{{ s.unreadCount }}</span>
+      </div>
+    </div>
+
     <div class="message-row" [class.unread]="c.unreadCount > 0 && !c.isMuted"
       *ngFor="let c of conversations(); let i = index" [style.animation-delay.ms]="i * 40"
       (click)="openChat(c.otherUserId)">
 
       <div class="message-avatar-wrap">
         <app-user-avatar
-          [photoUrl]="null"
+          [photoUrl]="c.otherPhotos.length ? apiUrl + c.otherPhotos[0].url : null"
           [firstName]="c.otherFirstName"
         ></app-user-avatar>
         <span class="presence-dot" *ngIf="c.otherIsOnline"></span>
@@ -33,7 +52,7 @@
 
       <div class="message-body min-w-0">
         <div class="d-flex justify-content-between align-items-center gap-2">
-          <b class="message-name text-truncate">{{ c.otherFirstName }}</b>
+          <b class="message-name text-truncate">{{ c.otherFirstName }}<i class="bi bi-patch-check-fill verified-badge ms-1" title="Verified" *ngIf="c.otherIsVerified"></i></b>
           <span class="message-time flex-shrink-0" *ngIf="c.lastMessage">{{ c.lastMessage.createdAt | date: 'short' }}</span>
         </div>
         <p class="message-preview mb-0 text-truncate" [class.fw-bold]="c.unreadCount > 0 && !c.isMuted">

@@ -11,11 +11,16 @@ import { ChatService } from './core/chat/chat.service';
 import { CallService } from './core/calls/call.service';
 import { ThemeService } from './core/theme/theme.service';
 import { AccentThemeService } from './core/theme/accent-theme.service';
+import { SupportService } from './core/support/support.service';
 import { SwUpdate } from '@angular/service-worker';
 
 // Route prefixes where the marketing footer just adds dead space below an
 // already-scrollable, chrome-heavy screen (chat has its own fixed composer).
 const ROUTES_WITHOUT_FOOTER = ['/chating'];
+// The admin panel is a standalone shell with its own top-bar + left-nav
+// (AdminLayoutComponent) - it must never be wrapped in the consumer sidebar
+// header or marketing footer.
+const ROUTES_WITHOUT_SHELL = ['/admin'];
 
 @Component({
   selector: 'app-root',
@@ -29,6 +34,7 @@ export class AppComponent {
   private readonly authService = inject(AuthService);
   private readonly chatService = inject(ChatService);
   private readonly callService = inject(CallService);
+  private readonly supportService = inject(SupportService);
   private readonly swUpdate = inject(SwUpdate);
   private readonly ngZone = inject(NgZone);
   private readonly destroyRef = inject(DestroyRef);
@@ -37,9 +43,26 @@ export class AppComponent {
   readonly showFooter = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map((event) => !ROUTES_WITHOUT_FOOTER.some((prefix) => event.urlAfterRedirects.startsWith(prefix))),
+      map(
+        (event) =>
+          ![...ROUTES_WITHOUT_FOOTER, ...ROUTES_WITHOUT_SHELL].some((prefix) =>
+            event.urlAfterRedirects.startsWith(prefix),
+          ),
+      ),
     ),
-    { initialValue: !ROUTES_WITHOUT_FOOTER.some((prefix) => this.router.url.startsWith(prefix)) },
+    {
+      initialValue: ![...ROUTES_WITHOUT_FOOTER, ...ROUTES_WITHOUT_SHELL].some((prefix) =>
+        this.router.url.startsWith(prefix),
+      ),
+    },
+  );
+
+  readonly showHeader = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => !ROUTES_WITHOUT_SHELL.some((prefix) => event.urlAfterRedirects.startsWith(prefix))),
+    ),
+    { initialValue: !ROUTES_WITHOUT_SHELL.some((prefix) => this.router.url.startsWith(prefix)) },
   );
   // Injected only to force early instantiation - ThemeService applies the
   // saved/system theme in its own constructor, as soon as the app root
@@ -60,6 +83,7 @@ export class AppComponent {
       if (this.authService.isAuthenticated()) {
         this.chatService.connect();
         this.callService.bindSignaling();
+        this.supportService.bindSocketListener();
       } else {
         this.chatService.disconnect();
       }

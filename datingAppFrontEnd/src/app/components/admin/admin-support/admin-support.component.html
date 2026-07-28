@@ -1,0 +1,24 @@
+<h2 class="admin-page-title">Messages</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+
+<div class="admin-table-wrap admin-table-clickable">
+  <table class="admin-table">
+    <thead><tr><th>User</th><th>Last message</th><th>When</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      <tr *ngFor="let t of threads()" (click)="openThread(t.userId)">
+        <td>
+          {{ t.firstName }} {{ t.lastName }}
+          <span class="admin-badge admin-badge-danger" *ngIf="t.unreadForAdmin > 0" style="margin-left:6px;">{{ t.unreadForAdmin }}</span>
+        </td>
+        <td class="admin-muted admin-ellipsis">{{ t.lastMessage }}</td>
+        <td class="admin-muted">{{ t.lastMessageAt | date: 'short' }}</td>
+        <td><span class="admin-badge" [class.admin-badge-success]="t.status === 'OPEN'" [class.admin-badge-secondary]="t.status !== 'OPEN'">{{ t.status }}</span></td>
+        <td><button class="admin-btn admin-btn-outline admin-btn-sm" (click)="openThread(t.userId); $event.stopPropagation()">Open</button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p class="admin-muted" *ngIf="threads().length === 0">No support conversations yet.</p>
+
+<app-admin-pagination [page]="threadsPage()" [limit]="threadsLimit()" [total]="threadsTotal()" (pageChange)="loadThreads($event)"></app-admin-pagination>

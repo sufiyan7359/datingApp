@@ -1,0 +1,41 @@
+<div class="container support-chat-container mt-3 mb-5">
+  <div class="row d-flex justify-content-center">
+    <div class="col-12 col-lg-8">
+
+      <div class="support-chat-card">
+        <div class="support-chat-header">
+          <div class="support-chat-avatar"><i class="bi bi-headset"></i></div>
+          <div>
+            <h3 class="mb-0">Dating App Team</h3>
+            <span class="support-chat-status">Usually replies within a day</span>
+          </div>
+        </div>
+
+        <div *ngIf="errorMessage()" class="alert alert-danger py-2">{{ errorMessage() }}</div>
+
+        <div class="support-message-list">
+          <div class="support-empty" *ngIf="thread() && thread()!.messages.length === 0">
+            <i class="bi bi-chat-heart"></i>
+            <p class="mb-0">Questions, feedback, or a problem to report? Send us a message.</p>
+          </div>
+
+          <div class="support-message" *ngFor="let m of thread()?.messages ?? []"
+            [ngClass]="{ 'from': m.isFromAdmin, 'to': !m.isFromAdmin }">
+            <div class="support-bubble">{{ m.content }}</div>
+            <div class="support-message-time">{{ m.createdAt | date: 'short' }}</div>
+          </div>
+          <div #scrollAnchor></div>
+        </div>
+
+        <div class="support-composer">
+          <input type="text" class="form-control" placeholder="Message the team…"
+            [(ngModel)]="draft" (keyup.enter)="send()" [disabled]="isSending()" />
+          <button class="btn btn-danger" (click)="send()" [disabled]="isSending()">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

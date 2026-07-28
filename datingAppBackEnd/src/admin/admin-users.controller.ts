@@ -1,9 +1,12 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -17,8 +20,11 @@ import { AdminUsersService } from './admin-users.service';
 import { AdminUsersQueryDto } from './dto/admin-users-query.dto';
 import { AdminUsersPageDto } from './dto/admin-users-page.dto';
 import { AdminUserDetailDto } from './dto/admin-user-detail.dto';
+import { AdminUpdateProfileDto } from './dto/admin-update-profile.dto';
 import { FakeProfileDetectionService } from '../ai/fake-profile-detection.service';
 import { RiskAssessmentDto } from '../ai/dto/risk-assessment.dto';
+import { ProfilesService } from '../profiles/profiles.service';
+import { ProfileResponseDto } from '../profiles/dto/profile-response.dto';
 
 @ApiTags('admin')
 @ApiBearerAuth()
@@ -28,6 +34,7 @@ export class AdminUsersController {
   constructor(
     private readonly adminUsersService: AdminUsersService,
     private readonly fakeProfileDetection: FakeProfileDetectionService,
+    private readonly profilesService: ProfilesService,
   ) {}
 
   @Get()
@@ -71,5 +78,36 @@ export class AdminUsersController {
     @Param('id') id: string,
   ): Promise<void> {
     await this.adminUsersService.setActive(id, true, admin.userId);
+  }
+
+  @Get(':id/profile')
+  @ApiOperation({
+    summary: "Admin-only: this user's full profile (bio, photos, interests, lifestyle, etc.)",
+  })
+  async getProfile(@Param('id') id: string): Promise<ProfileResponseDto> {
+    const profile = await this.profilesService.getOrCreate(id);
+    return ProfileResponseDto.fromEntity(profile);
+  }
+
+  @Patch(':id/profile')
+  @ApiOperation({
+    summary: "Admin-only: edit this user's profile fields (moderation - excludes their own premium/privacy settings)",
+  })
+  async updateProfile(
+    @Param('id') id: string,
+    @Body() dto: AdminUpdateProfileDto,
+  ): Promise<ProfileResponseDto> {
+    const profile = await this.profilesService.update(id, dto);
+    return ProfileResponseDto.fromEntity(profile);
+  }
+
+  @Delete(':id/photos/:photoId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Admin-only: remove one of this user\'s photos (moderation)' })
+  async deletePhoto(
+    @Param('id') id: string,
+    @Param('photoId') photoId: string,
+  ): Promise<void> {
+    await this.profilesService.removePhoto(id, photoId);
   }
 }

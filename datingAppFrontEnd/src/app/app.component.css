@@ -41,9 +41,11 @@ app-footer {
 
 /* The sidebar is persistent on desktop (see header.component.css), so the
    rest of the page shell needs to make room for it there. On mobile the
-   sidebar is an overlay drawer and takes no layout space. */
+   sidebar is an overlay drawer and takes no layout space. Routes with no
+   consumer shell (the admin panel has its own layout) skip this reserved
+   margin via .no-shell, since there's no sidebar there to make room for. */
 @media (min-width: 992px) {
-  .app-main,
+  .app-main:not(.no-shell),
   app-footer {
     margin-left: 260px;
   }

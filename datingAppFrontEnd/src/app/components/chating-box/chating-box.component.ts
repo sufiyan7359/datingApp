@@ -45,6 +45,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
   readonly currentUserId = this.authService.currentUser()?.id ?? '';
 
   readonly otherFirstName = signal('');
+  readonly otherIsVerified = signal(false);
   readonly otherPhotoUrl = signal<string | null>(null);
   readonly otherUserId = signal('');
   readonly conversationId = signal<string | null>(null);
@@ -108,6 +109,7 @@ export class ChatingBoxComponent implements OnInit, OnDestroy {
           return;
         }
         this.otherFirstName.set(conversation.otherFirstName);
+        this.otherIsVerified.set(conversation.otherIsVerified);
         this.otherPhotoUrl.set(conversation.otherPhotos.length ? this.apiUrl + conversation.otherPhotos[0].url : null);
         this.otherUserId.set(conversation.otherUserId);
         this.conversationId.set(conversation.conversationId);

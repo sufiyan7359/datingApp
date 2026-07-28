@@ -1,0 +1,41 @@
+<h2 class="admin-page-title">Dashboard</h2>
+
+<div *ngIf="errorMessage()" class="admin-alert admin-alert-danger">{{ errorMessage() }}</div>
+
+<div class="admin-stat-grid" *ngIf="!stats()">
+  <div class="admin-stat-card admin-skeleton-card" *ngFor="let n of skeletonStatSlots"></div>
+</div>
+
+<div class="admin-stat-grid" *ngIf="stats() as s">
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.totalUsers }}</div><div class="admin-stat-label">Total users</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.activeUsers }}</div><div class="admin-stat-label">Active</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.suspendedUsers }}</div><div class="admin-stat-label">Suspended</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.newUsersLast7Days }}</div><div class="admin-stat-label">New (7d)</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.totalMatches }}</div><div class="admin-stat-label">Matches</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.totalMessages }}</div><div class="admin-stat-label">Messages</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.premiumSubscribers }}</div><div class="admin-stat-label">Premium subs</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ formatCents(s.activeSubscriptionRevenueCents) }}</div><div class="admin-stat-label">Active sub value</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value admin-stat-danger">{{ s.pendingReports }}</div><div class="admin-stat-label">Pending reports</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.totalReports }}</div><div class="admin-stat-label">Total reports</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value admin-stat-danger">{{ s.pendingVerifications }}</div><div class="admin-stat-label">Pending verifications</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-value">{{ s.verifiedUsers }}</div><div class="admin-stat-label">Verified users</div></div>
+</div>
+
+<div class="dashboard-trends-header">
+  <h3 class="dashboard-trends-title">Growth</h3>
+  <select class="admin-select admin-input-md" [(ngModel)]="growthDays" (ngModelChange)="loadGrowth()">
+    <option [ngValue]="7">Last 7 days</option>
+    <option [ngValue]="30">Last 30 days</option>
+    <option [ngValue]="90">Last 90 days</option>
+  </select>
+</div>
+
+<div class="dashboard-trends-grid" *ngIf="!growth()">
+  <div class="trend-skeleton-card admin-skeleton-card" *ngFor="let n of skeletonChartSlots"></div>
+</div>
+
+<div class="dashboard-trends-grid" *ngIf="growth()">
+  <app-admin-trend-chart title="New signups" [color]="signupsColor" [points]="signupPoints"></app-admin-trend-chart>
+  <app-admin-trend-chart title="New matches" [color]="matchesColor" [points]="matchPoints"></app-admin-trend-chart>
+  <app-admin-trend-chart title="Messages sent" [color]="messagesColor" [points]="messagePoints"></app-admin-trend-chart>
+</div>

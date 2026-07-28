@@ -1,0 +1,58 @@
+.admin-thread-card {
+  display: flex;
+  flex-direction: column;
+  height: 65vh;
+}
+
+.admin-thread-messages {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px;
+}
+
+.admin-thread-row {
+  max-width: 70%;
+  align-self: flex-start;
+}
+
+.admin-thread-row-mine {
+  align-self: flex-end;
+}
+
+.admin-thread-bubble {
+  background: #f1f5f9;
+  color: var(--admin-content-text);
+  padding: 8px 12px;
+  border-radius: var(--admin-radius-sm);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.admin-thread-bubble-mine {
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.admin-thread-time {
+  font-size: 0.7rem;
+  margin-top: 2px;
+}
+
+.admin-thread-row-mine .admin-thread-time {
+  text-align: right;
+}
+
+.admin-thread-composer {
+  display: flex;
+  gap: var(--admin-space-sm);
+  margin-top: var(--admin-space-md);
+  padding-top: var(--admin-space-md);
+  border-top: 1px solid var(--admin-content-border);
+}
+
+.admin-thread-input {
+  flex: 1;
+}

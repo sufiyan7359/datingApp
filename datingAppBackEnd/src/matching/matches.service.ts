@@ -34,6 +34,7 @@ export class MatchesService {
         photos: (profile?.photos ?? [])
           .sort((a, b) => a.order - b.order)
           .map((p) => PhotoResponseDto.fromEntity(p)),
+        isVerified: profile?.verificationStatus === 'APPROVED',
         matchedAt: match.createdAt,
       };
     });

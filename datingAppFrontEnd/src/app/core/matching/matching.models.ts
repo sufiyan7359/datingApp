@@ -7,6 +7,7 @@ export interface MatchInfo {
   userId: string;
   firstName: string;
   photos: Photo[];
+  isVerified: boolean;
   matchedAt: string;
 }
 
@@ -32,6 +33,7 @@ export interface LikeReceivedItem {
   userId: string;
   firstName: string;
   photos: Photo[];
+  isVerified: boolean;
   action: SwipeAction;
   likedAt: string;
 }

@@ -1,3 +1,42 @@
+import { Profile } from '../profile/profile.models';
+
+export type AdminUpdateProfilePayload = Partial<
+  Pick<
+    Profile,
+    | 'gender'
+    | 'interestedIn'
+    | 'dateOfBirth'
+    | 'heightCm'
+    | 'religion'
+    | 'languages'
+    | 'profession'
+    | 'education'
+    | 'bio'
+    | 'city'
+    | 'country'
+    | 'smoking'
+    | 'drinking'
+    | 'workout'
+    | 'relationshipGoal'
+    | 'hasKids'
+    | 'wantsKids'
+    | 'hasPets'
+    | 'interests'
+  >
+>;
+
+export interface GrowthPoint {
+  date: string;
+  signups: number;
+  matches: number;
+  messages: number;
+}
+
+export interface Growth {
+  days: number;
+  series: GrowthPoint[];
+}
+
 export interface DashboardStats {
   totalUsers: number;
   activeUsers: number;
@@ -145,4 +184,41 @@ export interface ExperimentResults {
   key: string;
   goalEvent: AnalyticsEventType;
   results: ExperimentVariantResult[];
+}
+
+export type SupportThreadStatus = 'OPEN' | 'CLOSED';
+
+export interface SupportMessage {
+  id: string;
+  threadId: string;
+  senderId: string;
+  isFromAdmin: boolean;
+  content: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface SupportThreadDetail {
+  threadId: string;
+  status: SupportThreadStatus;
+  unreadCount: number;
+  messages: SupportMessage[];
+}
+
+export interface AdminSupportThreadSummary {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  lastMessage: string | null;
+  lastMessageAt: string;
+  unreadForAdmin: number;
+  status: SupportThreadStatus;
+}
+
+export interface AdminSupportThreadsPage {
+  results: AdminSupportThreadSummary[];
+  page: number;
+  limit: number;
+  total: number;
 }

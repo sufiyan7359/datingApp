@@ -8,5 +8,6 @@ import { AnalyticsModule } from '../analytics/analytics.module';
   imports: [SubscriptionsModule, AnalyticsModule],
   controllers: [ProfilesController],
   providers: [ProfilesService],
+  exports: [ProfilesService],
 })
 export class ProfilesModule {}

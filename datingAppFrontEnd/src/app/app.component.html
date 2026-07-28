@@ -1,8 +1,8 @@
 <div class="mouse-glow"></div>
 
-<app-header></app-header>
+<app-header *ngIf="showHeader()"></app-header>
 
-<main class="app-main">
+<main class="app-main" [class.no-shell]="!showHeader()">
   <router-outlet></router-outlet>
 </main>
 

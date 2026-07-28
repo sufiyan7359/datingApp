@@ -89,6 +89,21 @@ button {
     box-shadow: 10px 10px 15px rgba(var(--accent-rgb), 0.42);
   }
 
+  /* The admin console is a standalone professional shell with its own fixed
+     palette (see admin-layout.component.css) - this global accent-colored
+     button glow is a consumer-app decoration and must not bleed into it. */
+  .admin-shell button {
+    box-shadow: none;
+  }
+
+  /* Instagram-style verified checkmark, shown next to a name wherever a
+     user's verificationStatus is APPROVED (admin-reviewed selfie). */
+  .verified-badge {
+    color: var(--accent);
+    font-size: 0.85em;
+    vertical-align: middle;
+  }
+
   .bgdanger{
     background-color: var(--accent) !important;
     color : white;
